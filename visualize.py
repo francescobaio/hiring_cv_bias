@@ -68,7 +68,7 @@ def plot_skills_per_category(
 
 
 def plot_top_skills_for_job_title(
-    cv_skills: pl.DataFrame, job_title: str, top_n: int = 10
+    cv_skills: pl.DataFrame, job_title: str, type_skill: str, top_n: int = 10
 ):
     """"""
     job_titles_df = (
@@ -76,7 +76,7 @@ def plot_top_skills_for_job_title(
         .select(["CANDIDATE_ID", "Skill"])
         .rename({"Skill": "Job_title"})
     )
-    candidate_skills = cv_skills.filter(pl.col("Skill_Type") != "Job_title").select(
+    candidate_skills = cv_skills.filter(pl.col("Skill_Type") == type_skill).select(
         ["CANDIDATE_ID", "Skill"]
     )
 
@@ -96,6 +96,6 @@ def plot_top_skills_for_job_title(
         candidate_skills_filtered,
         "Frequency",
         "Skill",
-        f"Top {top_n} skills for {job_title}",
+        f"Top {top_n} {type_skill} skills for {job_title}",
         top_n=top_n,
     )
