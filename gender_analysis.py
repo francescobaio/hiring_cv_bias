@@ -2,6 +2,8 @@ import polars as pl
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from utils import extract_gender_from_zippia
+from config import JOB_LINKS
 
 
 def get_category_distribution(
@@ -52,8 +54,6 @@ def get_skill_gender_share(
         .group_by(skill_col)
         .agg(pl.len().alias("count_female"))
     )
-
-    print(male_counts)
 
     result = male_counts.join(female_counts, on=skill_col, how="outer").fill_null(0)
     result = result.with_columns(
@@ -191,3 +191,21 @@ def get_skilltype_gender_share(
     )
 
     return result.sort("count_total", descending=True)
+
+
+def add_zippia_columns(job_df: pl.DataFrame):
+    perc_male_zippia, perc_female_zippia = [], []
+    for job_link in JOB_LINKS:
+        male, female = extract_gender_from_zippia(job_link)
+        perc_male_zippia.append(male)
+        perc_female_zippia.append(female)
+
+    perc_male_zippia = pl.Series(perc_male_zippia)
+    perc_female_zippia = pl.Series(perc_female_zippia)
+    job_df = job_df.with_columns(
+        [
+            perc_female_zippia.alias("perc_female_zippia"),
+            perc_male_zippia.alias("perc_male_zippia"),
+        ]
+    )
+    return job_df
