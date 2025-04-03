@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hiring_cv_bias" 
+version = "0.1.0"
+description = "Analysis and mitigation of bias in CVs"
+authors = [
+    { name = "Francesco Baiocchi", email = "francesco.baiocchi2@studio.unibo.it" },
+    { name = "Leonardo Petrilli", email = "leonardo.petrilli@studio.unibo.it" }
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+
+dependencies = []
+requires-python = ">=3.7"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,2 +1,4 @@
 data/**
 !data/.gitkeep
+__pycache__
+hiring_cv_bias.egg-info
