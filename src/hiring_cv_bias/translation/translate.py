@@ -1,8 +1,10 @@
-from exploration.utils import load_data
-from src.hiring_cv_bias.config import CANDIDATE_CVS_PATH
-from google.cloud import translate_v2 as translate
-import polars as pl
 import os
+import re
+
+import polars as pl
+from google.cloud import translate_v2 as translate
+from hiring_cv_bias.config import CANDIDATE_CVS_PATH
+from hiring_cv_bias.utils import load_data
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
     "magnetic-market-455110-t2-0dc68481bf13.json"
@@ -13,7 +15,7 @@ def clean_cv_text(cv_text: str) -> str:
     cv_text = cv_text.replace("\n", " ")
     cv_text = cv_text.replace("CV anonimizzato:", "")
     cv_text = cv_text.replace('"""', "")
-    cv_text = cv_text.sub(" +", " ", cv_text)
+    cv_text = re.sub(" +", " ", cv_text)
     cv_text = cv_text.replace(" ,", ",")
     cv_text = cv_text.lower()
     return cv_text
