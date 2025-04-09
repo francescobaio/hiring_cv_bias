@@ -1,6 +1,12 @@
-import re
+from typing import List
 
 import polars as pl
+from hiring_cv_bias.bias_detection.rule_based.config import (
+    RED,
+    RESET,
+    driver_license_pattern_it,
+)
+from hiring_cv_bias.bias_detection.rule_based.utils import clean_cv
 from hiring_cv_bias.config import (
     CANDIDATE_CVS_TRANSLATED_PATH,
     PARSED_DATA_PATH,
@@ -9,21 +15,10 @@ from hiring_cv_bias.config import (
 from hiring_cv_bias.exploration.gender_analysis import get_category_distribution
 from hiring_cv_bias.utils import load_data, load_excel_sheets
 
-driver_license_pattern = re.compile(
-    r"(?:"
-    r"driver[’']?s?\s+license|"
-    r"drivers?\s+license|"
-    r"driving\s+license|"
-    r"licensed\W+driver|"  # "licensed driver"
-    r"license:\s*[a-z]{1,2}(?:\s*[-,/]\s*[a-z]{1,2})?"  # "license: am - b", "license:am/b", "license: am,b"
-    r")",
-    re.IGNORECASE,
-)
-
 
 def has_driver_license(text: str) -> bool:
     text = text.lower()
-    return bool(driver_license_pattern.search(text))
+    return bool(driver_license_pattern_it.search(text))
 
 
 def prepare_data():
@@ -38,9 +33,14 @@ def prepare_data():
     )
 
     df_cv_with_gender = df_cv_with_gender.with_columns(
-        pl.col("Translated_CV")
-        .map_elements(has_driver_license, return_dtype=bool)
-        .alias("has_driving_license")
+        [
+            pl.col("CV_text_anon")
+            .map_elements(clean_cv, return_dtype=str)
+            .alias("cleaned_cv"),
+            pl.col("CV_text_anon")
+            .map_elements(lambda t: has_driver_license(clean_cv(t)), return_dtype=bool)
+            .alias("has_driving_license"),
+        ]
     )
 
     return df_cv_with_gender, df_skills
@@ -75,7 +75,7 @@ def evaluate_driver_license_extraction(
                 {
                     "candidate_id": candidate_id,
                     "candidate_gender": candidate_gender,
-                    "cv_text": candidate["Translated_CV"],
+                    "cv_text": candidate["CV_text_anon"],
                     "reason": "Regex sees license, parser does NOT",
                 }
             )
@@ -87,7 +87,7 @@ def evaluate_driver_license_extraction(
                 {
                     "candidate_id": candidate_id,
                     "candidate_gender": candidate_gender,
-                    "cv_text": candidate["Translated_CV"],
+                    "cv_text": candidate["CV_text_anon"],
                     "reason": "Parser sees license, regex does NOT",
                 }
             )
@@ -131,3 +131,78 @@ def analyze_bias_by_gender(df_cv_with_gender, false_positives, false_negatives):
     )
 
     return fp_joined, fn_joined
+
+
+def highlight_snippets(
+    text: str, pattern=driver_license_pattern_it, context_chars=75
+) -> List[str]:
+    snippets = []
+    for match in pattern.finditer(text):
+        start, end = match.span()
+        snippet_start = max(start - context_chars, 0)
+        snippet_end = min(end + context_chars, len(text))
+        before = text[snippet_start:start]
+        match_text = text[start:end]
+        after = text[end:snippet_end]
+
+        colored_match_text = f"{RED}{match_text}{RESET}"
+
+        snippets.append(f"... {before}...{colored_match_text}...{after} ...")
+    return snippets or ["No occurrence founded."]
+
+
+def print_highlighted_cv(row: dict):
+    header = (
+        f"\nCANDIDATE ID: {row['candidate_id']} - GENERE: {row['candidate_gender']}"
+    )
+    reason = f"Motivo: {row['reason']}"
+    separator = "-" * 80
+    snippets = highlight_snippets(row["cv_text"])
+    print(header)
+    print(reason)
+    print(separator)
+    for snippet in snippets:
+        print(snippet)
+    print(separator)
+
+
+def export_false_negatives_for_manual_labelling(
+    df_cv: pl.DataFrame,
+    df_skills: pl.DataFrame,
+    output_path: str = "false_negatives_manual_labelling.csv",
+    sample_size: int = 50,
+):
+    parser_ids = df_skills.filter(pl.col("Skill_Type") == "DRIVERSLIC").unique(
+        "CANDIDATE_ID"
+    )
+
+    df_parser_yes = df_cv.join(parser_ids, on="CANDIDATE_ID", how="inner")
+    regex_labels = [has_driver_license(text) for text in df_parser_yes["CV_text_anon"]]
+
+    mask = [not r for r in regex_labels]
+    df_filtered = df_parser_yes.filter(pl.Series("", mask))
+    print(df_filtered)
+
+    df_to_label = df_filtered.with_columns(
+        [
+            pl.Series("regex_label", [0] * len(df_filtered)),
+            pl.Series("parser_label", [1] * len(df_filtered)),
+            pl.Series("manual_label", [""] * len(df_filtered)),
+            pl.col("CV_text_anon").alias("full_cv_text"),
+        ]
+    )
+
+    if sample_size < df_to_label.height:
+        df_to_label = df_to_label.sample(n=sample_size, seed=42)
+
+    df_to_label.select(
+        [
+            "CANDIDATE_ID",
+            "regex_label",
+            "parser_label",
+            "manual_label",
+            "full_cv_text",
+        ]
+    ).write_csv(output_path, separator=";", quote_style="always")
+
+    print(f"CSV false negatives exported with {df_to_label.height} rows: {output_path}")
