@@ -4,7 +4,6 @@ notebooks/**
 !notebooks/.gitkeep
 __pycache__
 hiring_cv_bias.egg-info
-config.py
 .DS_Store
 .venv
 src/hiring_cv_bias/translation/magnetic-market-455110-t2-0dc68481bf13.json
