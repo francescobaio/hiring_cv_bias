@@ -1,7 +1,9 @@
-from typing import List
+from typing import Callable, List, Tuple
 
 import polars as pl
 from hiring_cv_bias.bias_detection.rule_based.config import (
+    DRIVER_LICENSE_SNIPPET_PATTERN,
+    LANGUAGE_REGEXES,
     RED,
     RESET,
     driver_license_pattern_it,
@@ -12,13 +14,30 @@ from hiring_cv_bias.config import (
     PARSED_DATA_PATH,
     REVERSE_MATCHING_PATH,
 )
-from hiring_cv_bias.exploration.gender_analysis import get_category_distribution
 from hiring_cv_bias.utils import load_data, load_excel_sheets
 
 
 def has_driver_license(text: str) -> bool:
     text = text.lower()
     return bool(driver_license_pattern_it.search(text))
+
+
+def extract_languages_rule_based(text: str) -> List[str]:
+    text = text.lower()
+    return [lang for lang, regex in LANGUAGE_REGEXES.items() if regex.search(text)]
+
+
+def extract_parser_snippets(text: str, context_chars=150) -> List[str]:
+    snippets = []
+    for match in DRIVER_LICENSE_SNIPPET_PATTERN.finditer(text):
+        start, end = match.span()
+        snippet_start = max(start - context_chars, 0)
+        snippet_end = min(end + context_chars, len(text))
+        before = text[snippet_start:start]
+        matched = match.group(0)
+        after = text[end:snippet_end]
+        snippets.append(f"... {before}...{matched}...{after} ...")
+    return snippets
 
 
 def prepare_data():
@@ -46,9 +65,13 @@ def prepare_data():
     return df_cv_with_gender, df_skills
 
 
-def evaluate_driver_license_extraction(
-    df_cv_with_gender: pl.DataFrame, df_skills: pl.DataFrame
-):
+def evaluate_rule_based_extraction(
+    df_cv_with_gender: pl.DataFrame,
+    df_skills: pl.DataFrame,
+    skill_type: str,
+    rule_based_extractor: Callable[[str], List[str]],
+    normalize_parser_skill: Callable[[str], str] = lambda x: x.lower(),
+) -> Tuple[int, int, int, int, list, list, int]:
     tp = fp = tn = fn = 0
     false_positives = []
     false_negatives = []
@@ -57,85 +80,60 @@ def evaluate_driver_license_extraction(
     for candidate in df_cv_with_gender.iter_rows(named=True):
         candidate_id = candidate["CANDIDATE_ID"]
         candidate_gender = candidate["Gender"]
-        regex_dl = candidate["has_driving_license"]
+        cv_text = candidate["CV_text_anon"]
+        cleaned_text = clean_cv(cv_text)
+
+        rule_skills = set(rule_based_extractor(cleaned_text))
 
         candidate_skills_df = df_skills.filter(
             (pl.col("CANDIDATE_ID") == candidate_id)
-            & (pl.col("Skill_Type") == "DRIVERSLIC")
+            & (pl.col("Skill_Type") == skill_type)
         )
-        parser_dl = candidate_skills_df.height > 0
-        if parser_dl:
+        parser_skills = set(
+            normalize_parser_skill(skill)
+            for skill in candidate_skills_df["Skill"].to_list()
+        )
+
+        matched_skills = rule_skills & parser_skills
+        unmatched_regex = rule_skills - parser_skills
+        unmatched_parser = parser_skills - rule_skills
+
+        tp += len(matched_skills)
+        fp += len(unmatched_regex)
+        fn += len(unmatched_parser)
+
+        if not rule_skills and not parser_skills:
+            tn += 1
+
+        if rule_skills or parser_skills:
             count += 1
 
-        if regex_dl and parser_dl:
-            tp += 1
-        elif regex_dl and not parser_dl:
-            fp += 1
+        for skill in unmatched_regex:
             false_positives.append(
                 {
-                    "candidate_id": candidate_id,
+                    "CANDIDATE_ID": candidate_id,
                     "candidate_gender": candidate_gender,
-                    "cv_text": candidate["CV_text_anon"],
-                    "reason": "Regex sees license, parser does NOT",
+                    "cv_text": cv_text,
+                    "skill": skill,
+                    "reason": "Regex sees skill, parser does NOT",
                 }
             )
-        elif not regex_dl and not parser_dl:
-            tn += 1
-        elif not regex_dl and parser_dl:
-            fn += 1
+
+        for skill in unmatched_parser:
             false_negatives.append(
                 {
-                    "candidate_id": candidate_id,
+                    "CANDIDATE_ID": candidate_id,
                     "candidate_gender": candidate_gender,
-                    "cv_text": candidate["CV_text_anon"],
-                    "reason": "Parser sees license, regex does NOT",
+                    "cv_text": cv_text,
+                    "skill": skill,
+                    "reason": "Parser sees skill, regex does NOT",
                 }
             )
 
     return tp, fp, tn, fn, false_positives, false_negatives, count
 
 
-def compute_metrics(tp, fp, tn, fn):
-    total = tp + fp + tn + fn
-    accuracy = (tp + tn) / total if total else 0
-    precision = tp / (tp + fp) if (tp + fp) else 0
-    recall = tp / (tp + fn) if (tp + fn) else 0
-    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) else 0
-    return accuracy, precision, recall, f1
-
-
-def analyze_bias_by_gender(df_cv_with_gender, false_positives, false_negatives):
-    df_fp = pl.DataFrame(false_positives)
-    df_fn = pl.DataFrame(false_negatives)
-
-    fp_counts = df_fp.group_by("candidate_gender").agg(
-        pl.len().alias("num_false_positives")
-    )
-    fn_counts = df_fn.group_by("candidate_gender").agg(
-        pl.len().alias("num_false_negatives")
-    )
-
-    gender_counts_df = get_category_distribution(df_cv_with_gender, "Gender")
-    gender_counts_renamed = gender_counts_df.rename(
-        {"Gender": "candidate_gender", "count": "total_candidates"}
-    )
-
-    fp_joined = fp_counts.join(gender_counts_renamed, on="candidate_gender", how="left")
-    fp_joined = fp_joined.with_columns(
-        (pl.col("num_false_positives") / pl.col("total_candidates")).alias("fp_rate")
-    )
-
-    fn_joined = fn_counts.join(gender_counts_renamed, on="candidate_gender", how="left")
-    fn_joined = fn_joined.with_columns(
-        (pl.col("num_false_negatives") / pl.col("total_candidates")).alias("fn_rate")
-    )
-
-    return fp_joined, fn_joined
-
-
-def highlight_snippets(
-    text: str, pattern=driver_license_pattern_it, context_chars=75
-) -> List[str]:
+def highlight_snippets(text: str, pattern, context_chars=75) -> List[str]:
     snippets = []
     for match in pattern.finditer(text):
         start, end = match.span()
@@ -146,18 +144,17 @@ def highlight_snippets(
         after = text[end:snippet_end]
 
         colored_match_text = f"{RED}{match_text}{RESET}"
-
         snippets.append(f"... {before}...{colored_match_text}...{after} ...")
-    return snippets or ["No occurrence founded."]
+    return snippets or ["No occurrence found."]
 
 
-def print_highlighted_cv(row: dict):
+def print_highlighted_cv(row: dict, pattern) -> None:
     header = (
-        f"\nCANDIDATE ID: {row['candidate_id']} - GENERE: {row['candidate_gender']}"
+        f"\nCANDIDATE ID: {row['CANDIDATE_ID']} - GENERE: {row['candidate_gender']}"
     )
     reason = f"Motivo: {row['reason']}"
     separator = "-" * 80
-    snippets = highlight_snippets(row["cv_text"])
+    snippets = highlight_snippets(row["cv_text"], pattern=pattern)
     print(header)
     print(reason)
     print(separator)
@@ -169,26 +166,29 @@ def print_highlighted_cv(row: dict):
 def export_false_negatives_for_manual_labelling(
     df_cv: pl.DataFrame,
     df_skills: pl.DataFrame,
+    skill_type: str,
+    rule_based_extractor: Callable[[str], List[str]],
     output_path: str = "false_negatives_manual_labelling.csv",
     sample_size: int = 50,
 ):
-    parser_ids = df_skills.filter(pl.col("Skill_Type") == "DRIVERSLIC").unique(
+    parser_ids = df_skills.filter(pl.col("Skill_Type") == skill_type).unique(
         "CANDIDATE_ID"
     )
 
     df_parser_yes = df_cv.join(parser_ids, on="CANDIDATE_ID", how="inner")
-    regex_labels = [has_driver_license(text) for text in df_parser_yes["CV_text_anon"]]
+    regex_labels = [
+        len(rule_based_extractor(text)) > 0 for text in df_parser_yes["CV_text_anon"]
+    ]
 
     mask = [not r for r in regex_labels]
     df_filtered = df_parser_yes.filter(pl.Series("", mask))
-    print(df_filtered)
 
     df_to_label = df_filtered.with_columns(
         [
             pl.Series("regex_label", [0] * len(df_filtered)),
             pl.Series("parser_label", [1] * len(df_filtered)),
             pl.Series("manual_label", [""] * len(df_filtered)),
-            pl.col("CV_text_anon").alias("full_cv_text"),
+            df_filtered["CV_text_anon"].alias("cv_text"),
         ]
     )
 
@@ -201,7 +201,7 @@ def export_false_negatives_for_manual_labelling(
             "regex_label",
             "parser_label",
             "manual_label",
-            "full_cv_text",
+            "cv_text",
         ]
     ).write_csv(output_path, separator=";", quote_style="always")
 
