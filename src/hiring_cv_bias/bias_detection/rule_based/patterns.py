@@ -1,17 +1,18 @@
 import re
 
 import pycountry
+from langcodes import Language
 
 RED = "\033[31m"
 RESET = "\033[0m"
 
 DRIVER_LICENSE_SNIPPET_WORDS = [
-    "autonomo",
-    "patente",
-    "auto",
-    "veicolo",
-    "munito",
-    "licenza",
+    "self-employed",
+    "license",
+    "car",
+    "vehicle",
+    "equipped",
+    "licence",
 ]
 DRIVER_LICENSE_SNIPPET_PATTERN = re.compile(
     r"\b("
@@ -23,6 +24,7 @@ DRIVER_LICENSE_SNIPPET_PATTERN = re.compile(
 driver_license_pattern_eng = re.compile(
     r"(?:"
     r"(?:driver['’]?s?|driving|car|category)\s*licen[cs]e\s*[:\-]?\s*(?:type\s*)?[a-z]{1,2}\b|"
+    r"\blicen[cs]e\s*[:\-]?\s*(?:[A-E][1-9]?|AM|A1|A2|B1|C1|D1|BE|CE|DE)\b|"
     r"\b(?:A|B|C|D|E|AM|A1|A2|B1|C1|D1|BE|C1E|D1E|CE|DE)\b\s*(?:driving|car|category)?\s*licen[cs]e\b|"
     r"\bdriving\s+licen[cs]e\b|"
     r"\bown\s+car\b"
@@ -30,21 +32,17 @@ driver_license_pattern_eng = re.compile(
     re.IGNORECASE | re.UNICODE,
 )
 
-driver_license_pattern_it = re.compile(
-    r"(?:"
-    r"\bpatent[ei]\b(?:\s*(?:di\s*(?:guida|categoria))?\s*[:\-]?\s*\w+)?|"
-    r"\bautomunit[oa](?:\/[oa])?\b|"
-    r"\b(?:patente(?:\s+di\s+guida)?|categoria|cat\.?|driving\s+licen[cs]e)\s*[:\-]?\s*[A-E][1-9]?\b"
-    r"\bmunit[oa]\b"
-    r")",
-    re.IGNORECASE | re.UNICODE,
-)
+# driver_license_pattern_it = re.compile(
+#     r"(?:"
+#     r"\bpatent[ei]\b(?:\s*(?:di\s*(?:guida|categoria))?\s*[:\-]?\s*\w+)?|"
+#     r"\bautomunit[oa](?:\/[oa])?\b|"
+#     r"\b(?:patente(?:\s+di\s+guida)?|categoria|cat\.?|driving\s+licen[cs]e)\s*[:\-]?\s*[A-E][1-9]?\b"
+#     r"\bmunit[oa]\b"
+#     r")",
+#     re.IGNORECASE | re.UNICODE,
+# )
 
-import re
 
-from langcodes import Language
-
-# Costruisce dizionario lingua -> varianti [inglese, italiano]
 language_variants = {}
 
 for lang in pycountry.languages:
@@ -62,7 +60,6 @@ for lang in pycountry.languages:
 
         language_variants[name_en] = sorted(variants)
 
-# Costruzione regex
 LANGUAGE_REGEXES = {
     lang: re.compile(
         rf"""
