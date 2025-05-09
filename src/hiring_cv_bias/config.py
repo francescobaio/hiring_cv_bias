@@ -8,7 +8,7 @@ PARSED_DATA_PATH = CV_DIR + "/Candidate_CVs_extracted_data.csv"
 CANDIDATE_CVS_PATH = CV_DIR + "/Candidate_CVs.csv"
 REVERSE_MATCHING_PATH = CV_DIR + "/ReverseMatching.xlsx"
 CANDIDATE_CVS_TRANSLATED_PATH = CV_DIR + "/Candidate_CVs_translated.csv"
-JOBS_PATH = DATA_DIR + "All_Occupations.csv"
+JOBS_PATH = DATA_DIR + "occupations_en.csv"
 
 JOB_LINKS = [
     "https://www.zippia.com/baby-sitter-jobs/demographics/",

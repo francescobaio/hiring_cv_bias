@@ -1,61 +1,80 @@
-from typing import List, Set
+import math
+from typing import Any, List, Tuple
 
+import nltk
+import polars as pl
 import spacy
-from hiring_cv_bias.bias_detection.fuzzy.utils import clean_ner_entity
-from sentence_transformers import SentenceTransformer, util
+from nltk.corpus import stopwords
+from spacy.matcher import PhraseMatcher
+from tqdm.notebook import tqdm
 
 
 class JobParser:
     def __init__(
         self,
         job_list: List[str],
-        parsing_model_name: str = "model-best",
-        clustering_model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
-        misleading_words: Set[str] = {
-            "diploma",
-            "diplomas",
-            "skill",
-            "skills",
-        },
     ):
+        nltk.download("stopwords")
+        self.stopwords = stopwords.words("english")
         self.job_list = job_list
-        self.parsing_model = spacy.load(parsing_model_name)
-        self.clustering_model = SentenceTransformer(clustering_model_name)
-        self.job_embeddings = self.clustering_model.encode(
-            job_list, convert_to_tensor=True
-        )
-        self.misleading_words = misleading_words
+        self.spacy_model = spacy.load("en_core_web_sm")
+        self.phrase_matcher = PhraseMatcher(self.spacy_model.vocab, attr="LOWER")
+        patterns = [self.spacy_model.make_doc(job) for job in self.job_list]
+        self.phrase_matcher.add("Jobs", patterns)
 
-    def parse(self, text: str, min_similarity: float = 0.4) -> List[str]:
+    def parse_with_n_grams(self, text: str) -> List[str]:
         jobs_found = []
-        for doc in self.parsing_model.pipe([text], disable=["tagger", "parser"]):
-            for ent in doc.ents:
-                print(ent.label_)
-                if ent.label_ == "EXPERIENCE":
-                    cleaned_entity = clean_ner_entity(ent.text)
-                    print(cleaned_entity)
-                    entity_splits = cleaned_entity.split(",")
-                    entity_jobs = []
-                    for split in entity_splits:
-                        if not any(word in split for word in self.misleading_words):
-                            entity_jobs.append(
-                                self.clustering_model.encode(
-                                    split, convert_to_tensor=True
-                                )
-                            )
-                    jobs_found += entity_jobs
-                    # job_embedding = self.clustering_model.encode(
-                    #     cleaned_entity, convert_to_tensor=True
-                    # )
-                    # jobs_found.append(job_embedding)
 
-        normalized_jobs = []
-        for job in jobs_found:
-            distances = util.pytorch_cos_sim(job, self.job_embeddings)
-            best_match_idx = distances.argmax()
-            print(self.job_list[best_match_idx], distances[0][best_match_idx])
-            if distances[0][best_match_idx] > min_similarity:
-                best_match = self.job_list[best_match_idx]
-                normalized_jobs.append(best_match)
+        doc = self.chunk_extractor(text)
 
-        return list(set(normalized_jobs))
+        match = self.phrase_matcher(doc)
+
+        if len(match) > 0:
+            for _, start, end in match:
+                jobs_found.append(doc[start:end].text)
+
+        return list(set(jobs_found))
+
+    def _split_chunk(
+        self, chunk: List[Tuple[Any]], max_len: int = 4
+    ) -> List[List[Any]]:
+        chunk_pieces = [chunk]
+        while len(chunk_pieces[0]) > max_len:
+            new_chunk_pieces = []
+            for piece in chunk_pieces:
+                if len(piece.text) > 2:
+                    if len(piece) > 3:
+                        half_index = math.ceil(len(piece) / 2)
+                        new_chunk_pieces.extend(
+                            [piece[:half_index], piece[half_index:]]
+                        )
+                    else:
+                        new_chunk_pieces.append(piece)
+            chunk_pieces = new_chunk_pieces
+        return chunk_pieces
+
+    def _filter_short_words(self, chunk: List[Tuple[Any]]) -> List[Tuple[Any]]:
+        chunk_words = chunk.text.split()
+        for word in chunk_words.copy():
+            if len(word) < 2:
+                chunk_words.remove(word)
+
+        cleaned_chunk = " ".join(chunk_words)
+
+        return cleaned_chunk
+
+    def parse_df(self, df: pl.DataFrame) -> pl.DataFrame:
+        jobs_data = {"CANDIDATE_ID": [], "Job_Title": []}
+        for row in tqdm(
+            df.iter_rows(named=True), total=df.height, desc="Job parsing..."
+        ):
+            cv = row["Translated_CV"]
+            jobs = self.parse_with_n_grams(cv)
+            if len(jobs) > 0:
+                jobs_data["Job_Title"].extend(jobs)
+                jobs_data["CANDIDATE_ID"].extend([row["CANDIDATE_ID"]] * len(jobs))
+            else:
+                jobs_data["Job_Title"].append(None)
+                jobs_data["CANDIDATE_ID"].append(row["CANDIDATE_ID"])
+
+        return pl.DataFrame(jobs_data)
