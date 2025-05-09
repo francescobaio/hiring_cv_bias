@@ -1,9 +1,7 @@
-# labeling_app.py
-
 import polars as pl
 import streamlit as st
 
-INPUT_CSV = "AIEthics/notebooks/false_negatives_manual_labelling.csv"
+INPUT_CSV = "/Users/francescobaiocchi/Desktop/ai_ethics_project/AIEthics/src/hiring_cv_bias/bias_detection/rule_based/app/false_positives.csv"
 OUTPUT_CSV = "cv_labeled_manual.csv"
 
 df = pl.read_csv(INPUT_CSV, separator=";")
@@ -22,7 +20,7 @@ if st.session_state.index < df.shape[0]:
     curr = st.session_state.index
     row = df[curr]
     candidate_id = row["CANDIDATE_ID"].item()
-    cv_text = row["full_cv_text"].item()
+    cv_text = row["cv_italian"].item()
 
     st.subheader(f"CV #{candidate_id}")
     st.text_area("CV Content", cv_text, height=500)
