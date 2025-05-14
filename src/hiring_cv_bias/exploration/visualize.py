@@ -1,6 +1,7 @@
 import polars as pl
-from matplotlib import pyplot as plt
 import seaborn as sns
+from matplotlib import pyplot as plt
+
 
 def plot_histogram(column: pl.Series, normalize: bool = False, top_n=10) -> None:
     frequencies = column.value_counts(
@@ -8,6 +9,7 @@ def plot_histogram(column: pl.Series, normalize: bool = False, top_n=10) -> None
     ).head(top_n)
     plt.xticks(rotation=70)
     plt.bar(frequencies[column.name], frequencies["frequency"])
+
 
 def compute_skills_frequency(cv_skills: pl.DataFrame, column_name: str) -> pl.DataFrame:
     """ """
@@ -76,7 +78,7 @@ def plot_skills_per_category(
 def plot_top_skills_for_job_title(
     cv_skills: pl.DataFrame, job_title: str, type_skill: str, top_n: int = 10
 ):
-    """"""
+    """ """
     job_titles_df = (
         cv_skills.filter(pl.col("Skill_Type") == "Job_title")
         .select(["CANDIDATE_ID", "Skill"])

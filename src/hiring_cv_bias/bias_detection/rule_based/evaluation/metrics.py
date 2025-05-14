@@ -1,9 +1,10 @@
 from collections import namedtuple
+from typing import Dict
 
 Conf = namedtuple("Conf", "tp fp tn fn")
 
 
-def scores(cm: Conf) -> dict[str, float]:
+def scores(cm: Conf) -> Dict[str, float]:
     """Return accuracy / precision / recall / f1 as a dict."""
     total = sum(cm)
     precision = cm.tp / (cm.tp + cm.fp) if cm.tp + cm.fp else 0.0

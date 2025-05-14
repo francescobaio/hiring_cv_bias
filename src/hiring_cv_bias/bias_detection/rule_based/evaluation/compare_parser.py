@@ -2,6 +2,7 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, Set
 
 import polars as pl
+from tqdm.notebook import tqdm
 
 Conf = namedtuple("Conf", "tp fp tn fn")
 Result = namedtuple("Result", "conf fp_rows fn_rows")
@@ -20,7 +21,7 @@ def compare(
     tp = fp = tn = fn = 0
     fp_rows, fn_rows = [], []
 
-    for row in df_cv.iter_rows(named=True):
+    for row in tqdm(df_cv.iter_rows(named=True), total=df_cv.height):
         cid, gender, raw = row["CANDIDATE_ID"], row["Gender"], row["cleaned_cv"]
 
         truth = extractor(raw)  # rule‑based “ground‑truth”
