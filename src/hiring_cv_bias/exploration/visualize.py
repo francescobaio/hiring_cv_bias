@@ -1,13 +1,31 @@
+import matplotlib
 import polars as pl
-from matplotlib import pyplot as plt
 import seaborn as sns
+from matplotlib import pyplot as plt
 
-def plot_histogram(column: pl.Series, normalize: bool = False, top_n=10) -> None:
+
+def plot_histogram(
+    column: pl.Series,
+    ax: matplotlib.axes.Axes = None,
+    title: str = "",
+    normalize: bool = False,
+    top_n: int = 10,
+    sort=True,
+) -> None:
     frequencies = column.value_counts(
-        normalize=normalize, name="frequency", sort=True
+        normalize=normalize, name="frequency", sort=sort
     ).head(top_n)
-    plt.xticks(rotation=70)
-    plt.bar(frequencies[column.name], frequencies["frequency"])
+    if ax is None:
+        _, ax = plt.subplots()
+
+    ax.set_xticks(
+        ticks=[*range(0, len(frequencies[column.name]))],
+        labels=frequencies[column.name],
+        rotation=70,
+    )
+    ax.set_title(title)
+    ax.bar(frequencies[column.name], frequencies["frequency"])
+
 
 def compute_skills_frequency(cv_skills: pl.DataFrame, column_name: str) -> pl.DataFrame:
     """ """
