@@ -1,4 +1,5 @@
-from typing import List
+import re
+from typing import Any, List, Pattern
 
 import polars as pl
 
@@ -36,18 +37,60 @@ def inspect_missing(df: pl.DataFrame) -> pl.DataFrame:
 
 def filter_out_candidate_ids(
     df: pl.DataFrame,
-    id_list: List[int],
+    id_list: List[Any],
     id_col: str = "CANDIDATE_ID",
     df_name: str = "DataFrame",
+    description: str = "",
 ) -> pl.DataFrame:
     """ """
     original = df.height
     cleaned = df.filter(~pl.col(id_col).is_in(id_list))
     remaining = cleaned.height
     dropped = original - remaining
+    pct = (dropped / original * 100) if original else 0.0
+
+    if description:
+        print(f"{df_name} with {description}: {dropped} out of {original} total")
+        print(f"That is {pct:.2f}% of all {df_name.lower()}")
 
     print(f"{df_name} -> Original rows: {original}")
     print(f"{df_name} -> Dropped rows:  {dropped} (IDs in provided list)")
     print(f"{df_name} -> Remaining rows: {remaining}")
 
     return cleaned
+
+
+# Regex to detect placeholder runs (e.g. “XXXXX…”)
+_PLACEHOLDER_PATTERN = re.compile(r"X{5,}")
+
+
+def find_dropped_skill_rows(
+    df: pl.DataFrame,
+    skill_col: str = "Skill",
+    id_col: str = "CANDIDATE_ID",
+    min_len: int = 2,
+    max_len: int = 100,
+    placeholder_pattern: Pattern = _PLACEHOLDER_PATTERN,
+) -> pl.DataFrame:
+    """ """
+    # clean mask: length, has_letter, no_placeholder
+    length = pl.col(skill_col).map_elements(
+        lambda s, *_: len(s or ""), return_dtype=pl.Int64
+    )
+    valid_length = (length >= min_len) & (length <= max_len)
+    has_letter = pl.col(skill_col).map_elements(
+        lambda s, *_: bool(re.search(r"[A-Za-z]", s or "")), return_dtype=pl.Boolean
+    )
+    no_placeholder = pl.col(skill_col).map_elements(
+        lambda s, *_: not bool(placeholder_pattern.search(s or "")),
+        return_dtype=pl.Boolean,
+    )
+    keep_mask = valid_length & has_letter & no_placeholder
+
+    cleaned = df.filter(keep_mask)
+    dropped = df.join(
+        cleaned.select([id_col, skill_col, "Skill_Type"]),
+        on=[id_col, skill_col, "Skill_Type"],
+        how="anti",
+    )
+    return dropped
