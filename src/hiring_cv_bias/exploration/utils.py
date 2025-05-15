@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 def localize(latitude: float) -> str:
     if latitude > 44.5:
         return "NORTH"
-    if latitude < 40:
+    if latitude < 42:
         return "SOUTH"
     return "CENTER"
 
@@ -64,7 +64,10 @@ def extract_gender_from_zippia(url):
 
 
 def compute_max_disparity_value(
-    *columns: List[pl.Series], weights: List[float] = None, min_threshold: int = 5
+    columns: List[pl.Series],
+    weights: List[float] = None,
+    min_threshold: int = 25,
+    use_percentiles: bool = True,
 ):
     if weights is None:
         weights = [1] * len(columns)
@@ -80,8 +83,12 @@ def compute_max_disparity_value(
         .group_by(counts_per_column[0].columns[0])
         .agg(pl.col("count").sum())
     )
+    if use_percentiles:
+        min_count = np.percentile(total_counts["count"], min_threshold)
+    else:
+        min_count = min_threshold
 
-    common_values_filtered = total_counts.filter(pl.col("count") > min_threshold)[
+    common_values_filtered = total_counts.filter(pl.col("count") >= min_count)[
         total_counts.columns[0]
     ]
     counts_per_column_filtered = [
@@ -101,16 +108,12 @@ def compute_max_disparity_value(
             (count / sum(counts)) * weight for count, weight in zip(counts, weights)
         ]
 
-        if value == "Environmental Control":
-            print(counts[0], counts[1], counts[2])
-            print(ratios)
         current_disparity = compute_disparity(ratios)
 
         if current_disparity > max_disparity:
             max_disparity = current_disparity
             max_disparity_value = value
-    print(max_disparity)
-    return max_disparity_value
+    return max_disparity_value, max_disparity
 
 
 def compute_disparity(data_points: List[Any]) -> float:
@@ -126,13 +129,3 @@ def add_suffix_and_concat(columns: List[pl.Series], suffixes: List[str]):
     columns_with_suffix = [column + suffix for column, suffix in zip(columns, suffixes)]
     concat_columns = pl.concat(columns_with_suffix)
     return concat_columns
-
-
-def get_outliers_bounds(data_points: List[float]) -> List[float]:
-    q1 = np.percentile(data_points, 25)
-    q3 = np.percentile(data_points, 75)
-    iqr = q3 - q1
-    lower_bound = q1 - 1.5 * iqr
-    upper_bound = q3 + 1.5 * iqr
-
-    return lower_bound, upper_bound

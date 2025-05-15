@@ -1,7 +1,14 @@
+from typing import Dict, List
+
 import matplotlib
 import polars as pl
 import seaborn as sns
+from hiring_cv_bias.exploration.utils import (
+    add_suffix_and_concat,
+    compute_max_disparity_value,
+)
 from matplotlib import pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 
 def plot_histogram(
@@ -11,6 +18,7 @@ def plot_histogram(
     normalize: bool = False,
     top_n: int = 10,
     sort=True,
+    custom_colors: Dict[str, str] = None,
 ) -> None:
     frequencies = column.value_counts(
         normalize=normalize, name="frequency", sort=sort
@@ -24,7 +32,24 @@ def plot_histogram(
         rotation=70,
     )
     ax.set_title(title)
-    ax.bar(frequencies[column.name], frequencies["frequency"])
+    if custom_colors:
+        colors = []
+        for label in frequencies[column.name]:
+            for suffix, color in custom_colors.items():
+                if label.endswith(suffix):
+                    colors.append(color)
+                    break
+    else:
+        colors = "#1f77b4"
+
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+    ax.bar(
+        frequencies[column.name],
+        frequencies["frequency"],
+        color=colors,
+        edgecolor="black",
+    )
 
 
 def compute_skills_frequency(cv_skills: pl.DataFrame, column_name: str) -> pl.DataFrame:
@@ -122,4 +147,53 @@ def plot_top_skills_for_job_title(
         "Skill",
         f"Top {top_n} {type_skill} skills for {job_title}",
         top_n=top_n,
+    )
+
+
+def compute_and_plot_disparity(
+    columns: List[pl.Series],
+    suffixes: List[str],
+    min_threshold: int = 25,
+    use_percentiles: bool = True,
+    custom_colors: Dict[str, str] = None,
+    normalize: bool = False,
+    attribute_name: str = "",
+):
+    lengths = [len(column) for column in columns]
+    total_num_prof_skills = sum(lengths)
+    weights = [total_num_prof_skills / length for length in lengths]
+
+    max_disparity_value, max_disparity = compute_max_disparity_value(
+        columns=columns,
+        weights=weights,
+        min_threshold=min_threshold,
+        use_percentiles=use_percentiles,
+    )
+    columns_filtered = [
+        column.filter(column == max_disparity_value) for column in columns
+    ]
+
+    total_max_disparity_column = add_suffix_and_concat(
+        columns=columns_filtered,
+        suffixes=suffixes,
+    )
+    fig, ax = plt.subplots()
+    ax.text(
+        0.95,
+        0.95,
+        f"Gini Index: {max_disparity: .2f}",
+        transform=ax.transAxes,
+        ha="right",
+        va="top",
+        fontsize=10,
+        fontweight="bold",
+    )
+
+    fig.suptitle(f"{attribute_name} value with most disparity")
+
+    plot_histogram(
+        total_max_disparity_column,
+        normalize=normalize,
+        custom_colors=custom_colors,
+        ax=ax,
     )
