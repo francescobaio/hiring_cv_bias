@@ -4,6 +4,7 @@ from typing import List, Pattern, Tuple
 
 import matplotlib.pyplot as plt
 import polars as pl
+from langdetect import DetectorFactory, detect
 
 
 def add_length_column(
@@ -246,3 +247,40 @@ def detect_corrupted_cvs(
     )
 
     return annotated.filter(pl.col("unusual_frac") > max_unusual_frac)
+
+
+def assess_translation_completeness(
+    df: pl.DataFrame,
+    orig_col: str = "CV_text_anon",
+    trans_col: str = "Translated_CV",
+) -> pl.DataFrame:
+    """ """
+    df = df.with_columns(
+        [
+            pl.col(orig_col)
+            .map_elements(lambda s, *_: len(s or ""), return_dtype=pl.Int64)
+            .alias("orig_len"),
+            pl.col(trans_col)
+            .map_elements(lambda s, *_: len(s or ""), return_dtype=pl.Int64)
+            .alias("trans_len"),
+        ]
+    )
+    df = df.with_columns(
+        # Compute len_ratio and trans_empty
+        (pl.col("trans_len") / pl.col("orig_len")).fill_null(0.0).alias("len_ratio")
+    )
+    return df
+
+
+# make language detection deterministic
+DetectorFactory.seed = 0
+
+
+def is_this_language(text: str, language: str) -> bool:
+    """
+    Return True if `text` is detected as the specified `language` code.
+    """
+    try:
+        return detect(text) == language
+    except Exception:
+        return False
