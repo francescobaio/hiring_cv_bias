@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import re
-from typing import Optional, Set
+from typing import Dict, Optional, Set
 
 from .patterns import (
-    LANGUAGE_REGEXES,
+    LANGUAGE_REGEXES_EN,
+    LANGUAGE_VARIANTS,
     driver_license_pattern_eng,
 )
 
@@ -17,7 +18,7 @@ def extract_driver_license(text: str) -> Set[str]:
 
 def extract_languages(text: str) -> Set[str]:
     text = text.lower()
-    return {lang for lang, rx in LANGUAGE_REGEXES.items() if rx.search(text)}
+    return {lang for lang, rx in LANGUAGE_REGEXES_EN.items() if rx.search(text)}
 
 
 # ---------- normalization helpers ----------
@@ -39,3 +40,30 @@ def norm_driver_license(skill: Optional[str]) -> str:
     if _driver_code.match(skill) or driver_license_pattern_eng.search(skill):
         return "driver_license"
     return skill
+
+
+_reverse_language_map: Dict[str, str] = {
+    variant.lower(): code
+    for code, variants in LANGUAGE_VARIANTS.items()
+    for variant in variants
+}
+
+_missing = set()
+
+
+def norm_languages(skill: Optional[str]) -> str:
+    """ """
+    if not isinstance(skill, str):
+        return ""
+
+    raw = skill.strip()
+    key = raw.lower()
+    code = _reverse_language_map.get(key)
+
+    # logger
+    # print(f"[norm_languages] raw: {raw!r} → code: {code!r}")
+
+    if not code:
+        _missing.add(raw)
+
+    return code or ""

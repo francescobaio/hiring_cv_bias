@@ -94,7 +94,7 @@ def plot_skills_per_category(
 def plot_top_skills_for_job_title(
     cv_skills: pl.DataFrame, job_title: str, type_skill: str, top_n: int = 10
 ):
-    """"""
+    """ """
     job_titles_df = (
         cv_skills.filter(pl.col("Skill_Type") == "Job_title")
         .select(["CANDIDATE_ID", "Skill"])

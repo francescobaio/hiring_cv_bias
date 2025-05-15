@@ -6,11 +6,6 @@ from google.cloud import translate_v2 as translate
 from hiring_cv_bias.config import CANDIDATE_CVS_PATH
 from hiring_cv_bias.utils import load_data
 
-import polars as pl
-from google.cloud import translate_v2 as translate
-from hiring_cv_bias.config import CANDIDATE_CVS_PATH
-from hiring_cv_bias.utils import load_data
-
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
     "magnetic-market-455110-t2-0dc68481bf13.json"
 )
