@@ -158,11 +158,8 @@ def compute_and_plot_disparity(
     custom_colors: Dict[str, str] = None,
     normalize: bool = False,
     attribute_name: str = "",
+    weights: List[float] = None,
 ):
-    lengths = [len(column) for column in columns]
-    total_num_prof_skills = sum(lengths)
-    weights = [total_num_prof_skills / length for length in lengths]
-
     max_disparity_value, max_disparity = compute_max_disparity_value(
         columns=columns,
         weights=weights,

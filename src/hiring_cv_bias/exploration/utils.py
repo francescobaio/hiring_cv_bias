@@ -104,11 +104,9 @@ def compute_max_disparity_value(
             ].item()
             for filtered_count in counts_per_column_filtered
         ]
-        ratios = [
-            (count / sum(counts)) * weight for count, weight in zip(counts, weights)
-        ]
+        weighted_counts = [count * weight for count, weight in zip(counts, weights)]
 
-        current_disparity = compute_disparity(ratios)
+        current_disparity = compute_disparity(weighted_counts)
 
         if current_disparity > max_disparity:
             max_disparity = current_disparity
