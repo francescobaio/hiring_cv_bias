@@ -3,18 +3,9 @@ from itertools import combinations
 from typing import Any, List
 
 import matplotlib.pyplot as plt
-import numpy as np
 import polars as pl
 import requests
 from bs4 import BeautifulSoup
-
-
-def localize(latitude: float) -> str:
-    if latitude > 44.5:
-        return "NORTH"
-    if latitude < 40:
-        return "SOUTH"
-    return "CENTER"
 
 
 def plot_distribution_bar(
@@ -100,10 +91,6 @@ def compute_max_disparity_value(
         ratios = [
             (count / sum(counts)) * weight for count, weight in zip(counts, weights)
         ]
-
-        if value == "Environmental Control":
-            print(counts[0], counts[1], counts[2])
-            print(ratios)
         current_disparity = compute_disparity(ratios)
 
         if current_disparity > max_disparity:
@@ -126,13 +113,3 @@ def add_suffix_and_concat(columns: List[pl.Series], suffixes: List[str]):
     columns_with_suffix = [column + suffix for column, suffix in zip(columns, suffixes)]
     concat_columns = pl.concat(columns_with_suffix)
     return concat_columns
-
-
-def get_outliers_bounds(data_points: List[float]) -> List[float]:
-    q1 = np.percentile(data_points, 25)
-    q3 = np.percentile(data_points, 75)
-    iqr = q3 - q1
-    lower_bound = q1 - 1.5 * iqr
-    upper_bound = q3 + 1.5 * iqr
-
-    return lower_bound, upper_bound

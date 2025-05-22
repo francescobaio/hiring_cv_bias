@@ -25,7 +25,7 @@ class JobParser:
     def parse_with_n_grams(self, text: str) -> List[str]:
         jobs_found = []
 
-        doc = self.chunk_extractor(text)
+        doc = self.spacy_model(text)
 
         match = self.phrase_matcher(doc)
 

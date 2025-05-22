@@ -1,5 +1,6 @@
+from typing import Dict, List
+
 import polars as pl
-from typing import List, Dict
 
 
 def load_data(filepath):
@@ -8,3 +9,11 @@ def load_data(filepath):
 
 def load_excel_sheets(path: str, sheets: List[str]) -> Dict[str, pl.DataFrame]:
     return {sheet: pl.read_excel(path, sheet_name=sheet) for sheet in sheets}
+
+
+def localize(latitude: float) -> str:
+    if latitude > 44.5:
+        return "NORTH"
+    if latitude < 40:
+        return "SOUTH"
+    return "CENTER"
