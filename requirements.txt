@@ -8,3 +8,4 @@ seaborn==0.13.2
 sentence_transformers==4.0.2
 spacy==3.8.5
 streamlit==1.44.1
+pre-commit>=3.0
