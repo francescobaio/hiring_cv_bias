@@ -26,3 +26,7 @@ JOB_LINKS = [
     "https://www.zippia.com/carpenter-jobs/demographics/",
     "https://www.zippia.com/forklift-operator-jobs/demographics/",
 ]
+
+CV_CLEANED_DIR = DATA_DIR + "Adecco_Dataset_cleaned"
+CANDIDATE_CVS_TRANSLATED_CLEANED_PATH = CV_CLEANED_DIR + "CV_translated_cleaned.csv"
+CLEANED_SKILLS = CV_CLEANED_DIR + "/Skills_cleaned.csv"

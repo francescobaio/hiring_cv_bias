@@ -1,9 +1,9 @@
-import polars as pl
-import matplotlib.pyplot as plt
-import requests
-from bs4 import BeautifulSoup
 import re
 
+import matplotlib.pyplot as plt
+import polars as pl
+import requests
+from bs4 import BeautifulSoup
 
 
 def localize(latitude: float) -> str:
@@ -21,7 +21,7 @@ def plot_distribution_bar(
     y = df[y_col].to_list()
 
     plt.figure(figsize=(8, 5))
-    plt.bar(x, y)
+    plt.bar(x, y, edgecolor="k")
     plt.title(title)
     plt.ylabel(y_label)
     plt.xlabel(x_label)
