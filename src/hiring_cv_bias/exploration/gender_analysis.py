@@ -1,8 +1,8 @@
-import polars as pl
 import matplotlib.pyplot as plt
 import numpy as np
-from hiring_cv_bias.exploration.utils import extract_gender_from_zippia
+import polars as pl
 from hiring_cv_bias.config import JOB_LINKS
+from hiring_cv_bias.exploration.utils import extract_gender_from_zippia
 
 
 def get_category_distribution(
@@ -112,8 +112,10 @@ def plot_gender_bias_skills_bar(
     _, ax = plt.subplots(figsize=(14, 6))
     # colors = sns.color_palette("pastel")
 
-    ax.bar(x - width / 2, perc_m, width, label="Male", color="skyblue")
-    ax.bar(x + width / 2, perc_f, width, label="Female", color="lightcoral")
+    ax.bar(x - width / 2, perc_m, width, label="Male", color="skyblue", edgecolor="k")
+    ax.bar(
+        x + width / 2, perc_f, width, label="Female", color="lightcoral", edgecolor="k"
+    )
 
     for i in range(len(skills)):
         ax.text(
