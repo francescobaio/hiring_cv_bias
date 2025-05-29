@@ -1,13 +1,17 @@
 import polars as pl
-from matplotlib import pyplot as plt
 import seaborn as sns
+from matplotlib import pyplot as plt
+
 
 def plot_histogram(column: pl.Series, normalize: bool = False, top_n=10) -> None:
     frequencies = column.value_counts(
-        normalize=normalize, name="frequency", sort=True
+        normalize=normalize,
+        name="frequency",
+        sort=True,
     ).head(top_n)
     plt.xticks(rotation=70)
-    plt.bar(frequencies[column.name], frequencies["frequency"])
+    plt.bar(frequencies[column.name], frequencies["frequency"], edgecolor="k")
+
 
 def compute_skills_frequency(cv_skills: pl.DataFrame, column_name: str) -> pl.DataFrame:
     """ """
@@ -33,9 +37,13 @@ def plot_frequency(
 
     plt.figure(figsize=(8, 6))
     if orientation != "h":
-        sns.barplot(data=data_pd, x=x_col, y=y_col, hue=y_col, palette="Blues_r")
+        sns.barplot(
+            data=data_pd, x=x_col, y=y_col, hue=y_col, palette="Blues_r", edgecolor="k"
+        )
     else:
-        sns.barplot(data=data_pd, x=y_col, y=x_col, hue=y_col, palette="Blues_r")
+        sns.barplot(
+            data=data_pd, x=y_col, y=x_col, hue=y_col, palette="Blues_r", edgecolor="k"
+        )
         # plt.xticks(rotation=45)
 
     plt.xlabel(x_col if orientation == "v" else y_col)
@@ -76,7 +84,7 @@ def plot_skills_per_category(
 def plot_top_skills_for_job_title(
     cv_skills: pl.DataFrame, job_title: str, type_skill: str, top_n: int = 10
 ):
-    """"""
+    """ """
     job_titles_df = (
         cv_skills.filter(pl.col("Skill_Type") == "Job_title")
         .select(["CANDIDATE_ID", "Skill"])
