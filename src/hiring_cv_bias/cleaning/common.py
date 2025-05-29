@@ -8,12 +8,12 @@ def inspect_missing(df: pl.DataFrame) -> pl.DataFrame:
     """ """
     total = df.height
 
-    # 1) Count nulls per column, melt into (column, n_missing)
+    # count nulls per column, melt into (column, n_missing)
     missing_counts = (
         df.null_count().melt().rename({"variable": "column", "value": "n_missing"})
     )
 
-    # 2) Compute % missing per column, melt into (column, pct_missing)
+    # compute % missing per column, melt into (column, pct_missing)
     pct_missing = (
         df.null_count()
         .with_columns([(pl.col(c) / total * 100).round(2).alias(c) for c in df.columns])
@@ -21,10 +21,10 @@ def inspect_missing(df: pl.DataFrame) -> pl.DataFrame:
         .rename({"variable": "column", "value": "pct_missing"})
     )
 
-    # 3) Join counts and percentages
+    # join counts and percentages
     stats = missing_counts.join(pct_missing, on="column")
 
-    # 4) Print summary
+    # print summary
     print("Missing value summary:\n", stats)
     nonzero = stats.filter(pl.col("pct_missing") > 0)
     if nonzero.height > 0:
@@ -70,7 +70,7 @@ def find_dropped_skill_rows(
     id_col: str = "CANDIDATE_ID",
     min_len: int = 2,
     max_len: int = 100,
-    placeholder_pattern: Pattern = _PLACEHOLDER_PATTERN,
+    placeholder_pattern: Pattern[str] = _PLACEHOLDER_PATTERN,
 ) -> pl.DataFrame:
     """ """
     # clean mask: length, has_letter, no_placeholder

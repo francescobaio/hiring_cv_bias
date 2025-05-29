@@ -58,7 +58,7 @@ def plot_length_histogram(
     text_col: str = "CV_text_anon",
     bin_size: int = 300,
     max_bin: int = 3000,
-):
+) -> None:
     """ """
     # 1) Compute lengths
     lengths = df.with_columns(
@@ -69,7 +69,7 @@ def plot_length_histogram(
         ]
     )
 
-    # 2) Build bin labels
+    # Build bin labels
     bin_edges = list(range(0, max_bin + bin_size, bin_size))
     labels = [f"{start}-{start + bin_size}" for start in bin_edges[:-1]]
     labels[-1] = f"{bin_edges[-2]}+"
@@ -128,7 +128,7 @@ def detect_repetitive_cvs(
     def analyze(text: str) -> Tuple[int, float]:
         if not text:
             return 0, 1.0
-        lines = [l.strip() for l in text.splitlines() if l.strip()]
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
         total = len(lines)
         if total == 0:
             return 0, 1.0
@@ -160,7 +160,7 @@ def detect_vocab_sparsity(
     Identifies CVs that are either too few unique words or too repetitive.
     """
 
-    # 1. Extract raw texts
+    # Extract raw texts
     texts: List[str] = df.select(text_col).to_series().to_list()
 
     totals, uniques, ttrs = [], [], []
@@ -194,11 +194,11 @@ def detect_vocab_sparsity(
 def filter_placeholder_tails(
     df: pl.DataFrame, text_col: str = "CV_text_anon", char: str = "X", min_run: int = 10
 ) -> pl.DataFrame:
-    """
+    """q
     Return rows where `text_col` ends with at least `min_run` repetitions of `char`.
     """
     # Compile regex matching the character repeated min_run times at end of string
-    pattern: Pattern = re.compile(rf"{re.escape(char)}{{{min_run},}}\s*$")
+    pattern: Pattern[str] = re.compile(rf"{re.escape(char)}{{{min_run},}}\s*$")
 
     return df.filter(
         pl.col(text_col).map_elements(
@@ -210,10 +210,10 @@ def filter_placeholder_tails(
 def is_unusual_char(c: str) -> bool:
     ordc = ord(c)
     # allow:
-    #  • basic ASCII 0x20–0x7E
-    #  • Latin-1 Supplement 0xA0–0xFF (accents)
-    #  • General Punctuation 0x2000–0x206F (dashes, quotes…)
-    #  • whitespace \n, \r, \t
+    #  basic ASCII 0x20–0x7E
+    #  Latin-1 Supplement 0xA0–0xFF (accents)
+    #  General Punctuation 0x2000–0x206F (dashes, quotes…)
+    #  whitespace \n, \r, \t
     return not (
         (0x20 <= ordc <= 0x7E)
         or (0xA0 <= ordc <= 0xFF)
@@ -281,6 +281,6 @@ def is_this_language(text: str, language: str) -> bool:
     Return True if `text` is detected as the specified `language` code.
     """
     try:
-        return detect(text) == language
+        return bool(detect(text) == language)
     except Exception:
         return False
