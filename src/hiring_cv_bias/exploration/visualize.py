@@ -82,9 +82,13 @@ def plot_frequency(
 
     plt.figure(figsize=(8, 6))
     if orientation != "h":
-        sns.barplot(data=data_pd, x=x_col, y=y_col, hue=y_col, palette="Blues_r")
+        sns.barplot(
+            data=data_pd, x=x_col, y=y_col, hue=y_col, palette="Blues_r", edgecolor="k"
+        )
     else:
-        sns.barplot(data=data_pd, x=y_col, y=x_col, hue=y_col, palette="Blues_r")
+        sns.barplot(
+            data=data_pd, x=y_col, y=x_col, hue=y_col, palette="Blues_r", edgecolor="k"
+        )
 
     plt.xlabel(x_col if orientation == "v" else y_col)
     plt.ylabel(y_col if orientation == "v" else x_col)

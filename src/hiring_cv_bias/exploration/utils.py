@@ -25,7 +25,7 @@ def plot_distribution_bar(
     y = df[y_col].to_list()
 
     plt.figure(figsize=(8, 5))
-    plt.bar(x, y)
+    plt.bar(x, y, edgecolor="k")
     plt.title(title)
     plt.ylabel(y_label)
     plt.xlabel(x_label)
