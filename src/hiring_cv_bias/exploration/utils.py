@@ -1,12 +1,13 @@
 import re
 from itertools import combinations
-from typing import Any, List
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
 import requests
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 
 
 def localize(latitude: float) -> str:
@@ -19,7 +20,7 @@ def localize(latitude: float) -> str:
 
 def plot_distribution_bar(
     df: pl.DataFrame, x_col: str, y_col: str, x_label: str, y_label: str, title: str
-):
+) -> None:
     x = df[x_col].to_list()
     y = df[y_col].to_list()
 
@@ -33,7 +34,9 @@ def plot_distribution_bar(
     plt.show()
 
 
-def extract_gender_from_zippia(url):
+def extract_gender_from_zippia(
+    url: str,
+) -> Union[Tuple[float, float], Tuple[None, None]]:
     try:
         r = requests.get(url, timeout=10)
         soup = BeautifulSoup(r.text, "html.parser")
@@ -42,7 +45,8 @@ def extract_gender_from_zippia(url):
             return None, None
 
         parent_div = container.find_parent("div")
-        value_div = parent_div.find_all("div")[-1]
+        if isinstance(parent_div, Tag):
+            value_div = parent_div.find_all("div")[-1]
 
         if not value_div:
             return None, None
@@ -65,10 +69,10 @@ def extract_gender_from_zippia(url):
 
 def compute_max_disparity_value(
     columns: List[pl.Series],
-    weights: List[float] = None,
+    weights: Optional[List[float]] = None,
     min_threshold: int = 25,
     use_percentiles: bool = True,
-):
+) -> Tuple[str, float]:
     if weights is None:
         weights = [1] * len(columns)
     first_set = set(columns[0].drop_nulls())
@@ -96,8 +100,10 @@ def compute_max_disparity_value(
         for column in counts_per_column
     ]
 
-    max_disparity = 0
-    for value in common_values_filtered.to_list():
+    max_disparity = 0.0
+    max_disparity_counts = 0
+    common_values_filtered.sort(in_place=True)
+    for value in common_values_filtered:
         counts = [
             filtered_count.filter(filtered_count[filtered_count.columns[0]] == value)[
                 "count"
@@ -107,10 +113,16 @@ def compute_max_disparity_value(
         weighted_counts = [count * weight for count, weight in zip(counts, weights)]
 
         current_disparity = compute_disparity(weighted_counts)
+        current_disparity_counts = sum(counts)
 
-        if current_disparity > max_disparity:
+        if current_disparity > max_disparity or (
+            current_disparity == max_disparity
+            and current_disparity_counts > max_disparity_counts
+        ):
             max_disparity = current_disparity
-            max_disparity_value = value
+            max_disparity_value: str = value
+            max_disparity_counts = current_disparity_counts
+
     return max_disparity_value, max_disparity
 
 
@@ -127,3 +139,13 @@ def add_suffix_and_concat(columns: List[pl.Series], suffixes: List[str]):
     columns_with_suffix = [column + suffix for column, suffix in zip(columns, suffixes)]
     concat_columns = pl.concat(columns_with_suffix)
     return concat_columns
+
+
+def split_df_per_attribute(
+    df: pl.DataFrame, attribute_name: str
+) -> Dict[str, pl.DataFrame]:
+    dfs_per_attribute = {}
+    for value in df[attribute_name].unique(maintain_order=True):
+        filtered_df = df.filter(pl.col(attribute_name) == value)
+        dfs_per_attribute[value] = filtered_df
+    return dfs_per_attribute

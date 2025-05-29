@@ -1,49 +1,55 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import matplotlib
+import numpy as np
 import polars as pl
 import seaborn as sns
+from matplotlib import pyplot as plt
+from matplotlib.ticker import MaxNLocator
+
 from hiring_cv_bias.exploration.utils import (
     add_suffix_and_concat,
     compute_max_disparity_value,
 )
-from matplotlib import pyplot as plt
-from matplotlib.ticker import MaxNLocator
 
 
 def plot_histogram(
     column: pl.Series,
-    ax: matplotlib.axes.Axes = None,
+    ax: Optional[matplotlib.axes.Axes] = None,
     title: str = "",
     normalize: bool = False,
     top_n: int = 10,
     sort=True,
-    custom_colors: Dict[str, str] = None,
+    custom_colors: Optional[Dict[str, str]] = None,
+    use_only_suffixes: bool = False,
+    x_labels_rotation: int = 70,
 ) -> None:
     frequencies = column.value_counts(
         normalize=normalize, name="frequency", sort=sort
     ).head(top_n)
     if ax is None:
         _, ax = plt.subplots()
-
+    if use_only_suffixes:
+        x_labels = np.array(frequencies[column.name].str.split("_").to_list())[:, 1]
+    else:
+        x_labels = frequencies[column.name]
     ax.set_xticks(
         ticks=[*range(0, len(frequencies[column.name]))],
-        labels=frequencies[column.name],
-        rotation=70,
+        labels=x_labels,
+        rotation=x_labels_rotation,
     )
     ax.set_title(title)
-    if custom_colors:
-        colors = []
+    if custom_colors is not None:
+        colors: List[str] = []
         for label in frequencies[column.name]:
             for suffix, color in custom_colors.items():
                 if label.endswith(suffix):
                     colors.append(color)
                     break
     else:
-        colors = "#1f77b4"
+        colors = ["#1f77b4"]
 
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-
     ax.bar(
         frequencies[column.name],
         frequencies["frequency"],
@@ -79,7 +85,6 @@ def plot_frequency(
         sns.barplot(data=data_pd, x=x_col, y=y_col, hue=y_col, palette="Blues_r")
     else:
         sns.barplot(data=data_pd, x=y_col, y=x_col, hue=y_col, palette="Blues_r")
-        # plt.xticks(rotation=45)
 
     plt.xlabel(x_col if orientation == "v" else y_col)
     plt.ylabel(y_col if orientation == "v" else x_col)
@@ -155,10 +160,11 @@ def compute_and_plot_disparity(
     suffixes: List[str],
     min_threshold: int = 25,
     use_percentiles: bool = True,
-    custom_colors: Dict[str, str] = None,
+    custom_colors: Optional[Dict[str, str]] = None,
     normalize: bool = False,
     attribute_name: str = "",
-    weights: List[float] = None,
+    weights: Optional[List[float]] = None,
+    x_label: str = "",
 ):
     max_disparity_value, max_disparity = compute_max_disparity_value(
         columns=columns,
@@ -174,6 +180,7 @@ def compute_and_plot_disparity(
         columns=columns_filtered,
         suffixes=suffixes,
     )
+
     fig, ax = plt.subplots()
     ax.text(
         0.95,
@@ -185,12 +192,35 @@ def compute_and_plot_disparity(
         fontsize=10,
         fontweight="bold",
     )
-
-    fig.suptitle(f"{attribute_name} value with most disparity")
+    max_disparity_value = max_disparity_value.replace("(m/f)", "")
+    fig.suptitle(
+        f"{attribute_name} with most disparity: "
+        + r"$\mathbf{"
+        + max_disparity_value
+        + r"}$"
+    )
+    ax.set_xlabel(x_label, fontsize=12, labelpad=10)
+    fig.subplots_adjust(bottom=0.25)
 
     plot_histogram(
         total_max_disparity_column,
         normalize=normalize,
         custom_colors=custom_colors,
         ax=ax,
+        use_only_suffixes=True,
+        x_labels_rotation=0,
     )
+
+
+def plot_skill_type_distribution(
+    dfs_per_attribute: Dict[str, pl.DataFrame], attribute_name: str
+):
+    fig, axs = plt.subplots(1, len(dfs_per_attribute), sharex=True, sharey=True)
+    fig.set_size_inches(20, 10)
+    fig.suptitle(f"{attribute_name} Skill Type Distribution", fontsize=15)
+
+    for idx, key in enumerate(dfs_per_attribute):
+        axs[idx].tick_params(labelleft=True, labelsize="large")
+        plot_histogram(
+            dfs_per_attribute[key]["Skill_Type"], ax=axs[idx], title=key, normalize=True
+        )
