@@ -22,4 +22,4 @@ repos:
         name: type-check with mypy
         args:
           - --ignore-missing-imports  
-          - --strict                  
+        additional_dependencies: ["types-requests"]

@@ -1,6 +1,7 @@
 import re
 
 import polars as pl
+
 from hiring_cv_bias.config import (
     CANDIDATE_CVS_TRANSLATED_PATH,
     PARSED_DATA_PATH,

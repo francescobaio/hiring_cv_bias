@@ -3,7 +3,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 
 
-def plot_histogram(column: pl.Series, normalize: bool = False, top_n=10) -> None:
+def plot_histogram(column: pl.Series, normalize: bool = False, top_n: int = 10) -> None:
     frequencies = column.value_counts(
         normalize=normalize,
         name="frequency",
@@ -32,7 +32,7 @@ def plot_frequency(
     title: str,
     orientation: str = "v",
     top_n: int = 10,
-):
+) -> None:
     data_pd = data.head(top_n).to_pandas()
 
     plt.figure(figsize=(8, 6))
@@ -53,7 +53,7 @@ def plot_frequency(
     plt.show()
 
 
-def plot_skills_frequency(cv_skills: pl.DataFrame):
+def plot_skills_frequency(cv_skills: pl.DataFrame) -> None:
     """ """
     skills_frequency = compute_skills_frequency(cv_skills, "Skill_Type")
     plot_frequency(
@@ -83,7 +83,7 @@ def plot_skills_per_category(
 
 def plot_top_skills_for_job_title(
     cv_skills: pl.DataFrame, job_title: str, type_skill: str, top_n: int = 10
-):
+) -> None:
     """ """
     job_titles_df = (
         cv_skills.filter(pl.col("Skill_Type") == "Job_title")

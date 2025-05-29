@@ -1,4 +1,5 @@
 import re
+from typing import Tuple, Union
 
 import matplotlib.pyplot as plt
 import polars as pl
@@ -16,7 +17,7 @@ def localize(latitude: float) -> str:
 
 def plot_distribution_bar(
     df: pl.DataFrame, x_col: str, y_col: str, x_label: str, y_label: str, title: str
-):
+) -> None:
     x = df[x_col].to_list()
     y = df[y_col].to_list()
 
@@ -30,7 +31,9 @@ def plot_distribution_bar(
     plt.show()
 
 
-def extract_gender_from_zippia(url):
+def extract_gender_from_zippia(
+    url: str,
+) -> Union[Tuple[None, None], Tuple[float, float]]:
     try:
         r = requests.get(url, timeout=10)
         soup = BeautifulSoup(r.text, "html.parser")

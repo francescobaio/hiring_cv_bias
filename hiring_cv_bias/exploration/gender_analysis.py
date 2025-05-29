@@ -1,6 +1,9 @@
+from typing import List
+
 import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
+
 from hiring_cv_bias.config import JOB_LINKS
 from hiring_cv_bias.exploration.utils import extract_gender_from_zippia
 
@@ -38,7 +41,7 @@ def get_skill_distribution_by_gender(
 
 def get_skill_gender_share(
     df: pl.DataFrame,
-    skill_col: str = ["Skill", "Skill_Type"],
+    skill_col: List[str] = ["Skill", "Skill_Type"],
     gender_col: str = "Gender",
 ) -> pl.DataFrame:
     male_counts = (
@@ -199,12 +202,12 @@ def add_zippia_columns(job_df: pl.DataFrame):
         perc_male_zippia.append(male)
         perc_female_zippia.append(female)
 
-    perc_male_zippia = pl.Series(perc_male_zippia)
-    perc_female_zippia = pl.Series(perc_female_zippia)
+    perc_male_zpa = pl.Series(perc_male_zippia)
+    perc_female_zpa = pl.Series(perc_female_zippia)
     job_df = job_df.with_columns(
         [
-            perc_female_zippia.alias("perc_female_zippia"),
-            perc_male_zippia.alias("perc_male_zippia"),
+            perc_female_zpa.alias("perc_female_zippia"),
+            perc_male_zpa.alias("perc_male_zippia"),
         ]
     )
     return job_df
