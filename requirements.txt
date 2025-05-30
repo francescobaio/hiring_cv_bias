@@ -1,5 +1,6 @@
 beautifulsoup4==4.13.3
 matplotlib==3.8.3
+polars==1.29.0
 numpy==2.2.4
 polars==1.27.0
 protobuf==6.30.2

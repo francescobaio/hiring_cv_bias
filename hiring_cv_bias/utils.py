@@ -1,8 +1,9 @@
+from typing import Dict, List
+
 import polars as pl
-from typing import List, Dict
 
 
-def load_data(filepath):
+def load_data(filepath: str) -> pl.DataFrame:
     return pl.read_csv(filepath, separator=";")
 
 
