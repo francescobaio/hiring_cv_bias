@@ -2,6 +2,7 @@ data/**
 !data/.gitkeep
 notebooks/**
 !notebooks/.gitkeep
+!notebooks/data_cleaning.ipynb
 __pycache__
 hiring_cv_bias.egg-info
 config.py
