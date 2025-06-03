@@ -23,10 +23,31 @@ def plot_histogram(
     custom_colors: Optional[Dict[str, str]] = None,
     use_only_suffixes: bool = False,
     x_labels_rotation: int = 70,
+    weights_dict: Optional[Dict[str, float]] = None,
 ) -> None:
     frequencies = column.value_counts(
         normalize=normalize, name="frequency", sort=sort
     ).head(top_n)
+
+    if weights_dict is not None:
+        frequencies_with_weights = frequencies.with_columns(
+            frequencies[column.name]
+            .str.split("_")
+            .list.last()
+            .replace_strict(weights_dict)
+            .alias("weight")
+        )
+        frequencies = frequencies_with_weights.with_columns(
+            pl.col("frequency") * pl.col("weight").alias("frequency")
+        ).drop("weight")
+        frequencies = frequencies.with_columns(
+            pl.col("frequency") / pl.col("frequency").sum().alias("frequency")
+        )
+        ordering_dict = {key: idx for idx, key in enumerate(list(weights_dict.keys()))}
+        frequencies = frequencies.sort(
+            pl.col(column.name).str.split("_").list.last().replace(ordering_dict)
+        )
+
     if ax is None:
         _, ax = plt.subplots()
     if use_only_suffixes:
@@ -49,8 +70,8 @@ def plot_histogram(
                     break
     else:
         colors = ["#1f77b4"]
-
-    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+    if not normalize and frequencies["frequency"].dtype.is_integer():
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.bar(
         frequencies[column.name],
         frequencies["frequency"],
@@ -166,11 +187,15 @@ def compute_and_plot_disparity(
     min_threshold: int = 25,
     use_percentiles: bool = True,
     custom_colors: Optional[Dict[str, str]] = None,
-    normalize: bool = False,
     attribute_name: str = "",
-    weights: Optional[List[float]] = None,
+    weights_dict: Optional[Dict[str, float]] = None,
     x_label: str = "",
 ):
+    if weights_dict is not None:
+        weights = list(weights_dict.values())
+    else:
+        weights = None
+
     max_disparity_value, max_disparity = compute_max_disparity_value(
         columns=columns,
         weights=weights,
@@ -187,16 +212,17 @@ def compute_and_plot_disparity(
     )
 
     fig, ax = plt.subplots()
-    ax.text(
-        0.95,
-        0.95,
-        f"Gini Index: {max_disparity: .2f}",
-        transform=ax.transAxes,
-        ha="right",
-        va="top",
-        fontsize=10,
-        fontweight="bold",
-    )
+    # ax.text(
+    #    0.95,
+    #    0.95,
+    #    f"Gini Index: {max_disparity: .2f}",
+    #    transform=ax.transAxes,
+    #    ha="right",
+    #    va="top",
+    #    fontsize=10,
+    #    fontweight="bold",
+    # )
+
     max_disparity_value = max_disparity_value.replace("(m/f)", "")
     fig.suptitle(
         f"{attribute_name} with most disparity: "
@@ -209,11 +235,21 @@ def compute_and_plot_disparity(
 
     plot_histogram(
         total_max_disparity_column,
-        normalize=normalize,
         custom_colors=custom_colors,
         ax=ax,
         use_only_suffixes=True,
         x_labels_rotation=0,
+        weights_dict=weights_dict,
+    )
+
+    ax.plot([], [], " ", label=rf"$\mathbf{{Gini\ Index:\ {max_disparity:.2f}}}$")
+
+    ax.legend(
+        loc="best",
+        fontsize=10,
+        frameon=False,
+        handlelength=0,
+        handletextpad=0,
     )
 
 
