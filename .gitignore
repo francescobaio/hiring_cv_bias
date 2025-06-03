@@ -1,12 +1,12 @@
 data/**
 !data/.gitkeep
+!data/hard_soft_skills.csv
 notebooks/**
 !notebooks/.gitkeep
 !notebooks/data_cleaning.ipynb
 !notebooks/data_exploration.ipynb
 __pycache__
 hiring_cv_bias.egg-info
-config.py
 .DS_Store
 .venv
 src/hiring_cv_bias/translation/magnetic-market-455110-t2-0dc68481bf13.json
