@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-DATA_DIR = str(Path(__file__).parent.parent.parent).replace(os.sep, "/") + "/data/"
+DATA_DIR = str(Path(__file__).parent.parent).replace(os.sep, "/") + "/data/"
 CV_DIR = DATA_DIR + "Adecco_Dataset_Rev_match_parsed_cvs"
 
 PARSED_DATA_PATH = CV_DIR + "/Candidate_CVs_extracted_data.csv"
