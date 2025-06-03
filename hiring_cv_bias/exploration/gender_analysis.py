@@ -102,6 +102,7 @@ def plot_gender_bias_skills_bar(
     male_col: str,
     female_col: str,
     bias_col: str,
+    title: str,
     top_n: int = 20,
 ):
     df = df.sort(bias_col, descending=True).head(top_n)
@@ -139,7 +140,7 @@ def plot_gender_bias_skills_bar(
         )
 
     ax.set_ylabel("Percentage of Skill Holders", fontsize=12)
-    ax.set_title(f"Top {top_n} Skills with Highest Gender Imbalance", fontsize=14)
+    ax.set_title(title, fontsize=14)
     ax.set_xticks(x)
     ax.set_xticklabels(skills, rotation=60, ha="right", fontsize=10)
     ax.legend()
