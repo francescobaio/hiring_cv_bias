@@ -1,4 +1,5 @@
 import re
+from collections.abc import Sequence
 from itertools import combinations
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -34,6 +35,47 @@ def plot_distribution_bar(
     plt.show()
 
 
+def plot_boxplot(
+    data: Union[Sequence, pl.Series, Sequence[Sequence]],
+    labels: Optional[Sequence[str]] = None,
+    title: str = "",
+    xlabel: str = "",
+    figsize: Tuple[int, int] = (8, 3),
+    colors: Optional[Sequence[str]] = None,
+    vert: bool = False,
+    show_grid: bool = True,
+) -> None:
+    """"""
+    fig, ax = plt.subplots(figsize=figsize)
+
+    box = ax.boxplot(
+        data,
+        vert=vert,
+        patch_artist=True,
+        labels=labels,
+        boxprops=dict(edgecolor="black"),
+        medianprops=dict(color="red"),
+    )
+
+    if colors:
+        for patch, c in zip(box["boxes"], colors):
+            patch.set_facecolor(c)
+    else:
+        for patch in box["boxes"]:
+            patch.set_facecolor("skyblue")
+
+    ax.set_title(title, pad=10)
+    if vert:
+        ax.set_ylabel(xlabel)
+    else:
+        ax.set_xlabel(xlabel)
+    if show_grid:
+        ax.grid(axis="y" if vert else "x", linestyle="--", alpha=0.7)
+
+    fig.tight_layout()
+    plt.show()
+
+
 def extract_gender_from_zippia(
     url: str,
 ) -> Union[Tuple[float, float], Tuple[None, None]]:
@@ -52,8 +94,8 @@ def extract_gender_from_zippia(
             return None, None
 
         text = value_div.get_text(separator="\n").strip()
-        male_match = re.search(r"Male\s*[–-]\s*(\d+)%", text)
-        female_match = re.search(r"Female\s*[–-]\s*(\d+)%", text)
+        male_match = re.search(r"Male\s*[--]\s*(\d+)%", text)
+        female_match = re.search(r"Female\s*[--]\s*(\d+)%", text)
 
         if male_match and female_match:
             male = float(male_match.group(1))
