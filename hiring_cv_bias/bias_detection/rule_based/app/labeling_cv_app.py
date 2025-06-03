@@ -1,7 +1,7 @@
 import polars as pl
 import streamlit as st
 
-INPUT_CSV = "/Users/francescobaiocchi/Desktop/ai_ethics_project/AIEthics/src/hiring_cv_bias/bias_detection/rule_based/app/false_positives.csv"
+INPUT_CSV = "false_positives.csv"
 OUTPUT_CSV = "cv_labeled_manual.csv"
 
 df = pl.read_csv(INPUT_CSV, separator=";")
