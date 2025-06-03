@@ -73,9 +73,8 @@ def batch_classify_skills(
 
 def clean_results(results: pl.DataFrame) -> pl.DataFrame:
     return results.with_columns(
-        pl.when(
-            ~pl.col("label").is_in(["Hard", "Soft", "Unknown"]).then(pl.lit("Unknown"))
-        )
+        pl.when(~pl.col("label").is_in(["Hard", "Soft", "Unknown"]))
+        .then(pl.lit("Unknown"))
         .otherwise(pl.col("label"))
         .alias("label")
     )

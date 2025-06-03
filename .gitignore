@@ -1,5 +1,6 @@
 data/**
 !data/.gitkeep
+!data/hard_soft_skills.csv
 notebooks/**
 !notebooks/.gitkeep
 __pycache__
