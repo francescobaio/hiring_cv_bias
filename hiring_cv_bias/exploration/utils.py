@@ -70,7 +70,7 @@ def extract_gender_from_zippia(
 def compute_max_disparity_value(
     columns: List[pl.Series],
     weights: Optional[List[float]] = None,
-    min_threshold: int = 25,
+    min_threshold: float = 25,
     use_percentiles: bool = True,
 ) -> Tuple[str, float]:
     if weights is None:
@@ -88,9 +88,9 @@ def compute_max_disparity_value(
         .agg(pl.col("count").sum())
     )
     if use_percentiles:
-        min_count = np.percentile(total_counts["count"], min_threshold)
+        min_count = float(np.percentile(total_counts["count"], min_threshold))
     else:
-        min_count = min_threshold
+        min_count = float(min_threshold)
 
     common_values_filtered = total_counts.filter(pl.col("count") >= min_count)[
         total_counts.columns[0]

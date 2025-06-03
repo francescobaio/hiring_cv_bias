@@ -32,7 +32,8 @@ def plot_histogram(
     if use_only_suffixes:
         x_labels = np.array(frequencies[column.name].str.split("_").to_list())[:, 1]
     else:
-        x_labels = frequencies[column.name]
+        x_labels = frequencies[column.name].to_numpy()
+
     ax.set_xticks(
         ticks=[*range(0, len(frequencies[column.name]))],
         labels=x_labels,
@@ -80,7 +81,7 @@ def plot_frequency(
 ):
     data_pd = data.head(top_n).to_pandas()
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(7, 6))
     if orientation != "h":
         sns.barplot(
             data=data_pd, x=x_col, y=y_col, hue=y_col, palette="Blues_r", edgecolor="k"
@@ -220,7 +221,7 @@ def plot_skill_type_distribution(
     dfs_per_attribute: Dict[str, pl.DataFrame], attribute_name: str
 ):
     fig, axs = plt.subplots(1, len(dfs_per_attribute), sharex=True, sharey=True)
-    fig.set_size_inches(20, 10)
+    fig.set_size_inches(20, 5)
     fig.suptitle(f"{attribute_name} Skill Type Distribution", fontsize=15)
 
     for idx, key in enumerate(dfs_per_attribute):
