@@ -190,7 +190,6 @@ def compute_and_plot_disparity(
     custom_colors: Optional[Dict[str, str]] = None,
     attribute_name: str = "",
     weights_dict: Optional[Dict[str, float]] = None,
-    x_label: str = "",
 ):
     if weights_dict is not None:
         weights = list(weights_dict.values())
@@ -213,16 +212,6 @@ def compute_and_plot_disparity(
     )
 
     fig, ax = plt.subplots()
-    # ax.text(
-    #    0.95,
-    #    0.95,
-    #    f"Gini Index: {max_disparity: .2f}",
-    #    transform=ax.transAxes,
-    #    ha="right",
-    #    va="top",
-    #    fontsize=10,
-    #    fontweight="bold",
-    # )
 
     max_disparity_value = max_disparity_value.replace("(m/f)", "")
     fig.suptitle(
@@ -231,7 +220,6 @@ def compute_and_plot_disparity(
         + max_disparity_value
         + r"}$"
     )
-    ax.set_xlabel(x_label, fontsize=12, labelpad=10)
     fig.subplots_adjust(bottom=0.25)
 
     plot_histogram(
@@ -254,15 +242,21 @@ def compute_and_plot_disparity(
     )
 
 
-def plot_skill_type_distribution(
-    dfs_per_attribute: Dict[str, pl.DataFrame], attribute_name: str
+def plot_target_distribution(
+    dfs_per_attribute: Dict[str, pl.DataFrame],
+    title: str,
+    group_by: str = "Skill_Type",
+    normalize=True,
 ):
     fig, axs = plt.subplots(1, len(dfs_per_attribute), sharex=True, sharey=True)
     fig.set_size_inches(20, 5)
-    fig.suptitle(f"{attribute_name} Skill Type Distribution", fontsize=15)
+    fig.suptitle(title, fontsize=15, y=1.05)
 
     for idx, key in enumerate(dfs_per_attribute):
         axs[idx].tick_params(labelleft=True, labelsize="large")
         plot_histogram(
-            dfs_per_attribute[key]["Skill_Type"], ax=axs[idx], title=key, normalize=True
+            dfs_per_attribute[key][group_by],
+            ax=axs[idx],
+            title=key,
+            normalize=normalize,
         )

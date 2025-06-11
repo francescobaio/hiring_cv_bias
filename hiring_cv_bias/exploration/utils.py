@@ -11,14 +11,6 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 
-def localize(latitude: float) -> str:
-    if latitude > 44.5:
-        return "NORTH"
-    if latitude < 42:
-        return "SOUTH"
-    return "CENTER"
-
-
 def plot_distribution_bar(
     df: pl.DataFrame, x_col: str, y_col: str, x_label: str, y_label: str, title: str
 ) -> None:
