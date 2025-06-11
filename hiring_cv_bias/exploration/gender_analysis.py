@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -39,48 +39,12 @@ def get_skill_distribution_by_gender(
     return result
 
 
-def get_skill_gender_share(
+def compute_bias_strenght(
     df: pl.DataFrame,
     skill_col: List[str] = ["Skill", "Skill_Type"],
     gender_col: str = "Gender",
 ) -> pl.DataFrame:
-    male_counts = (
-        df.filter(pl.col(gender_col) == "Male")
-        .group_by(skill_col)
-        .agg(pl.len().alias("count_male"))
-    )
-
-    female_counts = (
-        df.filter(pl.col(gender_col) == "Female")
-        .group_by(skill_col)
-        .agg(pl.len().alias("count_female"))
-    )
-
-    result = male_counts.join(female_counts, on=skill_col, how="outer").fill_null(0)
-    result = result.with_columns(
-        [(pl.col("count_male") + pl.col("count_female")).alias("count_total")]
-    )
-
-    result = result.with_columns(
-        [
-            (pl.col("count_female") / pl.col("count_total") * 100)
-            .round(1)
-            .alias("perc_female"),
-            (pl.col("count_male") / pl.col("count_total") * 100)
-            .round(1)
-            .alias("perc_male"),
-        ]
-    )
-
-    result = result.with_columns(
-        [
-            (pl.col("perc_male") - pl.col("perc_female")).alias("perc_diff"),
-            (
-                pl.col("count_male").cast(pl.Int64)
-                - pl.col("count_female").cast(pl.Int64)
-            ).alias("count_diff"),
-        ]
-    )
+    result = get_skill_gender_share(df, skill_col, gender_col)
 
     result = result.with_columns(
         [
@@ -104,8 +68,9 @@ def plot_gender_bias_skills_bar(
     bias_col: str,
     title: str,
     top_n: int = 20,
+    figsize: Tuple[int, int] = (14, 6),
 ):
-    df = df.sort(bias_col, descending=True).head(top_n)
+    df = df.sort(pl.col(bias_col).abs(), descending=True).head(top_n)
 
     skills = df[skill_col].to_list()
     perc_m = df[male_col].to_list()
@@ -113,7 +78,7 @@ def plot_gender_bias_skills_bar(
     x = np.arange(len(skills))
     width = 0.35
 
-    _, ax = plt.subplots(figsize=(14, 6))
+    _, ax = plt.subplots(figsize=figsize)
     # colors = sns.color_palette("pastel")
 
     ax.bar(x - width / 2, perc_m, width, label="Male", color="skyblue", edgecolor="k")
@@ -151,28 +116,68 @@ def plot_gender_bias_skills_bar(
     plt.show()
 
 
-def get_skilltype_gender_share(
-    df: pl.DataFrame, skilltype_col: str = "Skill_Type", gender_col: str = "Gender"
+def get_skill_gender_share(
+    df: pl.DataFrame, skill_col: List[str] = ["Skill_Type"], gender_col: str = "Gender"
 ) -> pl.DataFrame:
+    gender_counts_df = df.select(["CANDIDATE_ID", gender_col]).unique()
+    gender_counts_df = get_category_distribution(gender_counts_df, gender_col)
+    gender_counts_df = gender_counts_df.with_columns(pl.col("percentage") / 100)
+
     male_counts = (
         df.filter(pl.col(gender_col) == "Male")
-        .group_by(skilltype_col)
+        .group_by(skill_col, maintain_order=True)
         .agg(pl.len().alias("count_male"))
-    )
+    ).drop_nulls(skill_col)
 
     female_counts = (
         df.filter(pl.col(gender_col) == "Female")
-        .group_by(skilltype_col)
+        .group_by(skill_col, maintain_order=True)
         .agg(pl.len().alias("count_female"))
+    ).drop_nulls(skill_col)
+
+    total_counts = male_counts.join(
+        female_counts, on=skill_col, how="full", coalesce=True
+    ).fill_null(0)
+
+    normalize_factor = total_counts["count_male"] + total_counts["count_female"]
+
+    total_counts = total_counts.with_columns(
+        (
+            pl.col("count_female")
+            * (
+                1
+                - (
+                    gender_counts_df.filter(pl.col("Gender") == "Female")[
+                        "percentage"
+                    ].item()
+                )
+            )
+        ),
+        (
+            pl.col("count_male")
+            * (
+                1
+                - (
+                    gender_counts_df.filter(pl.col("Gender") == "Male")[
+                        "percentage"
+                    ].item()
+                )
+            )
+        ),
+    )
+    normalize_factor = normalize_factor / (
+        total_counts["count_male"] + total_counts["count_female"]
     )
 
-    result = male_counts.join(female_counts, on=skilltype_col, how="outer").fill_null(0)
-
-    result = result.with_columns(
+    total_counts = total_counts.with_columns(
+        (pl.col("count_male") * normalize_factor).round().cast(pl.Int64),
+        (pl.col("count_female") * normalize_factor).round().cast(pl.Int64),
+    )
+    total_counts = total_counts.with_columns(
         [(pl.col("count_male") + pl.col("count_female")).alias("count_total")]
     )
 
-    result = result.with_columns(
+    total_counts = total_counts.with_columns(
         [
             (pl.col("count_female") / pl.col("count_total") * 100)
             .round(1)
@@ -183,17 +188,14 @@ def get_skilltype_gender_share(
         ]
     )
 
-    result = result.with_columns(
+    total_counts = total_counts.with_columns(
         [
-            (
-                pl.col("count_male").cast(pl.Int64)
-                - pl.col("count_female").cast(pl.Int64)
-            ).alias("count_diff"),
+            (pl.col("count_male") - pl.col("count_female")).alias("count_diff"),
             (pl.col("perc_male") - pl.col("perc_female")).alias("perc_diff"),
         ]
     )
 
-    return result.sort("count_total", descending=True)
+    return total_counts.sort("count_total", descending=True)
 
 
 def add_zippia_columns(job_df: pl.DataFrame):
