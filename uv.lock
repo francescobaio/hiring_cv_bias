@@ -194,6 +194,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/53/8d/94fade74736b4e94dd8dd45c2a2d12fc4863f3ffe8decc26abc7353be21d/auto-mix-prep-0.2.0.tar.gz", hash = "sha256:5e7d9c6e3fd73c49bf22a216e04d7249d529d8822f5ee3d25f3dcf6c982a92d6", size = 2901, upload-time = "2015-05-23T18:20:59.465Z" }
 
 [[package]]
+name = "babel"
+version = "2.17.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7d/6b/d52e42361e1aa00709585ecc30b3f9684b3ab62530771402248b1b1d6240/babel-2.17.0.tar.gz", hash = "sha256:0c54cffb19f690cdcc52a3b50bcbf71e07a808d1c80d549f2459b9d2cf0afb9d", size = 9951852, upload-time = "2025-02-01T15:17:41.026Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b7/b8/3fe70c75fe32afc4bb507f75563d39bc5642255d1d94f1f23604725780bf/babel-2.17.0-py3-none-any.whl", hash = "sha256:4d0b53093fdfb4b21c92b5213dba5a1b23885afa8383709427046b21c366e5f2", size = 10182537, upload-time = "2025-02-01T15:17:37.39Z" },
+]
+
+[[package]]
 name = "beautifulsoup4"
 version = "4.13.3"
 source = { registry = "https://pypi.org/simple" }
@@ -953,6 +962,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "auto-mix-prep" },
+    { name = "babel" },
     { name = "beautifulsoup4" },
     { name = "datasets" },
     { name = "fastexcel" },
@@ -985,6 +995,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "auto-mix-prep", specifier = "==0.2.0" },
+    { name = "babel", specifier = ">=2.17.0" },
     { name = "beautifulsoup4", specifier = "==4.13.3" },
     { name = "datasets", specifier = "==3.5.0" },
     { name = "fastexcel", specifier = "==0.13.0" },

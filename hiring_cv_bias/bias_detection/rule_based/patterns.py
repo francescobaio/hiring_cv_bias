@@ -42,27 +42,7 @@ driver_license_pattern_eng = re.compile(
 #     re.IGNORECASE | re.UNICODE,
 # )
 
-LANGUAGE_VARIANTS = {}
-
-for lang in pycountry.languages:
-    if not hasattr(lang, "alpha_2"):
-        continue
-
-    # ISO code & name
-    code = lang.alpha_2.lower()
-    name_en = lang.name.lower()
-
-    try:
-        native = Language.get(code).display_name(code).lower()
-    except LookupError:
-        native = None
-
-    variants = {name_en}
-    if native:
-        variants.add(native)
-
-    LANGUAGE_VARIANTS[code] = sorted(variants)
-
+# ----------------------------------------------------------
 
 # LANGUAGE_REGEXES = {
 #     lang: re.compile(
@@ -79,6 +59,27 @@ for lang in pycountry.languages:
 #     )
 #     for lang, variants in LANGUAGE_VARIANTS.items()
 # }
+
+LANGUAGE_VARIANTS = {}
+
+for lang in pycountry.languages:
+    if not hasattr(lang, "alpha_2"):
+        continue
+
+    # ISO code & name
+    code = lang.alpha_2.lower()
+    name_en = lang.name.lower()
+
+    try:
+        native = Language.get(code).display_name(code).lower()
+    except LookupError:
+        native = ""
+
+    variants = {name_en}
+    if native:
+        variants.add(native)
+
+    LANGUAGE_VARIANTS[code] = sorted(variants)
 
 LANGUAGE_REGEXES_EN = {
     lang: re.compile(
@@ -98,60 +99,65 @@ LANGUAGE_REGEXES_EN = {
 }
 
 
-CEFR = r"(?:A1|A2|B1|B2|C1|C2)"
-DESCR = r"(?:basic|elementary|fair|good|very\s+good|excellent|intermediate|upper\s+intermediate|native)"
+languages_pattern_eng = re.compile(
+    "|".join(f"({pat.pattern})" for pat in LANGUAGE_REGEXES_EN.values()),
+    re.IGNORECASE | re.VERBOSE,
+)
 
-LANGUAGE_REGEXES_EN = {
-    lang: re.compile(
-        rf"""
-        # 0) Italian: or Lingua Italiana (singular)
-        \b(?:language|lingua)\s+(?:{"|".join(map(re.escape, variants))})\b
-        |
-        # 1) Native speaker context
-        native\sspeaker(?:\sof)?\s+(?:{"|".join(map(re.escape, variants))})
-        |
-        # 2) Knowledge/proficiency/certification
-        knowledge\sof\s+(?:the\s+)?(?:language\s+)?(?:{"|".join(map(re.escape, variants))})
-        |
-        proficiency\sin\s+(?:{"|".join(map(re.escape, variants))})
-        |
-        certification(?:\sin)?\s+(?:{"|".join(map(re.escape, variants))})
-        |
-        # 3) Languages keyword (plural)
-        languages?\s+(?:{"|".join(map(re.escape, variants))})
-        |
-        # 4) Spoken/written/oral tags
-        (?:{"|".join(map(re.escape, variants))})\s+(?:spoken|written|oral)
-        |
-        # 5) Symmetric CEFR patterns: "English B2" or "B2 English"
-        (?:
-            (?:{"|".join(map(re.escape, variants))})\s*{CEFR}\b
-          |
-            {CEFR}\s*(?:{"|".join(map(re.escape, variants))})\b
-        )
-        |
-        # 6) LANGUAGE: LEVEL... pattern e.g. "Spanish: B1 intermediate"
-        (?:
-            (?:{"|".join(map(re.escape, variants))})
-            \s*[:\-]\s*
-            (?:
-                native\slanguage
-              |
-                {CEFR}
-              |
-                {DESCR}
-            )
-            (?:\s+(?:{CEFR}|{DESCR}))*
-        )
-        |
-        # 7) Descriptive levels around language
-        (?:
-            {DESCR}\s+(?:{"|".join(map(re.escape, variants))})
-          |
-            (?:{"|".join(map(re.escape, variants))})\s+{DESCR}
-        )
-        """,
-        re.IGNORECASE | re.VERBOSE,
-    )
-    for lang, variants in LANGUAGE_VARIANTS.items()
-}
+# CEFR = r"(?:A1|A2|B1|B2|C1|C2)"
+# DESCR = r"(?:basic|elementary|fair|good|very\s+good|excellent|intermediate|upper\s+intermediate|native)"
+
+# LANGUAGE_REGEXES_EN = {
+#     lang: re.compile(
+#         rf"""
+#         # 0) Italian: or Lingua Italiana (singular)
+#         \b(?:language|lingua)\s+(?:{"|".join(map(re.escape, variants))})\b
+#         |
+#         # 1) Native speaker context
+#         native\sspeaker(?:\sof)?\s+(?:{"|".join(map(re.escape, variants))})
+#         |
+#         # 2) Knowledge/proficiency/certification
+#         knowledge\sof\s+(?:the\s+)?(?:language\s+)?(?:{"|".join(map(re.escape, variants))})
+#         |
+#         proficiency\sin\s+(?:{"|".join(map(re.escape, variants))})
+#         |
+#         certification(?:\sin)?\s+(?:{"|".join(map(re.escape, variants))})
+#         |
+#         # 3) Languages keyword (plural)
+#         languages?\s+(?:{"|".join(map(re.escape, variants))})
+#         |
+#         # 4) Spoken/written/oral tags
+#         (?:{"|".join(map(re.escape, variants))})\s+(?:spoken|written|oral)
+#         |
+#         # 5) Symmetric CEFR patterns: "English B2" or "B2 English"
+#         (?:
+#             (?:{"|".join(map(re.escape, variants))})\s*{CEFR}\b
+#           |
+#             {CEFR}\s*(?:{"|".join(map(re.escape, variants))})\b
+#         )
+#         |
+#         # 6) LANGUAGE: LEVEL... pattern e.g. "Spanish: B1 intermediate"
+#         (?:
+#             (?:{"|".join(map(re.escape, variants))})
+#             \s*[:\-]\s*
+#             (?:
+#                 native\slanguage
+#               |
+#                 {CEFR}
+#               |
+#                 {DESCR}
+#             )
+#             (?:\s+(?:{CEFR}|{DESCR}))*
+#         )
+#         |
+#         # 7) Descriptive levels around language
+#         (?:
+#             {DESCR}\s+(?:{"|".join(map(re.escape, variants))})
+#           |
+#             (?:{"|".join(map(re.escape, variants))})\s+{DESCR}
+#         )
+#         """,
+#         re.IGNORECASE | re.VERBOSE,
+#     )
+#     for lang, variants in LANGUAGE_VARIANTS.items()
+# }

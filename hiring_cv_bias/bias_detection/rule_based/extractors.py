@@ -52,16 +52,12 @@ _missing = set()
 
 
 def norm_languages(skill: Optional[str]) -> str:
-    """ """
     if not isinstance(skill, str):
         return ""
 
     raw = skill.strip()
     key = raw.lower()
     code = _reverse_language_map.get(key)
-
-    # logger
-    # print(f"[norm_languages] raw: {raw!r} → code: {code!r}")
 
     if not code:
         _missing.add(raw)

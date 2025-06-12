@@ -1,9 +1,26 @@
-from typing import Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
 import polars as pl
 from tqdm.notebook import tqdm
 
 from hiring_cv_bias.bias_detection.rule_based.evaluation.metrics import Conf, Result
+
+
+def collect_confusion_rows(
+    rows: List[Dict[str, Any]],
+    base_row: Dict[str, Any],
+    keys: List[str],
+    skills: Set[Optional[str]],
+    reason: str,
+) -> None:
+    base = {k: base_row[k] for k in keys}
+    for s in skills:
+        entry = dict(base)
+        entry["skill"] = s
+        entry["cv_text"] = base_row["Translated_CV"]
+        entry["cv_italian"] = base_row["CV_text_anon"]
+        entry["reason"] = reason
+        rows.append(entry)
 
 
 def compute_candidate_coverage(
@@ -20,6 +37,8 @@ def compute_candidate_coverage(
     fn_rows: List[Dict] = []
     tn_rows: List[Dict] = []
     truth_ids, parser_ids = set(), set()
+
+    features = ["CANDIDATE_ID", "Gender", "Location", "Age_bucket", "lenght"]
 
     for row in tqdm(df_cv.iter_rows(named=True), total=df_cv.height):
         cid, raw = row["CANDIDATE_ID"], row["Translated_CV"]
@@ -39,67 +58,47 @@ def compute_candidate_coverage(
             parser_ids.add(cid)
 
         # TP
-        for s in truth & parser:
-            tp += 1
-            tp_rows.append(
-                {
-                    "CANDIDATE_ID": cid,
-                    "Gender": row["Gender"],
-                    "Location": row["Location"],
-                    "Age_bucket": row["Age_bucket"],
-                    "skill": s,
-                    "cv_text": raw,
-                    "cv_italian": row["CV_text_anon"],
-                    "reason": "Both regex & parser found this skill.",
-                }
-            )
+        tp_skills = truth & parser
+        tp += len(tp_skills)
+        collect_confusion_rows(
+            tp_rows,
+            row,
+            features,
+            set(tp_skills),
+            "Both regex & parser found this skill.",
+        )
 
         # FN
-        for s in truth - parser:
-            fn += 1
-            fn_rows.append(
-                {
-                    **{
-                        k: row[k]
-                        for k in ("CANDIDATE_ID", "Gender", "Location", "Age_bucket")
-                    },
-                    "skill": s,
-                    "cv_text": raw,
-                    "cv_italian": row["CV_text_anon"],
-                    "reason": "Rule-based extractor found skill but parser missed it.",
-                }
-            )
+        fn_skills = truth - parser
+        fn += len(fn_skills)
+        collect_confusion_rows(
+            fn_rows,
+            row,
+            features,
+            set(fn_skills),
+            "Rule-based extractor found skill but parser missed it.",
+        )
 
         # FP
-        for s in parser - truth:
-            fp += 1
-            fp_rows.append(
-                {
-                    **{
-                        k: row[k]
-                        for k in ("CANDIDATE_ID", "Gender", "Location", "Age_bucket")
-                    },
-                    "skill": None,
-                    "cv_text": raw,
-                    "cv_italian": row["CV_text_anon"],
-                    "reason": "Parser output contains skill not found by rule-based extractor.",
-                }
-            )
+        fp_skills = parser - truth
+        fp += len(fp_skills)
+        collect_confusion_rows(
+            fp_rows,
+            row,
+            features,
+            set(fp_skills),
+            "Parser output contains skill not found by rule-based extractor.",
+        )
 
         # TN
         if not truth and not parser:
             tn += 1
-            tn_rows.append(
-                {
-                    **{
-                        k: row[k]
-                        for k in ("CANDIDATE_ID", "Gender", "Location", "Age_bucket")
-                    },
-                    "skill": None,
-                    "cv_text": raw,
-                    "cv_italian": row["CV_text_anon"],
-                    "reason": "No skill found by either extractor or parser.",
-                }
+            collect_confusion_rows(
+                tn_rows,
+                row,
+                features,
+                {None},
+                "No skill found by either extractor or parser.",
             )
 
     if verbose:
