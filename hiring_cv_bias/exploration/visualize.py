@@ -1,4 +1,6 @@
-from typing import Dict, List, Optional
+import sys
+from collections import defaultdict
+from typing import Dict, List, Optional, Tuple
 
 import matplotlib
 import numpy as np
@@ -7,10 +9,9 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
-from hiring_cv_bias.exploration.utils import (
-    add_suffix_and_concat,
-    compute_max_disparity_value,
-)
+from hiring_cv_bias.exploration.utils import compute_top_disparity_values
+
+EPSILON = sys.float_info.epsilon
 
 
 def plot_histogram(
@@ -111,7 +112,6 @@ def plot_frequency(
         sns.barplot(
             data=data_pd, x=y_col, y=x_col, hue=y_col, palette="Blues_r", edgecolor="k"
         )
-        # plt.xticks(rotation=45)
 
     plt.xlabel(x_col if orientation == "v" else y_col)
     plt.ylabel(y_col if orientation == "v" else x_col)
@@ -183,63 +183,112 @@ def plot_top_skills_for_job_title(
 
 
 def compute_and_plot_disparity(
-    columns: List[pl.Series],
-    suffixes: List[str],
+    columns: Dict[str, pl.Series],
     min_threshold: int = 25,
     use_percentiles: bool = True,
-    custom_colors: Optional[Dict[str, str]] = None,
+    colors: Optional[Dict[str, str]] = None,
     attribute_name: str = "",
     weights_dict: Optional[Dict[str, float]] = None,
+    top_n: int = 5,
+    fig_size: Tuple[int, int] = (14, 8),
 ):
     if weights_dict is not None:
         weights = list(weights_dict.values())
     else:
+        weights_dict = {attr: 1 for attr in columns}
         weights = None
 
-    max_disparity_value, max_disparity = compute_max_disparity_value(
-        columns=columns,
+    if colors is None:
+        colors = {attr: "#1f77b4" for attr in columns}
+    top_values, top_disparities = compute_top_disparity_values(
+        columns=list(columns.values()),
         weights=weights,
         min_threshold=min_threshold,
         use_percentiles=use_percentiles,
-    )
-    columns_filtered = [
-        column.filter(column == max_disparity_value) for column in columns
-    ]
-
-    total_max_disparity_column = add_suffix_and_concat(
-        columns=columns_filtered,
-        suffixes=suffixes,
+        top_n=top_n,
     )
 
-    fig, ax = plt.subplots()
+    if len(top_values) < top_n:
+        top_n = len(top_values)
 
-    max_disparity_value = max_disparity_value.replace("(m/f)", "")
-    fig.suptitle(
-        f"{attribute_name} with most disparity: "
-        + r"$\mathbf{"
-        + max_disparity_value
-        + r"}$"
-    )
-    fig.subplots_adjust(bottom=0.25)
+    percs: Dict[str, List[float]] = defaultdict(list)
+    for value in top_values:
+        raw_counts = {
+            attr: (len(column.filter(column == value)) * weights_dict[attr]) + EPSILON
+            for attr, column in columns.items()
+        }
+        normalization_factor = sum(list(raw_counts.values()))
+        for attr, count in raw_counts.items():
+            percs[attr].append((count / normalization_factor))
 
-    plot_histogram(
-        total_max_disparity_column,
-        custom_colors=custom_colors,
-        ax=ax,
-        use_only_suffixes=True,
-        x_labels_rotation=0,
-        weights_dict=weights_dict,
-    )
+    x = np.arange(top_n)
+    num_attributes = len(columns)
+    width = 0.7 / num_attributes
+    _, ax = plt.subplots(figsize=fig_size)
 
-    ax.plot([], [], " ", label=rf"$\mathbf{{Gini\ Index:\ {max_disparity:.2f}}}$")
+    for i, (attr, perc) in enumerate(percs.items()):
+        bar_position = x + (i - (num_attributes - 1) / 2) * width
+        ax.bar(
+            bar_position,
+            np.array(perc) * 100,
+            width,
+            label=attr,
+            color=colors[attr],
+            edgecolor="k",
+        )
 
+    for i in range(top_n):
+        max_height = max([perc[i] * 100 for perc in percs.values()])
+        ax.text(
+            x[i],
+            max_height + 5,
+            rf"$\mathbf{{Gini\ Index:\ {top_disparities[i]:.2f}}}$",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+            fontweight="bold",
+        )
+        ax.add_patch(
+            plt.Rectangle(
+                (x[i] - 0.3, max_height + 1),
+                0.6,
+                4,
+                facecolor="none",
+                edgecolor="none",
+                label="_nolegend_",
+            )
+        )
+        for j, (_, perc) in enumerate(percs.items()):
+            bar_position = x[i] + (j - (num_attributes - 1) / 2) * width
+            ax.text(
+                bar_position,
+                perc[i] * 100 + 1,
+                f"{perc[i] * 100:.0f}%",
+                ha="center",
+                va="bottom",
+                fontsize=8,
+            )
+
+    ax.set_ylabel("Percentage of Skill Holders", fontsize=12)
+    ax.set_title(f"{attribute_name} with highest disparity", fontsize=14, pad=20)
+    ax.set_xticks(x)
+    ax.set_xticklabels(top_values, rotation=60, ha="right", fontsize=10)
+
+    max_bar_height = max([max(perc) * 100 for perc in percs.values()])
+
+    ax.set_ylim(0, max_bar_height * 1.25)
     ax.legend(
         loc="best",
         fontsize=10,
         frameon=False,
-        handlelength=0,
-        handletextpad=0,
     )
+
+    ax.yaxis.grid(True, linestyle="--", alpha=0.6)
+    ax.set_axisbelow(True)
+    ax.spines[["top", "right", "left"]].set_visible(False)
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.90)
+    plt.show()
 
 
 def plot_target_distribution(

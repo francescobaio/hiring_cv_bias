@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import polars as pl
 import requests
 from bs4 import BeautifulSoup
@@ -101,12 +102,13 @@ def extract_gender_from_zippia(
         return None, None
 
 
-def compute_max_disparity_value(
+def compute_top_disparity_values(
     columns: List[pl.Series],
     weights: Optional[List[float]] = None,
     min_threshold: float = 25,
     use_percentiles: bool = True,
-) -> Tuple[str, float]:
+    top_n: int = 5,
+) -> Tuple[npt.NDArray, npt.NDArray]:
     if weights is None:
         weights = [1] * len(columns)
     first_set = set(columns[0].drop_nulls())
@@ -134,9 +136,11 @@ def compute_max_disparity_value(
         for column in counts_per_column
     ]
 
-    max_disparity = 0.0
-    max_disparity_counts = 0
+    disparity_values: List[str] = []
+    disparities: List[float] = []
+    disparity_counts: List[int] = []
     common_values_filtered.sort(in_place=True)
+
     for value in common_values_filtered:
         counts = [
             filtered_count.filter(filtered_count[filtered_count.columns[0]] == value)[
@@ -149,15 +153,25 @@ def compute_max_disparity_value(
         current_disparity = compute_disparity(weighted_counts)
         current_disparity_counts = sum(counts)
 
-        if current_disparity > max_disparity or (
-            current_disparity == max_disparity
-            and current_disparity_counts > max_disparity_counts
-        ):
-            max_disparity = current_disparity
-            max_disparity_value: str = value
-            max_disparity_counts = current_disparity_counts
+        disparity_values.append(value)
+        disparities.append(current_disparity)
+        disparity_counts.append(current_disparity_counts)
 
-    return max_disparity_value, max_disparity
+    top_values_and_disparities = np.array(
+        [
+            [value, disparity]
+            for value, disparity, _ in sorted(
+                zip(disparity_values, disparities, disparity_counts),
+                key=lambda triplet: (triplet[1], triplet[2]),
+                reverse=True,
+            )
+        ],
+        dtype=object,
+    )
+    top_values = top_values_and_disparities[:top_n, 0]
+    top_disparities = top_values_and_disparities[:top_n, 1]
+
+    return top_values, top_disparities
 
 
 def compute_disparity(data_points: List[Any]) -> float:
