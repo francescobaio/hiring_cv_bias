@@ -17,17 +17,21 @@ JOB_LINKS = [
     "https://www.zippia.com/secretary-jobs/demographics/",
     "https://www.zippia.com/maintenance-technician-jobs/demographics/",
     "https://www.zippia.com/electrician-jobs/demographics/",
-    "https://www.zippia.com/delivery-driver-jobs/demographics/",
-    "https://www.zippia.com/motor-vehicle-assembler-jobs/demographics/",
     "https://www.zippia.com/chauffeur-jobs/demographics/",
-    "https://www.zippia.com/warehouse-employee-jobs/demographics/",
+    "https://www.zippia.com/motor-vehicle-assembler-jobs/demographics/",
+    "https://www.zippia.com/delivery-driver-jobs/demographics/",
     "https://www.zippia.com/car-mechanic-jobs/demographics/",
+    "https://www.zippia.com/room-attendant-jobs/demographics/",
     "https://www.zippia.com/plumber-jobs/demographics/",
     "https://www.zippia.com/bricklayer-jobs/demographics/",
+    "https://www.zippia.com/warehouse-employee-jobs/demographics/",
+    "https://www.zippia.com/painter-jobs/demographics/",
     "https://www.zippia.com/carpenter-jobs/demographics/",
-    "https://www.zippia.com/forklift-operator-jobs/demographics/",
 ]
 
 CV_CLEANED_DIR = DATA_DIR + "Adecco_Dataset_cleaned"
-CANDIDATE_CVS_TRANSLATED_CLEANED_PATH = CV_CLEANED_DIR + "CV_translated_cleaned.csv"
+CANDIDATE_CVS_TRANSLATED_CLEANED_PATH = CV_CLEANED_DIR + "/CV_translated_cleaned.csv"
 CLEANED_SKILLS = CV_CLEANED_DIR + "/Skills_cleaned.csv"
+CLEANED_REVERSE_MATCHING_PATH = (
+    CV_CLEANED_DIR + "/reversed_skills_matching_candidate.csv"
+)
