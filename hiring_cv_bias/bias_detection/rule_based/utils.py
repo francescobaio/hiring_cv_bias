@@ -1,44 +1,40 @@
-from typing import Dict, List, Optional
+from typing import List, Optional
+
+import polars as pl
 
 from hiring_cv_bias.bias_detection.rule_based.evaluation.compare_parser import (
     error_rates_by_group,
 )
-from hiring_cv_bias.bias_detection.rule_based.evaluation.metrics import Conf, scores
+from hiring_cv_bias.bias_detection.rule_based.evaluation.metrics import Result
 
 RED, RESET = "\033[31m", "\033[0m"
 
 
 def print_report(
-    conf: Conf,
-    df_population,
-    fp_rows: List[Dict],
-    fn_rows: List[Dict],
+    result: Result,
+    df_population: pl.DataFrame,
     group_col: Optional[str] = None,
+    metrics: Optional[List[str]] = None,
 ):
-    s = scores(conf)
-    print(f"TP: {conf.tp}, FP: {conf.fp}, TN: {conf.tn}, FN: {conf.fn}")
     print(
-        f"Accuracy: {s['accuracy']:.3f}, "
-        f"Precision: {s['precision']:.3f}, "
-        f"Recall: {s['recall']:.3f}, "
-        f"F1: {s['f1']:.3f}\n"
+        f"TP: {result.conf.tp}, FP: {result.conf.fp}, TN: {result.conf.tn}, FN: {result.conf.fn}"
     )
+    print(
+        f"Accuracy: {result.conf.accuracy:.3f}, "
+        f"Precision: {result.conf.precision:.3f}, "
+        f"Recall: {result.conf.equality_of_opportunity:.3f}, "
+        f"F1: {result.conf.f1:.3f}\n"
+    )
+
     if group_col:
-        fp_rate, fn_rate = error_rates_by_group(
-            df_population, fp_rows, fn_rows, group_col=group_col
+        df_rates = error_rates_by_group(
+            result, df_population, group_col=group_col, metrics=metrics
         )
-        print(f"False positive rate by {group_col}:\n", fp_rate)
-        print(f"False negative rate by {group_col}:\n", fn_rate)
+        print(f"Error and rates by {group_col}:\n", df_rates)
     else:
-        total = df_population.height
-        num_fp = len(fp_rows)
-        num_fn = len(fn_rows)
-
-        fp_rate = num_fp / total if total > 0 else 0.0
-        fn_rate = num_fn / total if total > 0 else 0.0
-
-        print("Overall false positive rate:", round(fp_rate, 3))
-        print("Overall false negative rate:", round(fn_rate, 3))
+        tot = df_population.height
+        print("Overall FP-rate:", round(len(result.fp_rows) / tot, 3))
+        print("Overall FN-rate:", round(len(result.fn_rows) / tot, 3))
 
 
 def highlight_snippets(text: str, pattern, context_chars=100) -> List[str]:
