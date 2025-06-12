@@ -8,7 +8,7 @@ def add_driving_license_flag(
     candidates_df: pl.DataFrame,
 ) -> pl.DataFrame:
     enriched_cv_df = cv_df.join(
-        candidates_df.select(["CANDIDATE_ID", "Gender"]),
+        candidates_df.select(["CANDIDATE_ID", "Gender", "Location", "Age_bucket"]),
         on="CANDIDATE_ID",
         how="inner",
     ).with_columns(

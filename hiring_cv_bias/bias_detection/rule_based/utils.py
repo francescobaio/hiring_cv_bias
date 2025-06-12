@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 
-from hiring_cv_bias.bias_detection.rule_based.evaluation.bias import (
+from hiring_cv_bias.bias_detection.rule_based.evaluation.compare_parser import (
     error_rates_by_group,
 )
 from hiring_cv_bias.bias_detection.rule_based.evaluation.metrics import Conf, scores
@@ -23,7 +23,6 @@ def print_report(
         f"Recall: {s['recall']:.3f}, "
         f"F1: {s['f1']:.3f}\n"
     )
-
     if group_col:
         fp_rate, fn_rate = error_rates_by_group(
             df_population, fp_rows, fn_rows, group_col=group_col

@@ -1,8 +1,10 @@
 from collections import namedtuple
-from typing import Callable, Set
+from typing import Callable, List, Set, Tuple
 
 import polars as pl
 from tqdm.notebook import tqdm
+
+from hiring_cv_bias.exploration.gender_analysis import get_category_distribution
 
 Conf = namedtuple("Conf", "tp fp tn fn")
 Result = namedtuple("Result", "conf fp_rows fn_rows")
@@ -26,7 +28,7 @@ def compute_candidate_coverage(
     parser_occurrences = 0
 
     for row in tqdm(df_cv.iter_rows(named=True), total=df_cv.height):
-        cid, gender, raw = row["CANDIDATE_ID"], row["Gender"], row["Translated_CV"]
+        cid, raw = row["CANDIDATE_ID"], row["Translated_CV"]
 
         truth = extractor(raw)
         if truth:
@@ -53,7 +55,9 @@ def compute_candidate_coverage(
         fp_rows += [
             {
                 "CANDIDATE_ID": cid,
-                "Gender": gender,
+                "Gender": row["Gender"],
+                "Location": row["Location"],
+                "Age_bucket": row["Age_bucket"],
                 "skill": s,
                 "cv_text": raw,
                 "cv_italian": row["CV_text_anon"],
@@ -64,7 +68,9 @@ def compute_candidate_coverage(
         fn_rows += [
             {
                 "CANDIDATE_ID": cid,
-                "Gender": gender,
+                "Gender": row["Gender"],
+                "Location": row["Location"],
+                "Age_bucket": row["Age_bucket"],
                 "skill": s,
                 "cv_text": raw,
                 "cv_italian": row["CV_text_anon"],
@@ -86,3 +92,35 @@ def compute_candidate_coverage(
         print(f"- Only parser           : {len(only_parser)}\n")
 
     return Result(Conf(tp, fp, tn, fn), fp_rows, fn_rows)
+
+
+def error_rates_by_group(
+    df_population: pl.DataFrame,
+    fp_rows: List[dict],
+    fn_rows: List[dict],
+    group_col: str = "Gender",
+) -> Tuple[pl.DataFrame, pl.DataFrame]:
+    """
+    Compute FP-rate and FN-rate per demographic group.
+    """
+    df_fp = pl.DataFrame(fp_rows)
+    df_fn = pl.DataFrame(fn_rows)
+
+    fp_counts = df_fp.group_by(group_col).len().rename({"len": "num_fp"})
+    fn_counts = df_fn.group_by(group_col).len().rename({"len": "num_fn"})
+    # print(fp_counts)
+
+    pop_counts = get_category_distribution(df_population, group_col).rename(
+        {group_col: group_col, "count": "total"}
+    )
+    # print(pop_counts)
+
+    fp_rate = fp_counts.join(pop_counts, on=group_col, how="left").with_columns(
+        (pl.col("num_fp") / pl.col("total")).alias("fp_rate")
+    )
+
+    fn_rate = fn_counts.join(pop_counts, on=group_col, how="left").with_columns(
+        (pl.col("num_fn") / pl.col("total")).alias("fn_rate")
+    )
+
+    return fp_rate, fn_rate

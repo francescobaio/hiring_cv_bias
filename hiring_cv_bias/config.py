@@ -32,3 +32,8 @@ JOB_LINKS = [
 CV_CLEANED_DIR = DATA_DIR + "Adecco_Dataset_cleaned"
 CANDIDATE_CVS_TRANSLATED_CLEANED_PATH = CV_CLEANED_DIR + "/CV_translated_cleaned.csv"
 CLEANED_SKILLS = CV_CLEANED_DIR + "/Skills_cleaned.csv"
+CLEANED_REVERSE_MATCHING_PATH = (
+    CV_CLEANED_DIR + "/reversed_skills_matching_candidate.csv"
+)
+FALSE_NEGATIVE_PATH = CV_CLEANED_DIR + "/false_negatives.csv"
+FALSE_POSITIVE_PATH = CV_CLEANED_DIR + "/false_positive.csv"

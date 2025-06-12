@@ -1,10 +1,11 @@
 import polars as pl
 import streamlit as st
 
-INPUT_CSV = "../hiring_cv_bias/bias_detection/rule_based/app/false_positives.csv"
-OUTPUT_CSV = "cv_labeled_manual.csv"
+from hiring_cv_bias.config import FALSE_POSITIVE_PATH
+from hiring_cv_bias.utils import load_data
 
-df = pl.read_csv(INPUT_CSV, separator=";")
+OUTPUT_CSV = "cv_labeled_manual.csv"
+df = load_data(FALSE_POSITIVE_PATH)
 
 if "index" not in st.session_state:
     st.session_state.index = 0
