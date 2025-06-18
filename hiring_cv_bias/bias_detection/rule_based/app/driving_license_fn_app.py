@@ -7,11 +7,11 @@ import streamlit as st
 from hiring_cv_bias.bias_detection.rule_based.patterns import (
     driver_license_pattern_eng,
 )
-from hiring_cv_bias.config import CLEANED_SKILLS, FALSE_NEGATIVE_PATH
+from hiring_cv_bias.config import CLEANED_SKILLS, DRIVING_LICENSE_FALSE_NEGATIVE_PATH
 
 
 @st.cache_data(show_spinner="Loading false-negatives…")
-def load_fn(path: str = FALSE_NEGATIVE_PATH) -> pl.DataFrame:
+def load_fn(path: str = DRIVING_LICENSE_FALSE_NEGATIVE_PATH) -> pl.DataFrame:
     df = pl.read_csv(path, separator=";")
 
     def make_snippet(txt: str) -> str:

@@ -1,11 +1,11 @@
 import polars as pl
 import streamlit as st
 
-from hiring_cv_bias.config import FALSE_POSITIVE_PATH
+from hiring_cv_bias.config import DRIVING_LICENSE_FALSE_POSITIVE_PATH
 from hiring_cv_bias.utils import load_data
 
 OUTPUT_CSV = "cv_labeled_manual.csv"
-df = load_data(FALSE_POSITIVE_PATH)
+df = load_data(DRIVING_LICENSE_FALSE_POSITIVE_PATH)
 
 if "index" not in st.session_state:
     st.session_state.index = 0
