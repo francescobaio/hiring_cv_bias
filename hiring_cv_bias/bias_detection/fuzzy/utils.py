@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import numpy as np
 import polars as pl
@@ -24,3 +24,11 @@ def compute_tp_rate(data: pl.DataFrame) -> Optional[float]:
     else:
         rate = None
     return rate
+
+
+def remove_duplicates(list: List[Any]) -> List[Any]:
+    """
+    Efficiently removes duplicate elements from a list while preserving the original order of items.
+    """
+    seen = set()
+    return [x for x in list if x not in seen and not bool(seen.add(x))]  # type: ignore
