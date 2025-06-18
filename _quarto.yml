@@ -1,0 +1,29 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Hiring CV Bias"
+  navbar:
+    left:
+      - text: "Home"
+        href: index.html
+      - text: "Problem Statement"
+        href: pages/01-problem.html
+      - text: "Skill Extraction"
+        href: pages/02-parsing.html
+      - text: "Exploratory Data"
+        href: pages/03-eda.html
+      - text: "Matching Comparison"
+        href: pages/04-matching.html
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 2
+
+exclude:
+  - data/
+  - "*.ipynb"
+  - "__pycache__/"

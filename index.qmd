@@ -1,0 +1,28 @@
+---
+title: "Bias Analysis in CV Parsing Pipeline"
+format:
+  html:
+    toc: false
+---
+
+This site delivers a focused examination of the biases that a proprietary CV parser may introduce when extracting skills from a corpus of anonymized, raw resumes.
+
+By parsing hundreds of CVs, we assessed how hard and soft competencies are identified across different languages and candidate profiles, uncovering systematic under- or over-representation of certain skills. Our findings pinpoint specific extraction disparities, offering clear direction for improving the parser’s fairness and accuracy.
+
+
+- **[01 – Problem Statement](pages/01-problem.html)**  
+    Defines the scope, data sources and key fairness questions guiding our bias analysis of the CV parser.
+
+- **[02 – Pipeline](pages/02-parsing.html)**  
+    Walks through each stage of the parser: from ingesting anonymized resumes to extracting and classifying hard and soft skills.
+
+- **[03 – Results](pages/03-eda.html)**  
+    Presents visualizations and statistics that expose where and how the parser over or under represents certain competencies.
+
+- **[04 – Future work](pages/04-matching.html)**  
+  Outlines proposed enhancements, additional validation steps and bias mitigation strategies for the parsing engine.
+
+---
+
+## Repository Structure
+

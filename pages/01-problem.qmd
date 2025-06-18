@@ -1,0 +1,20 @@
+---
+title: "Problem Statement"
+format:
+  html:
+    toc: true
+---
+
+The goal of this study is to evaluate the potential biases in a proprietary CV parsing engine, which automatically extracts skills from anonymized, raw resumes. Specifically, we aim to answer:
+
+- **Detection Consistency:** Are certain types of skills (e.g., hard vs. soft skills) systematically under- or over-detected across different candidate profiles?
+- **Language Influence:** Does the parser perform differently on CVs written in English, Italian, French, or other languages?
+- **Demographic Skew:** Is there evidence that skill extraction rates vary by inferred demographic attributes such as gender or regional background?
+
+To investigate, we:
+
+1. Ingested and preprocessed a corpus of _N_ anonymized CVs in multiple languages.  
+2. Ran the parsing pipeline to extract and classify each candidate’s skills into predefined categories.  
+3. Performed exploratory data analysis to compare detection rates, skill distributions, and pinpoint systematic extraction disparities.
+
+This analysis sets the stage for targeted improvements to enhance fairness and accuracy in our skill-extraction process.```
