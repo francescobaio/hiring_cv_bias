@@ -10,4 +10,9 @@ notebooks/**
 __pycache__
 hiring_cv_bias.egg-info
 .DS_Store
-.venv 
+.venv
+/.quarto/
+docs/
+.cache/
+_site/
+**/*_files/
