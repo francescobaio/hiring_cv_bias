@@ -1,0 +1,25 @@
+---
+title: "Pipeline"
+format:
+  html:
+    toc: true
+---
+
+Below is the high level workflow we followed. Feel free to click each step to dive into the detailed notebook.
+
+1. **Data Cleaning**  
+   We standardized and filtered the raw, anonymized CV text (removed stopwords, fixed encoding issues, normalized formatting).  
+   🔗 [See the Cleaning notebook](../notebooks/data_cleaning.html)
+
+2. **Exploratory Analysis**  
+   We explored basic statistics: total resumes per language, average length, and initial skill counts to understand data shape.  
+   🔗 [See the Exploration notebook](../notebooks/data_exploration.html)
+
+3. **Distributions Analysis**  
+   We plotted hard vs. soft skill frequencies, language‐based differences, and other distributions to spot obvious skews.  
+   🔗 [See the Distributions Analysis notebook](../notebooks/distributions_analysis.html)
+
+4. **Bias Detection**  
+   We applied group‐based comparisons (e.g. by inferred gender or language) to uncover where the parser over- or under-extracts certain skills.  
+   🔗 [See the Bias Detection notebook](../notebooks/bias_detection.html)
+

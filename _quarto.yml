@@ -10,16 +10,14 @@ website:
         href: index.html
       - text: "Problem Statement"
         href: pages/01-problem.html
-      - text: "Skill Extraction"
-        href: pages/02-parsing.html
-      - text: "Exploratory Data"
-        href: pages/03-eda.html
-      - text: "Matching Comparison"
-        href: pages/04-matching.html
+      - text: "Pipeline"
+        href: pages/02-pipeline.html
+      - text: "Results"
+        href: pages/03-results.html
 
 format:
   html:
-    theme: cosmo
+    theme: journal
     toc: true
     toc-depth: 2
 

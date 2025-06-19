@@ -11,7 +11,7 @@ __pycache__
 hiring_cv_bias.egg-info
 .DS_Store
 .venv
-/.quarto/
+.quarto/
 docs/
 .cache/
 _site/
