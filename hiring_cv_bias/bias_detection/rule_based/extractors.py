@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Dict, Optional, Set
 
-from .patterns import (
+from hiring_cv_bias.bias_detection.rule_based.patterns import (
     LANGUAGE_REGEXES_EN,
     LANGUAGE_VARIANTS,
     driver_license_pattern_eng,

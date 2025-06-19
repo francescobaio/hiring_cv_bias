@@ -145,12 +145,14 @@ def error_rates_by_group(
         .join(fn_cnt, on=group_col, how="left")
         .join(tn_cnt, on=group_col, how="left")
         .fill_null(0)
-        .with_columns(
-            [
-                (pl.col("fp") / pl.col("total")).alias("fp_rate"),
-                (pl.col("fn") / pl.col("total")).alias("fn_rate"),
-            ]
-        )
+        .with_columns(pl.sum_horizontal("tp", "fp", "fn", "tn").alias("total_skills"))
+    )
+
+    df = df.with_columns(
+        [
+            (pl.col("fp") / pl.col("total_skills")).alias("fp_rate"),
+            (pl.col("fn") / pl.col("total_skills")).alias("fn_rate"),
+        ]
     )
 
     for m in metrics:
@@ -159,7 +161,7 @@ def error_rates_by_group(
         df = df.with_columns(
             pl.struct(["tp", "fp", "tn", "fn"])
             .map_elements(
-                lambda d, m=m: float(getattr(Conf(**d), m)), return_dtype=pl.Float64
+                lambda d: float(getattr(Conf(**d), m)), return_dtype=pl.Float64
             )
             .alias(m)
         )
