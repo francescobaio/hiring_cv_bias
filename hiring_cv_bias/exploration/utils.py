@@ -10,6 +10,7 @@ import polars as pl
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
+from scipy.stats import zscore
 
 
 def plot_distribution_bar(
@@ -105,8 +106,7 @@ def extract_gender_from_zippia(
 def compute_top_disparity_values(
     columns: List[pl.Series],
     weights: Optional[List[float]] = None,
-    min_threshold: float = 25,
-    use_percentiles: bool = True,
+    min_threshold: float = 1.0,
     top_n: int = 5,
 ) -> Tuple[npt.NDArray, npt.NDArray]:
     if weights is None:
@@ -118,22 +118,26 @@ def compute_top_disparity_values(
     counts_per_column = [
         column.filter(column.is_in(common_values)).value_counts() for column in columns
     ]
+
+    counts_per_column_weighted = [
+        column.with_columns(pl.col("count") * weight)
+        for column, weight in zip(counts_per_column, weights)
+    ]
+
     total_counts = (
-        pl.concat(counts_per_column)
-        .group_by(counts_per_column[0].columns[0])
+        pl.concat(counts_per_column_weighted)
+        .group_by(counts_per_column_weighted[0].columns[0])
         .agg(pl.col("count").sum())
     )
-    if use_percentiles:
-        min_count = float(np.percentile(total_counts["count"], min_threshold))
-    else:
-        min_count = float(min_threshold)
 
-    common_values_filtered = total_counts.filter(pl.col("count") >= min_count)[
+    z_score_thrs = zscore(np.log(total_counts["count"]))
+
+    common_values_filtered = total_counts.filter(z_score_thrs > min_threshold)[
         total_counts.columns[0]
     ]
     counts_per_column_filtered = [
         column.filter(column[column.columns[0]].is_in(common_values_filtered))
-        for column in counts_per_column
+        for column in counts_per_column_weighted
     ]
 
     disparity_values: List[str] = []
@@ -148,9 +152,8 @@ def compute_top_disparity_values(
             ].item()
             for filtered_count in counts_per_column_filtered
         ]
-        weighted_counts = [count * weight for count, weight in zip(counts, weights)]
 
-        current_disparity = compute_disparity(weighted_counts)
+        current_disparity = compute_disparity(counts)
         current_disparity_counts = sum(counts)
 
         disparity_values.append(value)

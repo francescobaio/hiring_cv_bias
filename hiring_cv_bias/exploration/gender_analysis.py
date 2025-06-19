@@ -40,6 +40,91 @@ def get_skill_distribution_by_gender(
     return result
 
 
+def get_skill_target_share(
+    df: pl.DataFrame,
+    counts_df: pl.DataFrame,
+    target_col: str,
+    target_values: List[Any],
+    skill_col: List[str] = ["Skill_Type"],
+) -> pl.DataFrame:
+    counts_df = counts_df.with_columns(pl.col("percentage") / 100)
+
+    target_value_counts = [
+        (
+            df.filter(pl.col(target_col) == value)
+            .group_by(skill_col, maintain_order=True)
+            .agg(pl.len().alias(f"count_{value.lower()}"))
+        ).drop_nulls(skill_col)
+        for value in target_values
+    ]
+
+    total_counts = target_value_counts[0]
+    for df in target_value_counts[1:]:
+        total_counts = total_counts.join(df, on=skill_col, how="full", coalesce=True)
+    total_counts = total_counts.fill_null(0)
+
+    normalize_factor = total_counts.select(
+        pl.sum_horizontal([f"count_{value.lower()}" for value in target_values])
+    ).to_series()
+
+    total_counts = total_counts.with_columns(
+        [
+            pl.col(f"count_{value.lower()}")
+            * (1 - (counts_df.filter(pl.col(target_col) == value)["percentage"].item()))
+            for value in target_values
+        ]
+    )
+
+    normalize_factor = normalize_factor / sum(
+        [total_counts[f"count_{value.lower()}"] for value in target_values]
+    )
+
+    total_counts = total_counts.with_columns(
+        [
+            (pl.col(f"count_{value.lower()}") * normalize_factor).round().cast(pl.Int64)
+            for value in target_values
+        ]
+    )
+
+    total_counts = total_counts.with_columns(
+        pl.sum_horizontal([f"count_{value.lower()}" for value in target_values]).alias(
+            "count_total"
+        )
+    )
+
+    total_counts = total_counts.with_columns(
+        [
+            (pl.col(f"count_{value.lower()}") / pl.col("count_total") * 100)
+            .round(1)
+            .alias(f"perc_{value.lower()}")
+            for value in target_values
+        ]
+    )
+
+    target_pairs = list(itertools.combinations(target_values, 2))
+
+    total_counts = total_counts.with_columns(
+        pl.mean_horizontal(
+            [
+                pl.col(f"count_{v1.lower()}") - pl.col(f"count_{v2.lower()}")
+                for v1, v2 in target_pairs
+            ]
+        )
+        .cast(pl.Int64)
+        .alias("count_diff"),
+        pl.mean_horizontal(
+            [
+                pl.col(f"perc_{v1.lower()}") - pl.col(f"perc_{v2.lower()}")
+                for v1, v2 in target_pairs
+            ]
+        )
+        .round(1)
+        .alias("perc_diff"),
+    )
+
+    return total_counts.sort("count_total", descending=True)
+
+
 def compute_bias_strenght(
     df: pl.DataFrame,
     counts_df: pl.DataFrame,
@@ -122,91 +207,6 @@ def plot_gender_bias_skills_bar(
     ax.spines[["top", "right", "left"]].set_visible(False)
     plt.tight_layout()
     plt.show()
-
-
-def get_skill_target_share(
-    df: pl.DataFrame,
-    counts_df: pl.DataFrame,
-    target_col: str,
-    target_values: List[Any],
-    skill_col: List[str] = ["Skill_Type"],
-) -> pl.DataFrame:
-    counts_df = counts_df.with_columns(pl.col("percentage") / 100)
-
-    target_value_counts = [
-        (
-            df.filter(pl.col(target_col) == value)
-            .group_by(skill_col, maintain_order=True)
-            .agg(pl.len().alias(f"count_{value.lower()}"))
-        ).drop_nulls(skill_col)
-        for value in target_values
-    ]
-
-    total_counts = target_value_counts[0]
-    for df in target_value_counts[1:]:
-        total_counts = total_counts.join(df, on=skill_col, how="full", coalesce=True)
-    total_counts = total_counts.fill_null(0)
-
-    normalize_factor = sum(
-        [total_counts[f"count_{value.lower()}"] for value in target_values]
-    )
-
-    total_counts = total_counts.with_columns(
-        [
-            pl.col(f"count_{value.lower()}")
-            * (1 - (counts_df.filter(pl.col(target_col) == value)["percentage"].item()))
-            for value in target_values
-        ]
-    )
-
-    normalize_factor = normalize_factor / sum(
-        [total_counts[f"count_{value.lower()}"] for value in target_values]
-    )
-
-    total_counts = total_counts.with_columns(
-        [
-            (pl.col(f"count_{value.lower()}") * normalize_factor).round().cast(pl.Int64)
-            for value in target_values
-        ]
-    )
-
-    total_counts = total_counts.with_columns(
-        pl.sum_horizontal([f"count_{value.lower()}" for value in target_values]).alias(
-            "count_total"
-        )
-    )
-
-    total_counts = total_counts.with_columns(
-        [
-            (pl.col(f"count_{value.lower()}") / pl.col("count_total") * 100)
-            .round(1)
-            .alias(f"perc_{value.lower()}")
-            for value in target_values
-        ]
-    )
-
-    target_pairs = list(itertools.combinations(target_values, 2))
-
-    total_counts = total_counts.with_columns(
-        pl.mean_horizontal(
-            [
-                pl.col(f"count_{v1.lower()}") - pl.col(f"count_{v2.lower()}")
-                for v1, v2 in target_pairs
-            ]
-        )
-        .cast(pl.Int64)
-        .alias("count_diff"),
-        pl.mean_horizontal(
-            [
-                pl.col(f"perc_{v1.lower()}") - pl.col(f"perc_{v2.lower()}")
-                for v1, v2 in target_pairs
-            ]
-        )
-        .round(1)
-        .alias("perc_diff"),
-    )
-
-    return total_counts.sort("count_total", descending=True)
 
 
 def add_zippia_columns(job_df: pl.DataFrame):

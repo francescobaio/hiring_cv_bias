@@ -184,8 +184,7 @@ def plot_top_skills_for_job_title(
 
 def compute_and_plot_disparity(
     columns: Dict[str, pl.Series],
-    min_threshold: int = 25,
-    use_percentiles: bool = True,
+    min_threshold: float = 1.0,
     colors: Optional[Dict[str, str]] = None,
     attribute_name: str = "",
     weights_dict: Optional[Dict[str, float]] = None,
@@ -204,7 +203,6 @@ def compute_and_plot_disparity(
         columns=list(columns.values()),
         weights=weights,
         min_threshold=min_threshold,
-        use_percentiles=use_percentiles,
         top_n=top_n,
     )
 
