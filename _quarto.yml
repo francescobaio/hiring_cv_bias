@@ -15,6 +15,14 @@ website:
       - text: "Results"
         href: pages/03-results.html
 
+  page-footer:
+    left: "Francesco Baiocchi & Leonardo Petrilli"
+    right:
+      - icon: github
+        href: https://github.com/tuo-username/tuo-repo
+      - icon: linkedin       
+        href: https://www.linkedin.com/in/tuo-username
+
 format:
   html:
     theme: journal

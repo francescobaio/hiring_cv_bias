@@ -5,16 +5,23 @@ format:
     toc: false
 ---
 
-This site delivers a focused examination of the biases that a proprietary CV parser may introduce when extracting skills from a corpus of anonymized, raw resumes.
+### Introduction 
 
-By parsing hundreds of CVs, we assessed how hard and soft competencies are identified across different languages and candidate profiles, uncovering systematic under- or over-representation of certain skills. Our findings pinpoint specific extraction disparities, offering clear direction for improving the parser’s fairness and accuracy.
+LLMs can be subject to cultural biases. One such domain is recruiting, where LLMs are used to extract information from candidates’ CVs and then to select the most suitable profiles. These biases may favour or penalize applicants based on language or cultural cues, risking the exclusion of qualified talent.
 
+
+###  Our project
+
+Our project therefore inspects the CV parsing pipeline to uncover and mitigate such disparities.
+Below you’ll find the main sections, each linked to provide an overview and access to code/results.
+
+#### Main steps
 
 - **[01 – Problem Statement](pages/01-problem.qmd)**  
-    Defines the scope, data sources and key fairness questions guiding our bias analysis of the CV parser.
+    This section defines the scope, data sources and fairness questions guiding our bias analysis of the CV parser.
 
 - **[02 – Pipeline](pages/02-pipeline.qmd)**  
-    Walks through each stage of the parser: from ingesting anonymized resumes to extracting and classifying hard and soft skills.
+    This section walks through each stage of the parser: from ingesting anonymized resumes to extracting and classifying hard and soft skills.
 
 - **[03 – Results](pages/03-results.qmd)**  
     Presents visualizations and statistics that expose where and how the parser over or under represents certain competencies.

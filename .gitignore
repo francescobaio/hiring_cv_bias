@@ -16,3 +16,4 @@ docs/
 .cache/
 _site/
 **/*_files/
+/.quarto/
