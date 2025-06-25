@@ -15,19 +15,18 @@ LLMs can be subject to cultural biases. One such domain is recruiting, where LLM
 Our project therefore inspects the CV parsing pipeline to uncover and mitigate such disparities.
 Below you’ll find the main sections, each linked to provide an overview and access to code/results.
 
-#### Main steps
 
 - **[01 – Problem Statement](pages/01-problem.qmd)**  
     This section defines the scope, data sources and fairness questions guiding our bias analysis of the CV parser.
 
 - **[02 – Pipeline](pages/02-pipeline.qmd)**  
-    This section walks through each stage of the parser: from ingesting anonymized resumes to extracting and classifying hard and soft skills.
+    This section provides a comprehensive overview of the entire analysis pipeline, walking through all stages, from initial data cleaning to the final bias detection.
 
 - **[03 – Results](pages/03-results.qmd)**  
-    Presents visualizations and statistics that expose where and how the parser over or under represents certain competencies.
+    Presents visualizations and statistics that expose where and how the parser over or under represents certain skills.
 
 - **04 – Future work**  
-  Additional validation steps and bias mitigation strategies for the parsing engine.
+  Additional validation steps and bias mitigation strategies for the parsing pipeline.
 
 ---
 

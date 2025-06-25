@@ -5,16 +5,22 @@ format:
     toc: true
 ---
 
-The goal of this study is to evaluate the potential biases in a proprietary CV parsing engine, which automatically extracts skills from anonymized, raw resumes. Specifically, we aim to answer:
+The goal of this study is to evaluate the potential biases in a proprietary CV parser, which automatically extracts skills from anonymized, raw resumes. Specifically, we aim to answer:
 
-- **Detection Consistency:** Are certain types of skills (e.g., hard vs. soft skills) systematically under- or over-detected across different candidate profiles?
-- **Language Influence:** Does the parser perform differently on CVs written in English, Italian, French, or other languages?
-- **Demographic Skew:** Is there evidence that skill extraction rates vary by inferred demographic attributes such as gender or regional background?
+1. **Candidate Representation:** 
+- How are candidates’ profiles represented in the parsing outputs?
+- Are there systematic differences in the number or types of skills extracted across CVs? 
 
-To investigate, we:
+2. **Gendered Skill Association:** 
+- Do certain skills appear significantly more often in profiles inferred to be male versus female? 
+- Could these patterns reflect underlying parser assumptions or training data imbalances? 
 
-1. Ingested and preprocessed a corpus of _N_ anonymized CVs in multiple languages.  
-2. Ran the parsing pipeline to extract and classify each candidate’s skills into predefined categories.  
-3. Performed exploratory data analysis to compare detection rates, skill distributions, and pinpoint systematic extraction disparities.
+3. **Cultural and Geographical Bias:** 
+- Are skill categories ( `skill_type`) that align with specific cultural or regional backgrounds overrepresented?
 
-This analysis sets the stage for targeted improvements to enhance fairness and accuracy in our skill-extraction process.```
+4. **Hard vs. Soft Skills Distribution:**
+- What is the relative frequency of hard skills versus soft skills in the parsed output?
+- Does the parser systematically under‐detect one category, potentially skewing candidate profiles?
+
+5. **Demographic Underrepresentation:** 
+- Are certain demographic groups (e.g., inferred by language, region, or other proxies) underrepresented in the overall skill set? 

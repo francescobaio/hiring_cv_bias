@@ -5,10 +5,25 @@ format:
     toc: true
 ---
 
-Below is the high level workflow we followed. Feel free to click each step to dive into the detailed notebook.
+Here we outline the work steps we followed to answer the questions in our problem statement. In the first subsection, we cover two initial setup tasks that prepare the data for the rest of the pipeline:
+
+1. Translating CVs from Italian into English so we can apply semantic-matching techniques consistently. 
+2. Labeling with an LLM each extracted skill as either a hard skill or a      soft skill.
+   🔗 [See the Hard Soft skills labelling notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)   
+
+With these preparations in place, the pipeline we built is divided into the following steps:
 
 1. **Data Cleaning**  
-   We standardized and filtered the raw, anonymized CV text (removed stopwords, fixed encoding issues, normalized formatting).  
+   We standardized and filtered the raw, anonymized CV texts with structural issues as:
+   - Empty / Whitespace-Only/ Very Short Text
+   - High Repetition / Low Structure
+   - Low token & vocabulary Richness
+   - Corrupted CVs with a fraction of “unusual” characters
+   - CVs with Placeholder Tails (e.g. “XXXXXXXXXX…”)
+   - CVs with Poor Translations
+
+   Parsed skills of the candidates with corrupted CVs has been also excluded.
+
    🔗 [See the Cleaning notebook](../notebooks/data_cleaning.html)
 
 2. **Exploratory Analysis**  
