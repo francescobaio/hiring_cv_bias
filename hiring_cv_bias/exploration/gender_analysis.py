@@ -152,7 +152,7 @@ def compute_bias_strenght(
     return result
 
 
-def plot_gender_bias_skills_bar(
+def plot_bias_skills_bar(
     df: pl.DataFrame,
     skill_col: str,
     attribute_cols: Dict[str, str],
