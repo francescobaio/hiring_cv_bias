@@ -28,6 +28,43 @@ Below you’ll find the main sections, each linked to provide an overview and ac
 - **04 – Future work**  
   Additional validation steps and bias mitigation strategies for the parsing pipeline.
 
----
 
 ## Repository Structure
+
+```text
+
+├── hiring_cv_bias
+│   ├── bias_detection.  # 
+│   │   ├── fuzzy  # 
+│   │   │   ├── parsing.py
+│   │   │   └── utils.py
+│   │   └── rule_based #
+│   │       ├── app
+│   │       │   └── labeling_cv_app.py
+│   │       ├── data.py
+│   │       ├── evaluation
+│   │       │   ├── bias.py # 
+│   │       │   ├── compare_parser.py
+│   │       │   └── metrics.py
+│   │       ├── extractors.py
+│   │       ├── parser.py
+│   │       ├── patterns.py
+│   │       └── utils.py
+│   ├── cleaning # 
+│   │   ├── common.py
+│   │   └── raw_cv.py
+│   ├── exploration # 
+│   │   ├── gender_analysis.py
+│   │   ├── utils.py
+│   │   └── visualize.py
+│   ├── hard_soft_skills_labelling # 
+│   │   ├── hard_soft_skill_labelling.ipynb
+│   │   └── utils.py
+│   ├── translation
+│   │   └── translate.py
+│   └── utils.py
+├── pyproject.toml
+├── README.md
+└── uv.lock
+
+```

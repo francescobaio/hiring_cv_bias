@@ -7,11 +7,10 @@ format:
 
 Here we outline the work steps we followed to answer the questions in our problem statement. In the first subsection, we cover two initial setup tasks that prepare the data for the rest of the pipeline:
 
-1. Translating CVs from Italian into English so we can apply semantic-matching techniques consistently. 
-2. Labeling with an LLM each extracted skill as either a hard skill or a      soft skill.
-   🔗 [See the Hard Soft skills labelling notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)   
+1. Translating CVs **from Italian into English** so we can apply semantic-matching techniques consistently. 
+2. Labeling with an LLM each extracted skill as either a **hard skill or a soft skill**. 🔗 [See the Hard Soft skills labelling notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)   
 
-With these preparations in place, the pipeline we built is divided into the following steps:
+With these preparations in place, our pipeline we built is divided into the following steps:
 
 1. **Data Cleaning**  
    We standardized and filtered the raw, anonymized CV texts with structural issues as:
@@ -27,11 +26,30 @@ With these preparations in place, the pipeline we built is divided into the foll
    🔗 [See the Cleaning notebook](../notebooks/data_cleaning.html)
 
 2. **Exploratory Analysis**  
-   We explored basic statistics: total resumes per language, average length, and initial skill counts to understand data shape.  
+   Once the data had been cleaned, we conducted an exploratory analysis of the skills extracted by the parser, focusing on:
+   - **Distribution of parsed skills and job information** : explore how different skills are distributed across roles and sectors.
+   - **Skills-per-candidate distribution**: analyze the number of skills each candidate has, flagging any outliers.
+   - **Hard vs. soft skills**: examine and compare the distributions of hard skills versus soft skills.
+
+   ![](../pages/images/skill_distribution.png){.lightbox}
+
+
    🔗 [See the Exploration notebook](../notebooks/data_exploration.html)
 
 3. **Distributions Analysis**  
-   We plotted hard vs. soft skill frequencies, language‐based differences, and other distributions to spot obvious skews.  
+
+   This analysis aims to uncover distributional imbalances by merging demographic data (age, gender, location) from the Candidates sheet of the reverse-matching dataset with parsed skill data extracted from raw CVs:
+
+   - **Gender distribution**: assess representation across different gender identities
+   - **Location distribution**: map geographic concentrations of applicants
+   - **Age distribution**: identify age-related skews and outliers
+   - **Hard vs. soft skills**: compare the prevalence of technical skills versus interpersonal competencies
+
+   >**Why This Matters**: <br>
+   >Identifying these imbalances is critical for building a robust, fair CV-parsing pipeline. By detecting and mitigating biases in both the raw CV inputs and their parsed outputs, we can ensure more equitable candidate evaluation across all demographic groups.
+   
+   ![](../pages/images/gender_distribution.png){.lighbox} 
+
    🔗 [See the Distributions Analysis notebook](../notebooks/distributions_analysis.html)
 
 4. **Bias Detection**  
