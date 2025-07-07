@@ -1,5 +1,4 @@
-import math
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 import nltk
 import polars as pl
@@ -22,8 +21,8 @@ class JobParser:
         patterns = [self.spacy_model.make_doc(job) for job in self.job_list]
         self.phrase_matcher.add("Jobs", patterns)
 
-    def parse_with_n_grams(self, text: str) -> List[str]:
-        jobs_found = []
+    def parse_with_n_grams(self, text: str) -> Set[str]:
+        jobs_found = set()
 
         doc = self.spacy_model(text)
 
@@ -31,35 +30,9 @@ class JobParser:
 
         if len(match) > 0:
             for _, start, end in match:
-                jobs_found.append(doc[start:end].text)
+                jobs_found.add(doc[start:end].text)
 
-        return list(set(jobs_found))
-
-    def _split_chunk(self, chunk: Any, max_len: int = 4) -> List[List[Any]]:
-        chunk_pieces = [chunk]
-        while len(chunk_pieces[0]) > max_len:
-            new_chunk_pieces = []
-            for piece in chunk_pieces:
-                if len(piece.text) > 2:
-                    if len(piece) > 3:
-                        half_index = math.ceil(len(piece) / 2)
-                        new_chunk_pieces.extend(
-                            [piece[:half_index], piece[half_index:]]
-                        )
-                    else:
-                        new_chunk_pieces.append(piece)
-            chunk_pieces = new_chunk_pieces
-        return chunk_pieces
-
-    def _filter_short_words(self, chunk: Any) -> str:
-        chunk_words = chunk.text.split()
-        for word in chunk_words.copy():
-            if len(word) < 2:
-                chunk_words.remove(word)
-
-        cleaned_chunk = " ".join(chunk_words)
-
-        return cleaned_chunk
+        return jobs_found
 
     def parse_df(self, df: pl.DataFrame) -> pl.DataFrame:
         jobs_data: Dict[str, List[Any]] = {"CANDIDATE_ID": [], "Job_Title": []}

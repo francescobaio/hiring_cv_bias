@@ -29,6 +29,7 @@ def compute_candidate_coverage(
     skill_type: str,
     extractor: Callable[[str], Set[str]],
     norm: Callable[[str], str] = str.lower,
+    matcher: Optional[Callable[[Set[str], Set[str]], Set[str]]] = None,
     verbose: bool = True,
 ) -> Result:
     tp = fp = tn = fn = 0
@@ -56,6 +57,9 @@ def compute_candidate_coverage(
         }
         if parser:
             parser_ids.add(cid)
+
+        if matcher is not None:
+            truth = matcher(truth, parser)
 
         # TP
         tp_skills = truth & parser
