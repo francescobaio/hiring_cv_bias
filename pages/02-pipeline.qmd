@@ -31,28 +31,43 @@ With these preparations in place, our pipeline we built is divided into the foll
    - **Skills-per-candidate distribution**: analyze the number of skills each candidate has, flagging any outliers.
    - **Hard vs. soft skills**: examine and compare the distributions of hard skills versus soft skills.
 
-   ![](../pages/images/skill_distribution.png){.lightbox}
+   ![](../pages/images/skill_distribution.png){.lightbox style="max-width: 90%;"}
 
 
    🔗 [See the Exploration notebook](../notebooks/data_exploration.html)
 
 3. **Distributions Analysis**  
 
-   This analysis aims to uncover distributional imbalances by merging demographic data (age, gender, location) from the Candidates sheet of the reverse-matching dataset with parsed skill data extracted from raw CVs:
-
-   - **Gender distribution**: assess representation across different gender identities
-   - **Location distribution**: map geographic concentrations of applicants
-   - **Age distribution**: identify age-related skews and outliers
-   - **Hard vs. soft skills**: compare the prevalence of technical skills versus interpersonal competencies
+   This analysis aims to uncover distributional imbalances in the parsed skills by considering the following demographic data:
+   - **Gender**
+   - **Location**
+   - **Age distribution**
+   - **Hard vs. soft skills**
 
    >**Why This Matters**: <br>
-   >Identifying these imbalances is critical for building a robust, fair CV-parsing pipeline. By detecting and mitigating biases in both the raw CV inputs and their parsed outputs, we can ensure more equitable candidate evaluation across all demographic groups.
+   > Detecting these imbalances is **critical** to designing a robust, fair pipeline that flags biases introduced by the CV parser relying only on raw CV inputs and their parsed outputs.  
    
    ![](../pages/images/gender_distribution.png){.lighbox} 
 
    🔗 [See the Distributions Analysis notebook](../notebooks/distributions_analysis.html)
 
 4. **Bias Detection**  
-   We applied group‐based comparisons (e.g. by inferred gender or language) to uncover where the parser over- or under-extracts certain skills.  
+
+   After analyzing the various imbalances in the distributions of skills extracted by the parser, we tackled bias detection through a hybrid pipeline:
+
+   * **On the skills side** (specifically **DRIVERSLIC** and **LANGUAGE\_SKILL**), we implemented a **regex-based extractor** that systematically scans each CV for patterns associated with driving licenses and language proficiencies, ensuring we capture every variant and format used by candidates.
+   * **On the job-title side**, we deployed a **two-step matching process**:
+      1. **Rule-based, exact matching** against the official **ESCO** european job list [(link)](https://esco.ec.europa.eu/en/about-esco ), pulling in any titles that appear in the raw CV text.
+      2. **Semantic matching** on top of that, which catches synonyms or paraphrases of the same job experience, making our extraction robust to differences in how the parser names each job.
+      (es,  Parsed skill: Hotel Receptionist -> , Semantic Matcher: -> Receptionist) !!!
+    
+   Using our pipeline results as the ground truth, we measured the overall performance of the proprietary parser by comparing its outputs against our method and analyzing their agreement.
+
+   For the **DRIVERSLIC** and **LANGUAGE_SKILL**, we focused on **false negatives**: candidates for whom the regex extractor found a match but the parser returned nothing. 
+   
+   To make these insights more accessible, we built a **Streamlit app** that lets you s into individual candidates. For each false negative, the interface displays the raw CV text on the left with regex matched segments highlighted in red and on the right shows the skills the parser actually assigned to that candidate.
+
+   Once we reviewed and analyzed the results of our methods, we broadened our bias assessment to the four previously identified, (gender, age, geographical position, hard vs soft skills) to determine whether the parser’s errors disproportionately impact under or over represented populations.
+
    🔗 [See the Bias Detection notebook](../notebooks/bias_detection.html)
 
