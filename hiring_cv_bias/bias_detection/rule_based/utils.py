@@ -1,3 +1,4 @@
+from re import Pattern
 from typing import List, Optional
 
 import polars as pl
@@ -37,7 +38,9 @@ def print_report(
         print("Overall FN-rate:", round(len(result.fn_rows) / tot, 3))
 
 
-def highlight_snippets(text: str, pattern, context_chars=100) -> List[str]:
+def highlight_snippets(
+    text: str, pattern: Pattern[str], context_chars=100
+) -> List[str]:
     snippets = []
     for match in pattern.finditer(text):
         start, end = match.span()
@@ -52,9 +55,9 @@ def highlight_snippets(text: str, pattern, context_chars=100) -> List[str]:
     return snippets or ["No occurrence found."]
 
 
-def print_highlighted_cv(row: dict, pattern) -> None:
+def print_highlighted_cv(row: dict, pattern: Pattern[str]) -> None:
     header = f"\nCANDIDATE ID: {row['CANDIDATE_ID']} - GENERE: {row['Gender']}"
-    reason = f"Motivo: {row['reason']}"
+    reason = f"Reason: {row['reason']}"
     separator = "-" * 80
     snippets = highlight_snippets(row["cv_text"], pattern=pattern)
     print(header)

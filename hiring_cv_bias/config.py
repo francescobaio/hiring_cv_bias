@@ -36,15 +36,17 @@ CLEANED_SKILLS = CV_CLEANED_DIR + "/Skills_cleaned.csv"
 CLEANED_REVERSE_MATCHING_PATH = (
     CV_CLEANED_DIR + "/reversed_skills_matching_candidate.csv"
 )
-DRIVING_LICENSE_FALSE_NEGATIVE_PATH = (
+DRIVING_LICENSE_FALSE_NEGATIVES_PATH = (
     CV_CLEANED_DIR + "/driving_license/false_negatives.csv"
 )
-DRIVING_LICENSE_FALSE_POSITIVE_PATH = (
-    CV_CLEANED_DIR + "/driving_license/false_positive.csv"
+DRIVING_LICENSE_FALSE_POSITIVES_PATH = (
+    CV_CLEANED_DIR + "/driving_license/false_positives.csv"
 )
-LANGUAGE_SKILL_FALSE_NEGATIVE_PATH = (
+LANGUAGE_SKILL_FALSE_NEGATIVES_PATH = (
     CV_CLEANED_DIR + "/language_skill/false_negatives.csv"
 )
-LANGUAGE_SKILL_FALSE_POSITIVE_PATH = (
-    CV_CLEANED_DIR + "/language_skill/false_positive.csv"
+LANGUAGE_SKILL_FALSE_POSITIVES_PATH = (
+    CV_CLEANED_DIR + "/language_skill/false_positives.csv"
 )
+JOB_TITLE_FALSE_NEGATIVES_PATH = CV_CLEANED_DIR + "/job_title/false_negatives.csv"
+JOB_TITLE_FALSE_POSITIVES_PATH = CV_CLEANED_DIR + "/job_title/false_positives.csv"

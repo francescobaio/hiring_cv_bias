@@ -13,7 +13,7 @@ class JobParser:
         self,
         job_list: List[str],
     ):
-        nltk.download("stopwords")
+        nltk.download("stopwords", quiet=True)
         self.stopwords = stopwords.words("english")
         self.job_list = job_list
         self.spacy_model = spacy.load("en_core_web_sm")

@@ -1,7 +1,11 @@
 import re
 
+import polars as pl
 import pycountry
 from langcodes import Language
+
+from hiring_cv_bias.bias_detection.fuzzy.utils import normalize_jobs
+from hiring_cv_bias.config import JOBS_PATH
 
 RED = "\033[31m"
 RESET = "\033[0m"
@@ -103,3 +107,9 @@ languages_pattern_eng = re.compile(
     "|".join(f"({pat.pattern})" for pat in LANGUAGE_REGEXES_EN.values()),
     re.IGNORECASE | re.VERBOSE,
 )
+
+
+jobs = pl.read_csv(JOBS_PATH)["preferredLabel"].to_list()
+normalized_jobs = normalize_jobs(jobs)
+
+jobs_pattern = re.compile("|".join(re.escape(job) for job in normalized_jobs))

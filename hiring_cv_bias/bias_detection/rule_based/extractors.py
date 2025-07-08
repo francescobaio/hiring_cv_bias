@@ -48,7 +48,7 @@ _reverse_language_map: Dict[str, str] = {
     for variant in variants
 }
 
-_missing = set()
+_missing: Set[str] = set()
 
 
 def norm_languages(skill: Optional[str]) -> str:

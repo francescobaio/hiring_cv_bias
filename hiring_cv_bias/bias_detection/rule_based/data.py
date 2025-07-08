@@ -3,7 +3,7 @@ import polars as pl
 from .extractors import extract_driver_license
 
 
-def add_driving_license_flag(
+def add_demographic_info(
     cv_df: pl.DataFrame,
     candidates_df: pl.DataFrame,
 ) -> pl.DataFrame:
