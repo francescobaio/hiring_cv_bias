@@ -2,6 +2,7 @@ build
 data/**
 !data/.gitkeep
 !data/hard_soft_skills.csv
+!data/app.png
 notebooks/**
 !notebooks/.gitkeep
 !notebooks/data_cleaning.ipynb
