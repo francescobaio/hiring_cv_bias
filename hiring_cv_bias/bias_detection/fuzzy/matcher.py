@@ -1,5 +1,6 @@
 from typing import Set
 
+import torch
 from sentence_transformers import SentenceTransformer, util
 
 
@@ -28,15 +29,20 @@ class SemanticMatcher:
             )
 
             similarities = util.cos_sim(custom_embeddings, parser_embeddings)
-            custom_matches = set()
-            parser_matches = set()
 
-            for i in range(similarities.shape[0]):
-                for j in range(similarities.shape[1]):
-                    if similarities[i][j] >= threshold:
-                        custom_matches.add(custom_skills_list[i])
-                        parser_matches.add(parser_skills_list[j])
-                        break
+            matches_mask = similarities >= threshold
+            custom_match_indices = torch.any(matches_mask, dim=1)
+            parser_match_indices = torch.any(matches_mask, dim=0)
+
+            custom_matches = set()
+            for i, is_matched in enumerate(custom_match_indices):
+                if is_matched:
+                    custom_matches.add(custom_skills_list[i])
+
+            parser_matches = set()
+            for j, is_matched in enumerate(parser_match_indices):
+                if is_matched:
+                    parser_matches.add(parser_skills_list[j])
 
             custom_skills = custom_skills - custom_matches
             custom_skills.update(parser_matches)

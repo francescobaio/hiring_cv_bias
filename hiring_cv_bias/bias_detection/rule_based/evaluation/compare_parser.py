@@ -39,7 +39,7 @@ def compute_candidate_coverage(
     tn_rows: List[Dict] = []
     truth_ids, parser_ids = set(), set()
 
-    features = ["CANDIDATE_ID", "Gender", "Location", "Age_bucket", "lenght"]
+    features = ["CANDIDATE_ID", "Gender", "Location", "Age_bucket", "length"]
 
     for row in tqdm(df_cv.iter_rows(named=True), total=df_cv.height):
         cid, raw = row["CANDIDATE_ID"], row["Translated_CV"]

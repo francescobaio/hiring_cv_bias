@@ -10,8 +10,8 @@ from hiring_cv_bias.bias_detection.rule_based.patterns import (
 )
 from hiring_cv_bias.config import (
     CLEANED_SKILLS,
-    DRIVING_LICENSE_FALSE_NEGATIVE_PATH,
-    LANGUAGE_SKILL_FALSE_NEGATIVE_PATH,
+    DRIVING_LICENSE_FALSE_NEGATIVES_PATH,
+    LANGUAGE_SKILL_FALSE_NEGATIVES_PATH,
 )
 
 
@@ -25,13 +25,13 @@ class CategoryConf(TypedDict):
 
 CATEGORIES: Dict[str, CategoryConf] = {
     "Driver License": {
-        "fn_path": DRIVING_LICENSE_FALSE_NEGATIVE_PATH,
+        "fn_path": DRIVING_LICENSE_FALSE_NEGATIVES_PATH,
         "regex": driver_license_pattern_eng,
         "tag_pred": lambda t: t == "DRIVERLICENSE",
         "title": "Driving-License — False Negative Explorer",
     },
     "Language Skill": {
-        "fn_path": LANGUAGE_SKILL_FALSE_NEGATIVE_PATH,
+        "fn_path": LANGUAGE_SKILL_FALSE_NEGATIVES_PATH,
         "regex": languages_pattern_eng,
         "tag_pred": lambda t: t == "Language_Skill",
         "title": "Language-Skill — False Negative Explorer",

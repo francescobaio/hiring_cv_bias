@@ -37,6 +37,8 @@ dependencies = [
   "streamlit==1.44.0",
   "babel>=2.17.0",
   "jupyter>=1.1.1",
+  "nltk>=3.9.1",
+  "spacy>=3.8.7",
 ]
 
 
