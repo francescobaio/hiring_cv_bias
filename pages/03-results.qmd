@@ -8,51 +8,54 @@ format:
 In this section we walk through our key findings:
 
 ## 1. Exploratory Findings  
-### 1.1 Resume Length & Skill Counts  
-- **Histogram of resume word counts**  
-  ![](img/resume_length_hist.png){fig-alt="Resume length distribution"}  
-- **Average number of extracted skills per CV**  
-  ![](img/avg_skill_count.png){fig-alt="Average skill count"}
+As previously explained on the Pipeline page, our study first tried to highlight the errors the parser makes in categories such as Language, Driving License, and Job Title.
 
-### 1.2 Language Differences  
-- Side‐by‐side bar chart of total skills extracted by language  
-  ![](img/skills_by_language.png){fig-alt="Skills by language"}
 
-## 2. Distribution Analysis  
-### 2.1 Hard vs. Soft Skills  
-- **Pie chart** showing hard vs. soft proportions  
-  ![](img/hard_vs_soft_pie.png){fig-alt="Hard vs Soft Skills"}
+| Skill                   |    TP   |    FP   |    TN  |   FN
+|-------------------------|--------:|--------:|-------:|-------:|
+| Language skills         |    70%  |    55%  |   50%  |   50%  |
+| Driving license skills  |    80%  |    78%  |   75%  |   75%  |
+| Driving license skills  |    80%  |    78%  |   75%  |   75%  |
 
-- **Stacked histogram** of skill types across languages  
-  ![](img/skill_type_histogram.png){fig-alt="Skill type by language"}
 
-## 3. Bias Detection Demo  
-### 3.1 Streamlit Application Broadcast  
-Watch the live demo of our bias-detection dashboard, built with Streamlit, where you can filter by gender or language and immediately see extraction disparities:
 
-::: {.video}
-[![Streamlit Demo](img/streamlit_screenshot.png)](https://your-deployed-app-url.com)  
-Streamlit Bias Detection Dashboard
-:::
 
-### 3.2 Key Bias Metrics  
-- **Metric:** Difference in detection rate of “leadership” skill by inferred gender  
-  - Male CVs: 45%  
-  - Female CVs: 30%  
-- **Metric:** Under-detection of soft skills in non-English CVs  
-  - English: 70%  
-  - Italian: 55%  
-  - French: 50%
+> Watch the live demo of our bias-detection dashboard, where you can filter by gender or language and immediately see extraction disparities:
 
-| Skill        | English | Italian | French |
-|--------------|--------:|--------:|-------:|
-| Soft skills  |     70% |     55% |    50% |
-| Hard skills  |     80% |     78% |    75% |
 
-## 4. Summary of Findings  
+
+## 2. Key Bias Metrics 
+
+Due to the presence of numerous errors from the parser, we focused our analysis on the previously discussed demographic groups. To do so, we employed several metrics that specifically account for false negatives, since these result from exact matches and therefore offer high reliability. 
+
+These metrics include:
+
+- **Equality of Opportunity** : the probability to be correctly classified as positive (recall):
+$$
+\frac{TP}{TP + FN}
+$$
+- **Calibration Negative Predictive Value**: the proportion of correct predictions should be equal within each group:
+$$
+\frac{TN}{TN + FN}
+$$
+- **Conditional Use Error for Negative Class**: the share of negative predictions that turn out to be wrong:
+$$
+\frac{FN}{TN + FN}
+$$
+
+
+Spiegazione dei risultati ottenuti :
+
+| Skill                   |    TP   |    FP   |    TN  |   FN
+|-------------------------|--------:|--------:|-------:|-------:|
+| Language skills         |    70%  |    55%  |   50%  |   50%  |
+| Driving license skills  |    80%  |    78%  |   75%  |   75%  |
+| Driving license skills  |    80%  |    78%  |   75%  |   75%  |
+
+
+## 3. Summary of Findings  
 - Systematic over-extraction of hard skills in all languages.  
 - Soft skills under-detected especially in Italian and French CVs.  
 - Gender skew: certain leadership-type skills more often missed in female profiles.
 
----
 
