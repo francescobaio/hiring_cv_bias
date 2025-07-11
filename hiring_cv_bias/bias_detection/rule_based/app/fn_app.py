@@ -6,16 +6,18 @@ import streamlit as st
 
 from hiring_cv_bias.bias_detection.rule_based.patterns import (
     driver_license_pattern_eng,
+    jobs_pattern,
     languages_pattern_eng,
 )
 from hiring_cv_bias.config import (
     CLEANED_SKILLS,
     DRIVING_LICENSE_FALSE_NEGATIVES_PATH,
+    JOB_TITLE_FALSE_NEGATIVES_PATH,
     LANGUAGE_SKILL_FALSE_NEGATIVES_PATH,
 )
+from hiring_cv_bias.utils import load_data
 
 
-# ────────────────────────────────────────────────────────────────
 class CategoryConf(TypedDict):
     fn_path: str
     regex: Pattern[str]
@@ -35,6 +37,12 @@ CATEGORIES: Dict[str, CategoryConf] = {
         "regex": languages_pattern_eng,
         "tag_pred": lambda t: t == "Language_Skill",
         "title": "Language-Skill — False Negative Explorer",
+    },
+    "Job Title": {
+        "fn_path": JOB_TITLE_FALSE_NEGATIVES_PATH,
+        "regex": jobs_pattern,
+        "tag_pred": lambda t: t == "Job_title",
+        "title": "Job-title — False Negative Explorer",
     },
 }
 
@@ -56,9 +64,7 @@ def load_fn_raw(path: str) -> pl.DataFrame:
 
 @st.cache_data(show_spinner="Loading parser skills…")
 def load_skills(path: str = CLEANED_SKILLS) -> Dict[str, List[Tuple[str, str]]]:
-    df = pl.read_csv(path, separator=";").with_columns(
-        pl.col("CANDIDATE_ID").cast(pl.Utf8)
-    )
+    df = load_data(path).with_columns(pl.col("CANDIDATE_ID").cast(pl.Utf8))
     d: Dict[str, List[Tuple[str, str]]] = defaultdict(list)
     for r in df.to_dicts():
         d[r["CANDIDATE_ID"]].append((r["Skill"], r["Skill_Type"]))

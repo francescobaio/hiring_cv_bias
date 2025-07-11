@@ -12,7 +12,7 @@ class SemanticMatcher:
         self,
         custom_skills: Set[str],
         parser_skills: Set[str],
-        threshold: float = 0.7,
+        threshold: float = 0.5,
     ) -> Set[str]:
         if len(custom_skills) != 0 and len(parser_skills) != 0:
             custom_skills_list = list(custom_skills)

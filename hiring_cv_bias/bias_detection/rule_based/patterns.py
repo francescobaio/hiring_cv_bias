@@ -10,21 +10,6 @@ from hiring_cv_bias.config import JOBS_PATH
 RED = "\033[31m"
 RESET = "\033[0m"
 
-DRIVER_LICENSE_SNIPPET_WORDS = [
-    "self-employed",
-    "license",
-    "car",
-    "vehicle",
-    "equipped",
-    "licence",
-]
-DRIVER_LICENSE_SNIPPET_PATTERN = re.compile(
-    r"\b("
-    + "|".join(re.escape(word) for word in DRIVER_LICENSE_SNIPPET_WORDS)
-    + r")\b",
-    re.IGNORECASE,
-)
-
 driver_license_pattern_eng = re.compile(
     r"(?:"
     r"(?:driver['’]?s?|driving|car|category)\s*licen[cs]e\s*[:\-]?\s*(?:type\s*)?[a-z]{1,2}\b|"
@@ -112,4 +97,4 @@ languages_pattern_eng = re.compile(
 jobs = pl.read_csv(JOBS_PATH)["preferredLabel"].to_list()
 normalized_jobs = normalize_jobs(jobs)
 
-jobs_pattern = re.compile("|".join(re.escape(job) for job in normalized_jobs))
+jobs_pattern = re.compile("|".join(rf"\b{job}\b" for job in normalized_jobs))
