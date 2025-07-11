@@ -127,8 +127,10 @@ def compute_candidate_coverage(
 def error_rates_by_group(
     result: Result,
     df_population: pl.DataFrame,
+    reference_col: str,
     group_col: str = "Gender",
     metrics: Optional[List[str]] = None,
+    disparate_impact: bool = True,
 ) -> pl.DataFrame:
     metrics = metrics or []
     df_tp = pl.DataFrame(result.tp_rows)
@@ -169,5 +171,15 @@ def error_rates_by_group(
             )
             .alias(m)
         )
+
+    # compute disparate impact between groups
+    if disparate_impact:
+        confs = {
+            row[group_col]: Conf(tp=row["tp"], fp=row["fp"], tn=row["tn"], fn=row["fn"])
+            for row in df.iter_rows(named=True)
+        }
+
+        dsp_imp = [confs[i].disparate_impact(confs[reference_col]) for i in confs]
+        df.insert_column(len(df.columns), pl.Series("disparate_impact", dsp_imp))
 
     return df

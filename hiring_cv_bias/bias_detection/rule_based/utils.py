@@ -14,9 +14,11 @@ RED, RESET = "\033[31m", "\033[0m"
 def print_report(
     result: Result,
     df_population: pl.DataFrame,
+    reference_col: str,
     group_col: Optional[str] = None,
     metrics: Optional[List[str]] = None,
-):
+    disparate_impact: bool = True,
+) -> None:
     print(
         f"TP: {result.conf.tp}, FP: {result.conf.fp}, TN: {result.conf.tn}, FN: {result.conf.fn}"
     )
@@ -29,7 +31,12 @@ def print_report(
 
     if group_col:
         df_rates = error_rates_by_group(
-            result, df_population, group_col=group_col, metrics=metrics
+            result,
+            df_population,
+            reference_col=reference_col,
+            group_col=group_col,
+            metrics=metrics,
+            disparate_impact=disparate_impact,
         )
         print(f"Error and rates by {group_col}:\n", df_rates)
     else:

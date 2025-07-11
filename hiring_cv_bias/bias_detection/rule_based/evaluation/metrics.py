@@ -30,6 +30,7 @@ class Conf:
             "recall": self.equality_of_opportunity,
             "f1": self.f1,
             "accuracy": self.accuracy,
+            "selection_rate": self.selection_rate,
         }
 
     @property
@@ -56,8 +57,14 @@ class Conf:
         return self.tn / (self.tn + self.fn) if (self.tn + self.fn) else 0.0
 
     @property
-    def conditional_use_error_neg(self) -> float:
-        return self.fn / (self.tn + self.fn) if (self.tn + self.fn) else 0.0
+    def selection_rate(self) -> float:
+        tot = self.tp + self.fp + self.tn + self.fn
+        return (self.tp + self.fp) / tot if tot else 0.0
+
+    # Disparate impact
+    def disparate_impact(self, reference) -> float:
+        sr_ref = reference.selection_rate
+        return self.selection_rate / sr_ref if sr_ref else 0.0
 
 
 class Result(NamedTuple):
