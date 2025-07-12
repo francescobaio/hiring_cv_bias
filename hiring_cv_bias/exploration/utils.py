@@ -39,7 +39,6 @@ def plot_boxplot(
     vert: bool = False,
     show_grid: bool = True,
 ) -> None:
-    """"""
     fig, ax = plt.subplots(figsize=figsize)
 
     box = ax.boxplot(

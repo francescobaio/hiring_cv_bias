@@ -74,7 +74,6 @@ def find_dropped_skill_rows(
     max_len: int = 100,
     placeholder_pattern: Pattern[str] = _PLACEHOLDER_PATTERN,
 ) -> pl.DataFrame:
-    """ """
     # clean mask: length, has_letter, no_placeholder
     length = pl.col(skill_col).map_elements(
         lambda s, *_: len(s or ""), return_dtype=pl.Int64

@@ -73,6 +73,8 @@ def plot_histogram(
         colors = ["#1f77b4"]
     if not normalize and frequencies["frequency"].dtype.is_integer():
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+    ax.grid(axis="y", linestyle="--", alpha=0.7)
     ax.bar(
         frequencies[column.name],
         frequencies["frequency"],
