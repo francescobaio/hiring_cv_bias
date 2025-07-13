@@ -2,11 +2,8 @@ build
 data/**
 !data/.gitkeep
 !data/hard_soft_skills.csv
-notebooks/**
-!notebooks/.gitkeep
-!notebooks/data_cleaning.ipynb
-!notebooks/data_exploration.ipynb
-!notebooks/distributions_analysis.ipynb
+.ipynb_checkpoints
+notebooks/token.json
 __pycache__
 hiring_cv_bias.egg-info
 .DS_Store
