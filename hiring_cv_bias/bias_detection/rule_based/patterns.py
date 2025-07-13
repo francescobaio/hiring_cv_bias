@@ -43,7 +43,7 @@ for lang in pycountry.languages:
     if native:
         variants.add(native)
 
-    LANGUAGE_VARIANTS[code] = sorted(variants)
+    LANGUAGE_VARIANTS[code] = variants
 
 
 LANGUAGE_REGEXES_EN = {
@@ -71,8 +71,6 @@ languages_pattern_eng = re.compile(
 
 
 # ---------------------------------------------------
-
-
 jobs = pl.read_csv(JOBS_PATH)["preferredLabel"].to_list()
 normalized_jobs = normalize_jobs(jobs)
 

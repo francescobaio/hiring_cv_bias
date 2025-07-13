@@ -16,23 +16,10 @@ def extract_driver_license(text: str) -> Set[str]:
     )
 
 
-def extract_languages(text: str) -> Set[str]:
-    text = text.lower()
-    return {lang for lang, rx in LANGUAGE_REGEXES_EN.items() if rx.search(text)}
-
-
-# ---------- normalization helpers ----------
-_driver_code = re.compile(r"^[a-e][1-9]?e?$", re.I)  # e.g. "B", "B1", "CE"
+_driver_code = re.compile(r"^[a-e][1-9]?e?$", re.I)  # "B", "B1", "CE"
 
 
 def norm_driver_license(skill: Optional[str]) -> str:
-    """
-    Map any variant found in the parser output to 'driver_license'.
-
-    Examples of matches:
-      * B, B1, C, CE …
-      * "driving licence", "driver's license"
-    """
     if not isinstance(skill, str):
         return ""
     skill = skill.lower().strip()
@@ -40,6 +27,14 @@ def norm_driver_license(skill: Optional[str]) -> str:
     if _driver_code.match(skill) or driver_license_pattern_eng.search(skill):
         return "driver_license"
     return skill
+
+
+# ---------------------------------
+
+
+def extract_languages(text: str) -> Set[str]:
+    text = text.lower()
+    return {lang for lang, rx in LANGUAGE_REGEXES_EN.items() if rx.search(text)}
 
 
 _reverse_language_map: Dict[str, str] = {

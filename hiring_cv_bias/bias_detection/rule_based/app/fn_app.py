@@ -1,9 +1,11 @@
+import re
 from collections import defaultdict
 from typing import Callable, Dict, List, Pattern, Tuple, TypedDict
 
 import polars as pl
 import streamlit as st
 
+from hiring_cv_bias.bias_detection.rule_based.extractors import LANGUAGE_REGEXES_EN
 from hiring_cv_bias.bias_detection.rule_based.patterns import (
     driver_license_pattern_eng,
     jobs_pattern,
@@ -119,37 +121,39 @@ if search:
 
 # ────────────────────────────────────────────────────────────────
 @st.cache_data(show_spinner="Generating snippets…")
-def annotate(df: pl.DataFrame, rx: Pattern[str]) -> pl.DataFrame:
-    return df.with_columns(
-        pl.col("cv_text")
-        .map_elements(lambda t: make_snippet(t, rx), pl.Utf8)
-        .alias("snippet_html"),
-        pl.col("cv_text")
-        .map_elements(
-            lambda t: rx.sub(
-                lambda mo: f"<span style='color:red;font-weight:bold'>{mo.group(0)}</span>",
-                t,
-            ),
-            pl.Utf8,
-        )
-        .alias("full_html"),
+def annotate(text: str, rx: Pattern[str]) -> str:
+    highlighted_text = rx.sub(
+        lambda mo: f"<span style='color:red;font-weight:bold'>{mo.group(0)}</span>",
+        text,
     )
+    return highlighted_text
 
 
-annotated = annotate(sample_df, CFG["regex"])
-ids = set(annotated["CANDIDATE_ID"].to_list())
+ids = set(sample_df["CANDIDATE_ID"].to_list())
 skills_by_id = {cid: skills_full.get(cid, []) for cid in ids}
 
 # ────────────────────────────────────────────────────────────────
 st.title(CFG["title"])
 st.markdown("<br>", unsafe_allow_html=True)
 
-if annotated.is_empty():
+if sample_df.is_empty():
     st.info("No CVs match the current filters.")
 else:
-    for row in annotated.to_dicts():
+    for row in sample_df.to_dicts():
         cid = row["CANDIDATE_ID"]
-        html = row["full_html"] if show_full else row["snippet_html"]
+
+        if choice == "Driver License":
+            regex = CFG["regex"]
+        elif choice == "Language Skill":
+            regex = LANGUAGE_REGEXES_EN[row["skill"]]
+        elif choice == "Job Title":
+            regex = re.compile(rf"\b{row['skill']}\b")
+
+        html = (
+            annotate(row["cv_text"], regex)
+            if show_full
+            else annotate(make_snippet(row["cv_text"], regex), regex)
+        )
 
         col_cv, col_sk = st.columns([3, 2], gap="large")
         with col_cv:
