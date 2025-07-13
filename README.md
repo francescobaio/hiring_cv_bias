@@ -12,7 +12,7 @@ The goal of this study is to evaluate the **potential biases** in a proprietary 
 
 <div align="center">
   <img src="./data/app.png"
-       alt="Chain"
+       alt="Hiring CV bias app"
        style="width:75%; margin-bottom: 30px;">
 </div>
 
@@ -28,38 +28,42 @@ To explore the work in detail, visit the page here: [link to the page](#)
 
 ```text
 
-├── hiring_cv_bias
-│   ├── bias_detection.  # 
-│   │   ├── fuzzy  # 
-│   │   │   ├── parsing.py
-│   │   │   └── utils.py
-│   │   └── rule_based #
+── hiring_cv_bias
+│   ├── bias_detection
+│   │   ├── fuzzy
+│   │   │   ├── matcher.py  # perfoms matching between our extracted and parser skills 
+│   │   │   ├── parser.py  # performs exact matching on CVs with a list of jobs titles 
+│   │   │   └── utils.py # job filtering  
+│   │   └── rule_based
 │   │       ├── app
-│   │       │   └── labeling_cv_app.py
-│   │       ├── data.py
+│   │       │   └── fn_app.py # visualization app for extraction pipeline 
 │   │       ├── evaluation
-│   │       │   ├── bias.py # 
-│   │       │   ├── compare_parser.py
-│   │       │   └── metrics.py
-│   │       ├── extractors.py
-│   │       ├── parser.py
-│   │       ├── patterns.py
+│   │       │   ├── compare_parser.py # computes bias detection metrics for each group 
+│   │       │   └── metrics.py  
+│   │       ├── extractors.py # extract and apply regex patterns 
+│   │       ├── patterns.py # define patterns for exact matching 
 │   │       └── utils.py
-│   ├── cleaning # 
-│   │   ├── common.py
-│   │   └── raw_cv.py
-│   ├── exploration # 
-│   │   ├── gender_analysis.py
-│   │   ├── utils.py
-│   │   └── visualize.py
-│   ├── hard_soft_skills_labelling # 
-│   │   ├── hard_soft_skill_labelling.ipynb
-│   │   └── utils.py
+│   ├── cleaning
+│   │   ├── common.py 
+│   │   └── raw_cv.py # cleaning of corrupted CVs 
+│   ├── config.py
+│   ├── exploration
+│   │   ├── gender_analysis.py # computes bias_strenght metric for each skill type   
+│   │   ├── disparity.py # computes Gini-Index metric for each skill type 
+│   │   ├── visualize.py # plotting functions for visualizing distribution
+│   │   └── utils.py 
+│   ├── hard_soft_skills_labelling
+│   │   ├── CoT.log # full CoT of the model used 
+│   │   ├── hard_soft_skill_labelling.ipynb 
+│   │   └── utils.py # automates the labeling of extracted Professional_Skill entries as Hard, Soft, or Unknown
 │   ├── translation
-│   │   └── translate.py
+│   │   └── translate.py # script for translating CVs in English 
 │   └── utils.py
-├── pyproject.toml
-├── README.md
-└── uv.lock
+│
+├── notebooks
+│   ├── data_cleaning.ipynb  
+│   ├── data_exploration.ipynb
+│   ├── distributions_analysis.ipynb
+│   └── bias_detection.ipynb
 
 ```
