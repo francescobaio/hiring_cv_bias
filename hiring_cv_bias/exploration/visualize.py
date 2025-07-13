@@ -9,7 +9,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
-from hiring_cv_bias.exploration.utils import compute_top_disparity_values
+from hiring_cv_bias.exploration.disparity import compute_top_disparity_values
 
 EPSILON = sys.float_info.epsilon
 
