@@ -1,3 +1,22 @@
 table {
     margin: 2em auto !important;
 }
+
+
+table td {
+    border-bottom: none !important;
+}
+
+table th {
+    border-top: 1px solid !important;
+    border-bottom: 1px solid !important;
+}
+
+tbody>tr:last-child {
+    border-bottom: 1px solid !important;
+}
+
+table {
+    margin-top: 1.5em !important;
+    margin-bottom: 1em !important;
+}

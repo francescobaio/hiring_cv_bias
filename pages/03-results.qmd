@@ -13,11 +13,11 @@ As previously explained on the Pipeline page, our study first tried to highlight
 While for the Driving License we treat the task as a binary `has_any_driving_license` label for each candidate, for the other two categories we use a finer granularity, examining the agreement between our method and the parser on every individual skill.
 
 
-| Skill                   |    TP    |    FP    |    TN   |   FN.    |   Precision  |    Recall
-|-------------------------|:--------:|:--------:|:-------:|:--------:|:------------:|:----------:|
-| Driving License         |    1689  |    643   |   2927  |   2445   |    0.83      |   0.41     | 
-| Language skills         |          |    55%   |   50%   |   50%    |    50%       |   50%      |
-| Driving license skills  |    80%   |    78%   |   75%   |   75%    |    75%       |   75%      |
+| Skill                   |    TP    |    FP      |    TN   |   FN.     |   Precision  |    Recall
+|-------------------------|:--------:|:--------:  |:-------:|:---------:|:------------:|:----------:|
+| Driving License         |    1689  |    643     |   2927  |   2445    |    0.83      |   0.41     | 
+| Language skills         |    10389 |    2392    |   132   |   5438    |    0.81      |   0.66     |
+| Job titles              |    7838  |    14976   |   326   |   6394    |    0.34      |   0.551    |
 
 
 
@@ -35,29 +35,92 @@ Due to the presence of numerous errors from the parser, we focused our analysis 
 To assess the model’s fairness, we employed the following **bias detection metrics**:
 
 | Metric | Formula | Interpretation |
-|--------|---------|----------------|
-| **Equality of Opportunity&nbsp;(TPR parity)** | $$\text{TPR}_g = \frac{TP_g}{TP_g + FN_g} $$ | $\text{TPR}_g$ equal for every $g$ ensures that **every individual who truly qualifies** for a positive outcome has the **same chance** of being correctly identified, regardless of group membership. |
-| **Calibration&nbsp;\(NPV\)** | $$\text{NPV}_g = \frac{TN_g}{TN_g + FN_g}\qquad $$ | $\text{NPV}_g$ parity for every $g$ ensures that **when the model predicts a negative outcome**, the probability of being correct is the **same** for every group. |
-| **Selection Rate** | $$\text{SR}_g = \frac{TP_g + FP_g}{TP_g + FP_g + TN_g + FN_g} $$ | Share of individuals in group $g$ predicted positive (selected). |
-| **Disparate Impact (DI)** | $$\displaystyle DI = \frac{\text{SR}_{\text{target}}}{\text{SR}_{\text{reference}}}$$ | Ratio of selection rates; values **\< 0.80** (four-fifths rule) indicate potential adverse impact against the target group. |
+|:--------|:---------:|:----------------|
+| **Equality of Opportunity&nbsp;(TPR parity)**| $$\text{TPR}_g = \frac{TP_g}{TP_g + FN_g} $$ | $\text{TPR}_g$ equal for every $g$ ensures that **every individual who truly qualifies** for a positive outcome has the **same chance** of being correctly identified, regardless of group membership. |
+| <br> **Calibration&nbsp;\(NPV\)** | $$\text{NPV}_g = \frac{TN_g}{TN_g + FN_g}\qquad $$ | $\text{NPV}_g$ parity for every $g$ ensures that **when the model predicts a negative outcome**, the probability of being correct is the **same** for every group. |
+| <br> **Selection Rate** | $$\text{SR}_g = \frac{TP_g + FP_g}{TP_g + FP_g + TN_g + FN_g} $$ | <br> Share of individuals in group $g$ predicted positive (selected). |
+| <br> **Disparate Impact (DI)** | $$\displaystyle DI = \frac{\text{SR}_{\text{target}}}{\text{SR}_{\text{reference}}}$$ | Ratio of selection rates; values **\< 0.80** (four-fifths rule) indicate potential adverse impact against the target group. |
 
 
 
 <u>All these metrics were computed for the **Gender** and **Location** groups to detect and quantify possible bias in the selection process.</u>
 
-Spiegazione dei risultati ottenuti :
 
-| Skill             |    TPR  |    NPV  |    DI  |  
-|-------------------|--------:|--------:|-------:|
-| Gender            |    70%  |    55%  |   50%  | 
-| Location          |    80%  |    78%  |   75%  | 
-| Length            |    80%  |    78%  |   75%  | 
+
+### Driving License:
+
+
+| Gender             |    TPR      |    NPV      |      DI     |  
+|:-------------------|:-----------:|:-----------:|:-----------:|
+| Male               |    0.42     |    0.53     |    1.00     | 
+| Female             |    0.39     |    0.56     |    **0.88** |  
+
+
+| Region             |    TPR      |    NPV      |    DI       |  
+|:-------------------|:-----------:|:-----------:|:-----------:|
+| North              |    0.40     |    0.54     |   1.00      | 
+| Center             |    0.43     |    0.55     |   1.08      | 
+| South              |    0.40     |    0.56     |   0.97      | 
+
+
+
+| Lenght             |    TPR      |    NPV      |    DI       |  
+|:-------------------|:-----------:|:-----------:|:-----------:|
+| Long               |    0.38     |    0.46     |   1.00      | 
+| Medium             |    0.44     |    0.60     |   0.99      | 
+| Short              |    0.47     |    0.79     |   **0.75**  | 
+
+
+### Language skills:
+
+| Gender             |    TPR      |    NPV      |      DI     |  
+|:-------------------|:-----------:|:-----------:|:-----------:|
+| Male               |    0.67     |    0.03     |    1.00     | 
+| Female             |    0.64     |    0.02     |    0.95     |  
+
+
+| Region            |    TPR   |    NPV  |    DI   |  
+|:------------------|:--------:|:-------:|:-------:|
+| North             |    0.66  |    0.03 |   1.00  | 
+| Center            |    0.66  |    0.01 |   1.01  | 
+| South             |    0.65  |    0.02 |   0.99  | 
+
+
+
+| Lenght            |    TPR   |    NPV   |    DI       |  
+|:------------------|:--------:|:--------:|:-----------:|
+| Long              |    0.63  |    0.01  |   1.00      | 
+| Medium            |    0.69  |    0.03  |   1.11      | 
+| Short             |    0.69  |    0.11  |   **1.19**  | 
+
+
+### Job titles:
+
+| Gender            |    TPR     |    NPV     |      DI    |  
+|:------------------|:----------:|:----------:|:----------:|
+| Male              |    0.53    |    0.06    |    1.00    | 
+| Female            |    0.56    |    0.03    |    0.97    |  
+
+
+| Location         |    TPR   |    NPV  |    DI   |  
+|:-----------------|:--------:|:-------:|:-------:|
+| North            |    0.55  |    0.05 |   1.00  | 
+| Center           |    0.56  |    0.04 |   0.99  | 
+| South            |    0.53  |    0.06 |   0.97  | 
+
+
+
+| Lenght            |    TPR   |    NPV       |    DI       |  
+|:------------------|:--------:|:------------:|:-----------:|
+| Long              |    0.56  |    0.01      |   1.00      | 
+| Medium            |    0.53  |    0.07      |   0.99      | 
+| Short             |    0.51  |    **0.28**  |   0.97      |  
+
+
 
 
 ## 3. Summary of Findings  
-- Systematic over-extraction of hard skills in all languages.  
-- Soft skills under-detected especially in Italian and French CVs.  
-- Gender skew: certain leadership-type skills more often missed in female profiles.
+- TO DO
 
 
 
