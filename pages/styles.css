@@ -20,3 +20,11 @@ table {
     margin-top: 1.5em !important;
     margin-bottom: 1em !important;
 }
+
+table tr {
+    text-align: left !important;
+}
+
+h3 {
+    margin-top: 3rem !important;
+}

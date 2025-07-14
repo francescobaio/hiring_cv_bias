@@ -28,9 +28,16 @@ format:
     theme: journal
     toc: true
     toc-depth: 2
-    css: styles.css
+    css: pages/styles.css
+
+resources: 
+  - pages/media/**
+
 
 exclude:
   - data/
   - "*.ipynb"
   - "__pycache__/"
+
+
+

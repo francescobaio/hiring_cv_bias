@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import polars as pl
 import polars_ds as pds
 import seaborn as sns
+from IPython.display import display
 
 
 def inspect_missing(df: pl.DataFrame) -> pl.DataFrame:
@@ -27,10 +28,12 @@ def inspect_missing(df: pl.DataFrame) -> pl.DataFrame:
     stats = missing_counts.join(pct_missing, on="column")
 
     # print summary
-    print("Missing value summary:\n", stats)
+    print("Missing value summary:\n")
+    display(stats)
     nonzero = stats.filter(pl.col("pct_missing") > 0)
     if nonzero.height > 0:
-        print("\nColumns with > 0% missing values:\n", nonzero)
+        print("\nColumns with > 0% missing values:\n")
+        display(nonzero)
     else:
         print("\nNo missing values detected in any column.")
 
