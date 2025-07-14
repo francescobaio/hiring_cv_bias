@@ -1,11 +1,13 @@
 import re
 from typing import Any, List, Pattern
 
+import matplotlib.pyplot as plt
 import polars as pl
+import polars_ds as pds
+import seaborn as sns
 
 
 def inspect_missing(df: pl.DataFrame) -> pl.DataFrame:
-    """ """
     total = df.height
 
     # count nulls per column, melt into (column, n_missing)
@@ -72,7 +74,6 @@ def find_dropped_skill_rows(
     max_len: int = 100,
     placeholder_pattern: Pattern[str] = _PLACEHOLDER_PATTERN,
 ) -> pl.DataFrame:
-    """ """
     # clean mask: length, has_letter, no_placeholder
     length = pl.col(skill_col).map_elements(
         lambda s, *_: len(s or ""), return_dtype=pl.Int64
@@ -94,3 +95,31 @@ def find_dropped_skill_rows(
         how="anti",
     )
     return dropped
+
+
+def cramers_v(df: pl.DataFrame, x: str, y: str) -> float:
+    # chi-square
+    chi2 = df.select(pds.chi2(x, y).alias("chi2")).item()["statistic"]
+    n = df.height
+    k = min(df.n_unique(x), df.n_unique(y))
+    return (chi2 / (n * (k - 1))) ** 0.5
+
+
+def plot_cramer_matrix(df: pl.DataFrame) -> None:
+    df = df.drop("index")
+    plt.figure(figsize=(6, 4))
+    sns.heatmap(
+        df,
+        annot=True,
+        fmt=".2f",
+        vmin=0,
+        vmax=1,
+        cmap="Blues",
+        xticklabels=df.columns,
+        yticklabels=df.columns,
+        square=True,
+        cbar=False,
+    )
+    plt.title("Cramér’s V Matrix")
+    plt.tight_layout()
+    plt.show()

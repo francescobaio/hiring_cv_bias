@@ -9,7 +9,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
-from hiring_cv_bias.exploration.utils import compute_top_disparity_values
+from hiring_cv_bias.exploration.disparity import compute_top_disparity_values
 
 EPSILON = sys.float_info.epsilon
 
@@ -73,6 +73,8 @@ def plot_histogram(
         colors = ["#1f77b4"]
     if not normalize and frequencies["frequency"].dtype.is_integer():
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+    ax.grid(axis="y", linestyle="--", alpha=0.7)
     ax.bar(
         frequencies[column.name],
         frequencies["frequency"],
@@ -184,8 +186,7 @@ def plot_top_skills_for_job_title(
 
 def compute_and_plot_disparity(
     columns: Dict[str, pl.Series],
-    min_threshold: int = 25,
-    use_percentiles: bool = True,
+    min_threshold: float = 1.0,
     colors: Optional[Dict[str, str]] = None,
     attribute_name: str = "",
     weights_dict: Optional[Dict[str, float]] = None,
@@ -204,7 +205,6 @@ def compute_and_plot_disparity(
         columns=list(columns.values()),
         weights=weights,
         min_threshold=min_threshold,
-        use_percentiles=use_percentiles,
         top_n=top_n,
     )
 
