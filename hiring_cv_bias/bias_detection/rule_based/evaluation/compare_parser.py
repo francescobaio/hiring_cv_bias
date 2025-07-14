@@ -1,32 +1,53 @@
-from collections import namedtuple
-from typing import Any, Callable, Dict, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
 import polars as pl
 from tqdm.notebook import tqdm
 
-Conf = namedtuple("Conf", "tp fp tn fn")
-Result = namedtuple("Result", "conf fp_rows fn_rows")
+from hiring_cv_bias.bias_detection.rule_based.evaluation.metrics import Conf, Result
 
 
-def compare(
+def collect_confusion_rows(
+    rows: List[Dict[str, Any]],
+    base_row: Dict[str, Any],
+    keys: List[str],
+    skills: Set[Optional[str]],
+    reason: str,
+) -> None:
+    base = {k: base_row[k] for k in keys}
+    for s in skills:
+        entry = dict(base)
+        entry["skill"] = s
+        entry["cv_text"] = base_row["Translated_CV"]
+        entry["cv_italian"] = base_row["CV_text_anon"]
+        entry["reason"] = reason
+        rows.append(entry)
+
+
+def compute_candidate_coverage(
     df_cv: pl.DataFrame,
     df_parser: pl.DataFrame,
     skill_type: str,
     extractor: Callable[[str], Set[str]],
     norm: Callable[[str], str] = str.lower,
+    matcher: Optional[Callable[[Set[str], Set[str]], Set[str]]] = None,
+    verbose: bool = True,
 ) -> Result:
-    """
-    Compare rule-based extraction (truth) with parser output.
-    """
     tp = fp = tn = fn = 0
-    fp_rows, fn_rows = [], []
+    tp_rows: List[Dict] = []
+    fp_rows: List[Dict] = []
+    fn_rows: List[Dict] = []
+    tn_rows: List[Dict] = []
+    truth_ids, parser_ids = set(), set()
+
+    features = ["CANDIDATE_ID", "Gender", "Location", "length"]
 
     for row in tqdm(df_cv.iter_rows(named=True), total=df_cv.height):
-        cid, gender, raw = row["CANDIDATE_ID"], row["Gender"], row["cleaned_cv"]
+        cid, raw = row["CANDIDATE_ID"], row["Translated_CV"]
 
-        truth = extractor(raw)  # rule‑based “ground‑truth”
+        truth = extractor(raw)
+        if truth:
+            truth_ids.add(cid)
 
-        # set comprehension give or "driver_license" or None as truth
         parser = {
             norm(s)
             for s in df_parser.filter(
@@ -34,106 +55,131 @@ def compare(
             )["Skill"].to_list()
             if isinstance(s, str)
         }
+        if parser:
+            parser_ids.add(cid)
 
-        tp += len(truth & parser)
-        fn += len(truth - parser)  # missed by parser
-        fp += len(parser - truth)  # hallucinated by parser
+        if matcher is not None:
+            truth = matcher(truth, parser)
+
+        # TP
+        tp_skills = truth & parser
+        tp += len(tp_skills)
+        collect_confusion_rows(
+            tp_rows,
+            row,
+            features,
+            set(tp_skills),
+            "Both regex & parser found this skill.",
+        )
+
+        # FN
+        fn_skills = truth - parser
+        fn += len(fn_skills)
+        collect_confusion_rows(
+            fn_rows,
+            row,
+            features,
+            set(fn_skills),
+            "Rule-based extractor found skill but parser missed it.",
+        )
+
+        # FP
+        fp_skills = parser - truth
+        fp += len(fp_skills)
+        collect_confusion_rows(
+            fp_rows,
+            row,
+            features,
+            set(fp_skills),
+            "Parser output contains skill not found by rule-based extractor.",
+        )
+
+        # TN
         if not truth and not parser:
             tn += 1
+            collect_confusion_rows(
+                tn_rows,
+                row,
+                features,
+                {None},
+                "No skill found by either extractor or parser.",
+            )
 
-        fp_rows += [
-            {
-                "CANDIDATE_ID": cid,
-                "Gender": gender,
-                "skill": s,
-                "cv_text": raw,
-                "cv_italian": row["CV_text_anon"],
-                "reason": "Parser output contains skill not found by rule-based extractor. ",
-            }
-            for s in parser - truth
-        ]
-        fn_rows += [
-            {
-                "CANDIDATE_ID": cid,
-                "Gender": gender,
-                "skill": s,
-                "cv_text": raw,
-                "cv_italian": row["CV_text_anon"],
-                "reason": "Rule-based extractor found skill but parser missed it.",
-            }
-            for s in truth - parser
-        ]
+    if verbose:
+        both = truth_ids & parser_ids
+        only_t = truth_ids - parser_ids
+        only_p = parser_ids - truth_ids
+        print(f"Regex positive candidates        : {len(truth_ids)}")
+        print(f"Parser positive unique candidates: {len(parser_ids)}")
+        print(f"- Both regex & parser   : {len(both)}")
+        print(f"- Only regex            : {len(only_t)}")
+        print(f"- Only parser           : {len(only_p)}\n")
 
-    return Result(Conf(tp, fp, tn, fn), fp_rows, fn_rows)
-
-
-def compute_candidate_coverage(
-    df_cv: pl.DataFrame,
-    df_sk: pl.DataFrame,
-    skill_type: str,
-    extractor: Callable[[str], Set[str]],
-    text_col: str = "cleaned_cv",
-    id_col: str = "CANDIDATE_ID",
-) -> Dict[str, Any]:
-    """
-    Compute coverage stats for one skill category.
-    """
-    # 1) find all candidates whose cleaned text triggers the extractor
-    mask_regex = df_cv[text_col].map_elements(
-        lambda t: bool(extractor(t)), return_dtype=bool
-    )
-    regex_series = df_cv.filter(mask_regex)[id_col]
-    regex_ids = set(regex_series.unique().to_list())
-
-    # 2) parser side
-    df_sk_skill = df_sk.filter(pl.col("Skill_Type") == skill_type)
-    parser_series = df_sk_skill[id_col]
-    parser_ids = set(parser_series.unique().to_list())
-    num_parser_occurrences = df_sk_skill.height
-
-    # 3) set operations
-    common_ids = regex_ids & parser_ids
-    only_regex_ids = regex_ids - parser_ids
-    only_parser_ids = parser_ids - regex_ids
-
-    # 4) counts
-    stats: Dict[str, Any] = {
-        "regex_ids": regex_ids,
-        "parser_ids": parser_ids,
-        "common_ids": common_ids,
-        "only_regex_ids": only_regex_ids,
-        "only_parser_ids": only_parser_ids,
-        "num_regex_candidates": len(regex_ids),
-        "num_parser_unique": len(parser_ids),
-        "num_parser_occurrences": num_parser_occurrences,
-        "num_common_candidates": len(common_ids),
-        "num_only_regex_candidates": len(only_regex_ids),
-        "num_only_parser_candidates": len(only_parser_ids),
-    }
-    return stats
-
-
-def print_candidate_coverage(
-    df_cv: pl.DataFrame,
-    df_sk: pl.DataFrame,
-    skill_type: str,
-    extractor: Callable[[str], Set[str]],
-    text_col: str = "cleaned_cv",
-    id_col: str = "CANDIDATE_ID",
-) -> Dict[str, Any]:
-    """
-    Compute and print the main coverage numbers for a skill.
-    """
-    stats = compute_candidate_coverage(
-        df_cv, df_sk, skill_type, extractor, text_col, id_col
+    return Result(
+        Conf(tp, fp, tn, fn),
+        tp_rows,
+        fp_rows,
+        fn_rows,
+        tn_rows,
     )
 
-    print(f"Regex-positive candidates        : {stats['num_regex_candidates']}")
-    print(f"Parser-positive unique candidates: {stats['num_parser_unique']}")
-    print(f"Parser total occurrences         : {stats['num_parser_occurrences']}\n")
 
-    print(f"- Both regex & parser   : {stats['num_common_candidates']}")
-    print(f"- Only regex            : {stats['num_only_regex_candidates']}")
-    print(f"- Only parser           : {stats['num_only_parser_candidates']}\n")
+def error_rates_by_group(
+    result: Result,
+    df_population: pl.DataFrame,
+    reference_col: str,
+    group_col: str = "Gender",
+    metrics: Optional[List[str]] = None,
+    disparate_impact: bool = True,
+) -> pl.DataFrame:
+    metrics = metrics or []
+    df_tp = pl.DataFrame(result.tp_rows)
+    df_fp = pl.DataFrame(result.fp_rows)
+    df_fn = pl.DataFrame(result.fn_rows)
+    df_tn = pl.DataFrame(result.tn_rows)
 
-    return stats
+    tp_cnt = df_tp.group_by(group_col).len().rename({"len": "tp"})
+    fp_cnt = df_fp.group_by(group_col).len().rename({"len": "fp"})
+    fn_cnt = df_fn.group_by(group_col).len().rename({"len": "fn"})
+    tn_cnt = df_tn.group_by(group_col).len().rename({"len": "tn"})
+
+    pop_cnt = df_population.group_by(group_col).agg(pl.count().alias("total"))
+
+    df = (
+        pop_cnt.join(tp_cnt, on=group_col, how="left")
+        .join(fp_cnt, on=group_col, how="left")
+        .join(fn_cnt, on=group_col, how="left")
+        .join(tn_cnt, on=group_col, how="left")
+        .fill_null(0)
+        .with_columns(pl.sum_horizontal("tp", "fp", "fn", "tn").alias("total_skills"))
+    )
+
+    df = df.with_columns(
+        [
+            (pl.col("fp") / pl.col("total_skills")).alias("fp_rate"),
+            (pl.col("fn") / pl.col("total_skills")).alias("fn_rate"),
+        ]
+    )
+
+    for m in metrics:
+        if not hasattr(Conf, m):
+            raise ValueError(f"Metric '{m}' not defined in Conf")
+        df = df.with_columns(
+            pl.struct(["tp", "fp", "tn", "fn"])
+            .map_elements(
+                lambda d: float(getattr(Conf(**d), m)), return_dtype=pl.Float64
+            )
+            .alias(m)
+        )
+
+    # compute disparate impact between groups
+    if disparate_impact:
+        confs = {
+            row[group_col]: Conf(tp=row["tp"], fp=row["fp"], tn=row["tn"], fn=row["fn"])
+            for row in df.iter_rows(named=True)
+        }
+
+        dsp_imp = [confs[i].disparate_impact(confs[reference_col]) for i in confs]
+        df.insert_column(len(df.columns), pl.Series("disparate_impact", dsp_imp))
+
+    return df
