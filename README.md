@@ -21,7 +21,7 @@ The goal of this study is to evaluate the **potential biases** in a proprietary 
 > Because the CV data, although anonymized is proprietary, it cannot be shared to reproduce the experiments using in the hiring_cv_bias module.
 
 
-To explore the work in detail, visit the page here: [link to the page](#)
+To explore the work in detail, visit the page here: [link to the page](https://francescobaio.github.io/hiring_cv_bias/)
 
 
 ## Repository Structure
