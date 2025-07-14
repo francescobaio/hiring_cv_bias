@@ -19,9 +19,9 @@ website:
     left: "Francesco Baiocchi & Leonardo Petrilli"
     right:
       - icon: github
-        href: https://github.com/tuo-username/tuo-repo
+        href: https://github.com/francescobaio/hiring_cv_bias
       - icon: linkedin       
-        href: https://www.linkedin.com/in/tuo-username
+        href: https://www.linkedin.com/in/francesco-baiocchi-1aa2a2276/
 
 format:
   html:

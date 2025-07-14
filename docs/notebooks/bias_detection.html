@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bias Detection – Hiring CV Bias</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8610558a007458a9b978551a034f4d85.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../pages/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Hiring CV Bias</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../pages/01-problem.html"> 
+<span class="menu-text">Problem Statement</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../pages/02-pipeline.html"> 
+<span class="menu-text">Pipeline</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../pages/03-results.html"> 
+<span class="menu-text">Results</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Bias Detection</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Main Objective:</strong><br>
+Detect errors and biases introduced by the CV parser when extracting skills from raw CV text. We perform this inspection using both rule based (regular expressions) and semantic techniques.</p>
+<ol type="1">
+<li><strong>Error detection steps:</strong>
+<ul>
+<li>Identify errors in candidates <strong>Driving Licenses</strong> and <strong>Language Skills</strong> using Regex.<br>
+</li>
+<li>Uncover errors in candidates <strong>Job Experience</strong> using exact matching and semantic approach.</li>
+</ul></li>
+<li><strong>Bias detection:</strong>
+<ul>
+<li>Analyze the errors identified in Step 1 for the groups previously examined (see <code>distribution_analysis.ipynb</code>) to determine whether the parser has disadvantaged or advantaged any of them.</li>
+</ul></li>
+</ol>
+<div id="cell-2" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> huggingface_hub <span class="im">import</span> login</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hiring_cv_bias.bias_detection.fuzzy.matcher <span class="im">import</span> SemanticMatcher</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hiring_cv_bias.bias_detection.fuzzy.parser <span class="im">import</span> JobParser</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hiring_cv_bias.bias_detection.rule_based.data <span class="im">import</span> (</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    add_demographic_info,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hiring_cv_bias.bias_detection.rule_based.evaluation.compare_parser <span class="im">import</span> (</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    compute_candidate_coverage,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hiring_cv_bias.bias_detection.rule_based.extractors <span class="im">import</span> (</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    extract_driver_license,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    extract_languages,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    norm_driver_license,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    norm_languages,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hiring_cv_bias.bias_detection.rule_based.patterns <span class="im">import</span> (</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    driver_license_pattern_eng,</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    jobs_pattern,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    languages_pattern_eng,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    normalized_jobs,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hiring_cv_bias.bias_detection.rule_based.utils <span class="im">import</span> (</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    print_highlighted_cv,</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    print_report,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hiring_cv_bias.config <span class="im">import</span> (</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    CANDIDATE_CVS_TRANSLATED_CLEANED_PATH,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    CLEANED_REVERSE_MATCHING_PATH,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    CLEANED_SKILLS,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    DRIVING_LICENSE_FALSE_NEGATIVES_PATH,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    JOB_TITLE_FALSE_NEGATIVES_PATH,</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    LANGUAGE_SKILL_FALSE_NEGATIVES_PATH,</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> hiring_cv_bias.utils <span class="im">import</span> load_data</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>pl.Config.set_tbl_cols(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>pl.Config.set_tbl_width_chars(<span class="dv">200</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The autoreload extension is already loaded. To reload it, use:
+  %reload_ext autoreload</code></pre>
+</div>
+</div>
+<div id="cell-3" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"TOKENIZERS_PARALLELISM"</span>] <span class="op">=</span> <span class="st">"True"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"token.json"</span>, <span class="st">"r"</span>) <span class="im">as</span> token:</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    login(token<span class="op">=</span>json.load(token)[<span class="st">"token"</span>])</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python <span class="op">-</span>m spacy download en_core_web_sm </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<div class="ansi-escaped-output">
+<pre>Collecting en-core-web-sm==3.8.0
+
+  Downloading https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl (12.8 MB)
+
+     <span class="ansi-bright-black-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">12.8/12.8 MB</span> <span class="ansi-red-fg">2.2 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>a <span class="ansi-cyan-fg">0:00:01</span>m
+
+<span class="ansi-green-fg">✔ Download and installation successful</span>
+
+You can now load the package via spacy.load('en_core_web_sm')
+</pre>
+</div>
+</div>
+</div>
+<section id="load-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="load-the-data">Load the data</h3>
+<div id="cell-5" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df_cv_raw <span class="op">=</span> load_data(CANDIDATE_CVS_TRANSLATED_CLEANED_PATH)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>df_skills <span class="op">=</span> load_data(CLEANED_SKILLS)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df_info_candidates <span class="op">=</span> load_data(CLEANED_REVERSE_MATCHING_PATH)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-6" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df_info_candidates <span class="op">=</span> df_info_candidates.with_columns(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    pl.when(pl.col(<span class="st">"LATITUDE"</span>) <span class="op">&gt;</span> <span class="fl">44.5</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"NORTH"</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    .when(pl.col(<span class="st">"LATITUDE"</span>) <span class="op">&lt;</span> <span class="dv">42</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"SOUTH"</span>))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    .otherwise(pl.lit(<span class="st">"CENTER"</span>))</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    .alias(<span class="st">"Location"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>df_cv_raw <span class="op">=</span> df_cv_raw.with_columns(</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    pl.when(pl.col(<span class="st">"len_anon"</span>) <span class="op">&lt;</span> <span class="dv">1000</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"SHORT"</span>))</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    .when(pl.col(<span class="st">"len_anon"</span>) <span class="op">&lt;</span> <span class="dv">2500</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"MEDIUM"</span>))</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    .otherwise(pl.lit(<span class="st">"LONG"</span>))</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    .alias(<span class="st">"length"</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="bias-detection-for-driver-licences" class="level3">
+<h3 class="anchored" data-anchor-id="bias-detection-for-driver-licences">Bias detection for Driver Licences</h3>
+<ul>
+<li><p><strong>Pre-processing step –&gt; driving licence flag</strong><br>
+We call <code>add_demographic_info()</code> to add a Boolean column, <code>has_driving_license</code>, to the CV dataframe. This flag will help us compare what the regex detects in the raw CV text with what the parser extracted as driving licence for each candidate, allowing us to identify potential omissions in the parsing step.</p></li>
+<li><p><strong>How the flag is generated</strong></p>
+<ul>
+<li>A single case insensitive regex (<code>driver_license_pattern_eng</code>) looks for common phrases such as “driving license B”, “C1 driving licence” or even “own car”.<br>
+</li>
+<li>The helper function <code>extract_driver_license(text)</code> returns <code>True</code> if the regex matches anywhere in the CV text.</li>
+</ul></li>
+<li><p><strong>Resulting columns in <code>df_cv</code></strong></p>
+<ul>
+<li>Same as before</li>
+<li><code>Gender</code>, <code>Location</code> —&gt; from the candidates sheet</li>
+<li><code>has_driving_license</code> —&gt; <code>True</code> if any licence is mentioned, otherwise <code>False</code></li>
+</ul></li>
+<li><p><strong>Note</strong><br>
+For now we only care whether a candidate has <em>any</em> licence. (given that the driver license type column contains a handful of null values (see <code>data_cleaning.ipynb</code>))</p>
+<p>The same regex already captures specific categories (A, B, C…), so the analysis could be extended later if we want to explore potential biases tied to particular licence types.</p></li>
+</ul>
+<div id="cell-9" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df_cv <span class="op">=</span> add_demographic_info(df_cv_raw, df_info_candidates)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_cv.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (5, 8)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">CANDIDATE_ID</th>
+<th data-quarto-table-cell-role="th">CV_text_anon</th>
+<th data-quarto-table-cell-role="th">Translated_CV</th>
+<th data-quarto-table-cell-role="th">len_anon</th>
+<th data-quarto-table-cell-role="th">length</th>
+<th data-quarto-table-cell-role="th">Gender</th>
+<th data-quarto-table-cell-role="th">Location</th>
+<th data-quarto-table-cell-role="th">has_driving_license</th>
+</tr>
+<tr class="even">
+<th>i64</th>
+<th>str</th>
+<th>str</th>
+<th>i64</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>bool</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>7990324</td>
+<td>"CV anonimizzato: """ PROFILO D…</td>
+<td>" profile graduated from elsa m…</td>
+<td>1445</td>
+<td>"MEDIUM"</td>
+<td>"Female"</td>
+<td>"NORTH"</td>
+<td>true</td>
+</tr>
+<tr class="even">
+<td>7974050</td>
+<td>"CV anonimizzato: """ Curricul…</td>
+<td>" curriculum vitae personal inf…</td>
+<td>2148</td>
+<td>"MEDIUM"</td>
+<td>"Female"</td>
+<td>"CENTER"</td>
+<td>true</td>
+</tr>
+<tr class="odd">
+<td>7965670</td>
+<td>"CV anonimizzato: """ ESPERIENZ…</td>
+<td>" work experience 03/27/2023 – …</td>
+<td>4911</td>
+<td>"LONG"</td>
+<td>"Female"</td>
+<td>"NORTH"</td>
+<td>true</td>
+</tr>
+<tr class="even">
+<td>7960501</td>
+<td>"CV anonimizzato: """ Esperienz…</td>
+<td>" work experience waiter and ba…</td>
+<td>680</td>
+<td>"SHORT"</td>
+<td>"Male"</td>
+<td>"NORTH"</td>
+<td>false</td>
+</tr>
+<tr class="odd">
+<td>7960052</td>
+<td>"CV anonimizzato: """ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dat…</td>
+<td>" date of birth: 03/26/1996 nat…</td>
+<td>5913</td>
+<td>"LONG"</td>
+<td>"Female"</td>
+<td>"CENTER"</td>
+<td>false</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p><strong>Comparing parser output and regex detection</strong></p>
+<p>The <code>compute_candidate_coverage()</code> function evaluates how well the parsing system detects a specific category of skills by comparing it to our approach.</p>
+<p>In this case, the chosen category is <code>"DRIVERSLIC"</code> and we use a custom regex based extractor applied directly to the raw CV text.</p>
+<p>This step is crucial for measuring the parser’s coverage by quantifying <strong>false negatives</strong>. (skills that are mentioned in the CV but missed by the parser)</p>
+<p><strong>Output breakdown:</strong> 1. <strong>Regex positive candidates</strong>: number of unique candidates flagged by our rule based extractor. 2. <strong>Parser positive unique candidates</strong>: number of unique candidates flagged by the parser.</p>
+<ul>
+<li><strong>Both regex &amp; parser</strong>: candidates detected by both methods.</li>
+<li><strong>Only regex</strong>: candidates our regex caught but the parser missed.</li>
+<li><strong>Only parser</strong>: candidates the parser flagged but our regex did not.</li>
+</ul>
+<p>Then <code>print_report()</code> displays: - The overall confusion matrix and derived metrics (accuracy, precision, recall, F1).</p>
+<div id="cell-12" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>res_dl <span class="op">=</span> compute_candidate_coverage(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    df_cv<span class="op">=</span>df_cv,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    df_parser<span class="op">=</span>df_skills,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    skill_type<span class="op">=</span><span class="st">"DRIVERSLIC"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    extractor<span class="op">=</span>extract_driver_license,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    norm<span class="op">=</span>norm_driver_license,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Confusion matrix:"</span>, res_dl.conf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"b403d895cf9a4fb88708b3c41ac29618","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Regex positive candidates        : 4134
+Parser positive unique candidates: 2032
+- Both regex &amp; parser   : 1689
+- Only regex            : 2445
+- Only parser           : 343
+
+Confusion matrix: 
+Counts   -&gt; TP:1689   FP:343   TN:2927   FN:2445 
+Metrics  -&gt; Precision:0.83  Recall:0.409  F1:0.548  Acc:0.623</code></pre>
+</div>
+</div>
+<p>The parser achieves <strong>high precision (~83 %)</strong> but <strong>low recall (~41 %)</strong>.<br>
+In other words, when it flags a skill it is usually correct, yet it <strong>misses more than half of the skills</strong> that the regex finds.</p>
+<p>Let’s dive into <strong>false negatives (FN)</strong><br>
+* We’ll highlight in <strong>red</strong> the exact terms captured by the regex directly inside the CV text, making it easy to verify their presence at a glance.</p>
+<div id="cell-15" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df_fn <span class="op">=</span> pl.DataFrame(res_dl.fn_rows)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> df_fn.sample(n<span class="op">=</span><span class="dv">2</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> sample.to_dicts():</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    print_highlighted_cv(row, pattern<span class="op">=</span>driver_license_pattern_eng)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<div class="ansi-escaped-output">
+<pre>CANDIDATE ID: 4454222 - GENERE: Female
+
+Reason: Rule-based extractor found skill but parser missed it.
+
+--------------------------------------------------------------------------------
+
+aching of political economy in english. <span class="ansi-red-fg">driving license: b</span> professional skills: customer orientati
+
+--------------------------------------------------------------------------------
+
+
+
+CANDIDATE ID: 4087594 - GENERE: Male
+
+Reason: Rule-based extractor found skill but parser missed it.
+
+--------------------------------------------------------------------------------
+
+d in the field of technical maintenance <span class="ansi-red-fg">driving license</span> a1, b further information despite holdi
+
+further information despite holding the <span class="ansi-red-fg">license b</span>, at the moment I do not have a car
+
+--------------------------------------------------------------------------------
+</pre>
+</div>
+</div>
+</div>
+<div id="cell-16" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"False negatives matching snippet pattern: </span><span class="sc">{</span>df_fn<span class="sc">.</span>height<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df_fn.write_csv(DRIVING_LICENSE_FALSE_NEGATIVES_PATH, separator<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved filtered false negatives!"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>False negatives matching snippet pattern: 2445
+Saved filtered false negatives!</code></pre>
+</div>
+</div>
+<div id="cell-17" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash <span class="op">--</span>bg </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>cd ..</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># for Unix users  </span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>.venv<span class="op">/</span><span class="bu">bin</span><span class="op">/</span>python <span class="op">-</span>m streamlit run hiring_cv_bias<span class="op">/</span>bias_detection<span class="op">/</span>rule_based<span class="op">/</span>app<span class="op">/</span>fn_app.py</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># for Windows users</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#.venv/Scripts/python.exe -m streamlit run hiring_cv_bias/bias_detection/rule_based/app/fn_app.py</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="bias-detection-metrics" class="level3">
+<h3 class="anchored" data-anchor-id="bias-detection-metrics">Bias Detection Metrics</h3>
+<p>To assess the model’s fairness, we employed the following <strong>bias detection metrics</strong>:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 27%">
+<col style="width: 48%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Formula</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Equality of Opportunity&nbsp;(TPR parity)</strong></td>
+<td><span class="math display">\[\text{TPR}_g = \frac{TP_g}{TP_g + FN_g} \]</span></td>
+<td><span class="math inline">\(\text{TPR}_g\)</span> equal for every <span class="math inline">\(g\)</span> ensures that <strong>every individual who truly qualifies</strong> for a positive outcome has the <strong>same chance</strong> of being correctly identified, regardless of group membership.</td>
+</tr>
+<tr class="even">
+<td><br> <strong>Calibration&nbsp;(NPV)</strong></td>
+<td><span class="math display">\[\text{NPV}_g = \frac{TN_g}{TN_g + FN_g}\qquad \]</span></td>
+<td><span class="math inline">\(\text{NPV}_g\)</span> parity for every <span class="math inline">\(g\)</span> ensures that <strong>when the model predicts a negative outcome</strong>, the probability of being correct is the <strong>same</strong> for every group.</td>
+</tr>
+<tr class="odd">
+<td><br> <strong>Selection Rate</strong></td>
+<td><span class="math display">\[\text{SR}_g = \frac{TP_g + FP_g}{TP_g + FP_g + TN_g + FN_g} \]</span></td>
+<td>Share of individuals in group <span class="math inline">\(g\)</span> predicted positive (selected).</td>
+</tr>
+<tr class="even">
+<td><br> <strong>Disparate Impact (DI)</strong></td>
+<td><span class="math display">\[\displaystyle DI = \frac{\text{SR}_{\text{target}}}{\text{SR}_{\text{reference}}}\]</span></td>
+<td>Ratio of selection rates; values <strong>&lt; 0.80</strong> (four-fifths rule) indicate potential adverse impact against the target group.</td>
+</tr>
+</tbody>
+</table>
+<p><u>All these metrics were computed for the <strong>Gender</strong> and <strong>Location</strong> groups to detect and quantify possible bias in the selection process.</u></p>
+<div id="cell-19" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_dl,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"Male"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Gender"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TP: 1689, FP: 343, TN: 2927, FN: 2445
+Accuracy: 0.623, Precision: 0.831, Recall: 0.409, F1: 0.548
+
+Error and rates by Gender:
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (2, 12)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Gender</th>
+<th data-quarto-table-cell-role="th">total</th>
+<th data-quarto-table-cell-role="th">tp</th>
+<th data-quarto-table-cell-role="th">fp</th>
+<th data-quarto-table-cell-role="th">fn</th>
+<th data-quarto-table-cell-role="th">tn</th>
+<th data-quarto-table-cell-role="th">total_skills</th>
+<th data-quarto-table-cell-role="th">fp_rate</th>
+<th data-quarto-table-cell-role="th">fn_rate</th>
+<th data-quarto-table-cell-role="th">equality_of_opportunity</th>
+<th data-quarto-table-cell-role="th">calibration_npv</th>
+<th data-quarto-table-cell-role="th">disparate_impact</th>
+</tr>
+<tr class="even">
+<th>str</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"Male"</td>
+<td>3984</td>
+<td>966</td>
+<td>189</td>
+<td>1316</td>
+<td>1513</td>
+<td>3984</td>
+<td>0.04744</td>
+<td>0.330321</td>
+<td>0.423313</td>
+<td>0.534818</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td>"Female"</td>
+<td>3420</td>
+<td>723</td>
+<td>154</td>
+<td>1129</td>
+<td>1414</td>
+<td>3420</td>
+<td>0.045029</td>
+<td>0.330117</td>
+<td>0.390389</td>
+<td>0.556036</td>
+<td>0.884526</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="cell-20" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_dl,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"NORTH"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Location"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TP: 1689, FP: 343, TN: 2927, FN: 2445
+Accuracy: 0.623, Precision: 0.831, Recall: 0.409, F1: 0.548
+
+Error and rates by Location:
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 12)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Location</th>
+<th data-quarto-table-cell-role="th">total</th>
+<th data-quarto-table-cell-role="th">tp</th>
+<th data-quarto-table-cell-role="th">fp</th>
+<th data-quarto-table-cell-role="th">fn</th>
+<th data-quarto-table-cell-role="th">tn</th>
+<th data-quarto-table-cell-role="th">total_skills</th>
+<th data-quarto-table-cell-role="th">fp_rate</th>
+<th data-quarto-table-cell-role="th">fn_rate</th>
+<th data-quarto-table-cell-role="th">equality_of_opportunity</th>
+<th data-quarto-table-cell-role="th">calibration_npv</th>
+<th data-quarto-table-cell-role="th">disparate_impact</th>
+</tr>
+<tr class="even">
+<th>str</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"SOUTH"</td>
+<td>1060</td>
+<td>229</td>
+<td>51</td>
+<td>341</td>
+<td>439</td>
+<td>1060</td>
+<td>0.048113</td>
+<td>0.321698</td>
+<td>0.401754</td>
+<td>0.562821</td>
+<td>0.968674</td>
+</tr>
+<tr class="even">
+<td>"NORTH"</td>
+<td>5343</td>
+<td>1217</td>
+<td>240</td>
+<td>1789</td>
+<td>2097</td>
+<td>5343</td>
+<td>0.044919</td>
+<td>0.334831</td>
+<td>0.404857</td>
+<td>0.539629</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td>"CENTER"</td>
+<td>1001</td>
+<td>243</td>
+<td>52</td>
+<td>315</td>
+<td>391</td>
+<td>1001</td>
+<td>0.051948</td>
+<td>0.314685</td>
+<td>0.435484</td>
+<td>0.553824</td>
+<td>1.080721</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="cell-21" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_dl,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"LONG"</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"length"</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TP: 1689, FP: 343, TN: 2927, FN: 2445
+Accuracy: 0.623, Precision: 0.831, Recall: 0.409, F1: 0.548
+
+Error and rates by length:
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 12)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">length</th>
+<th data-quarto-table-cell-role="th">total</th>
+<th data-quarto-table-cell-role="th">tp</th>
+<th data-quarto-table-cell-role="th">fp</th>
+<th data-quarto-table-cell-role="th">fn</th>
+<th data-quarto-table-cell-role="th">tn</th>
+<th data-quarto-table-cell-role="th">total_skills</th>
+<th data-quarto-table-cell-role="th">fp_rate</th>
+<th data-quarto-table-cell-role="th">fn_rate</th>
+<th data-quarto-table-cell-role="th">equality_of_opportunity</th>
+<th data-quarto-table-cell-role="th">calibration_npv</th>
+<th data-quarto-table-cell-role="th">disparate_impact</th>
+</tr>
+<tr class="even">
+<th>str</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"MEDIUM"</td>
+<td>3005</td>
+<td>698</td>
+<td>143</td>
+<td>872</td>
+<td>1292</td>
+<td>3005</td>
+<td>0.047587</td>
+<td>0.290183</td>
+<td>0.444586</td>
+<td>0.597043</td>
+<td>0.998508</td>
+</tr>
+<tr class="even">
+<td>"LONG"</td>
+<td>3789</td>
+<td>901</td>
+<td>161</td>
+<td>1470</td>
+<td>1257</td>
+<td>3789</td>
+<td>0.042491</td>
+<td>0.387965</td>
+<td>0.380008</td>
+<td>0.460946</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td>"SHORT"</td>
+<td>610</td>
+<td>90</td>
+<td>39</td>
+<td>103</td>
+<td>378</td>
+<td>610</td>
+<td>0.063934</td>
+<td>0.168852</td>
+<td>0.466321</td>
+<td>0.785863</td>
+<td>0.754501</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="bias-detection-for-language-skill" class="level3">
+<h3 class="anchored" data-anchor-id="bias-detection-for-language-skill">Bias detection for Language Skill</h3>
+<p>Just as we applied a simple presence check for driving licenses, we handle languages with a more granular, ad-hoc normalization and extraction pipeline that recognizes each specific language individually rather than merely flagging “has any language”.</p>
+<p>Main <strong>steps</strong> for doing this are:</p>
+<ul>
+<li>Build a reverse lookup map (<code>_reverse_language_map</code>) by iterating over each language code in <code>LANGUAGE_VARIANTS</code> (populated from pycountry with English name variants <code>alpha_2</code>) and all its known name variants, storing entries like “english” -&gt; “en”, “italian” -&gt; “it”, etc.</li>
+<li>Apply <code>norm_languages</code>to every extracted mention from our regex based extractor so that each occurrence (like “English B2” is mapped to a clean ISO code (“en”).</li>
+<li>Once all language mentions have been normalized to ISO codes via <code>norm_languages</code>, we invoke the coverage routine to quantify how well the parser matches our “ground truth” extractions.</li>
+</ul>
+<div id="cell-24" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>res_lg <span class="op">=</span> compute_candidate_coverage(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    df_cv<span class="op">=</span>df_cv,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    df_parser<span class="op">=</span>df_skills,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    skill_type<span class="op">=</span><span class="st">"Language_Skill"</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    extractor<span class="op">=</span>extract_languages,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    norm<span class="op">=</span>norm_languages,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Confusion matrix:"</span>, res_lg.conf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"8573716be670482ebad479a47aab5ef4","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Regex positive candidates        : 6387
+Parser positive unique candidates: 6500
+- Both regex &amp; parser   : 5615
+- Only regex            : 772
+- Only parser           : 885
+
+Confusion matrix: 
+Counts   -&gt; TP:10389  FP:2392  TN:132    FN:5438 
+Metrics  -&gt; Precision:0.81  Recall:0.656  F1:0.726  Acc:0.573</code></pre>
+</div>
+</div>
+<div id="cell-25" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>df_fn <span class="op">=</span> pl.DataFrame(res_lg.fn_rows)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> df_fn.sample(n<span class="op">=</span><span class="dv">2</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> sample.to_dicts():</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    print_highlighted_cv(row, pattern<span class="op">=</span>languages_pattern_eng)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<div class="ansi-escaped-output">
+<pre>CANDIDATE ID: 5512414 - GENERE: Male
+
+Reason: Rule-based extractor found skill but parser missed it.
+
+--------------------------------------------------------------------------------
+
+ nationality: <span class="ansi-red-fg">Italian</span> date of birth: 30 Apr 1996 work experie
+
+Italy) language skills native language: <span class="ansi-red-fg">Italian</span> other languages: English French listeni
+
+tive language: Italian other languages: <span class="ansi-red-fg">English</span> French listening c2 reading c2 writing 
+
+guage: Italian other languages: English <span class="ansi-red-fg">French</span> listening c2 reading c2 writing c1 list
+
+--------------------------------------------------------------------------------
+
+
+
+CANDIDATE ID: 4675569 - GENERE: Male
+
+Reason: Rule-based extractor found skill but parser missed it.
+
+--------------------------------------------------------------------------------
+
+eation of metadata and links. certified <span class="ansi-red-fg">languages italian</span> german english civil service (completed
+
+ and links. certified languages italian <span class="ansi-red-fg">german</span> english civil service (completed) 2019 
+
+nks. certified languages italian german <span class="ansi-red-fg">english</span> civil service (completed) 2019 spanish 
+
+ english civil service (completed) 2019 <span class="ansi-red-fg">spanish</span> participation in the development of the
+
+--------------------------------------------------------------------------------
+</pre>
+</div>
+</div>
+</div>
+<div id="cell-26" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"False negatives matching snippet pattern: </span><span class="sc">{</span>df_fn<span class="sc">.</span>height<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>df_fn.write_csv(LANGUAGE_SKILL_FALSE_NEGATIVES_PATH, separator<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved filtered false negatives to false_negative.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>False negatives matching snippet pattern: 5438
+Saved filtered false negatives to false_negative.csv</code></pre>
+</div>
+</div>
+<div id="cell-27" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash <span class="op">--</span>bg </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>cd ..</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># for Unix users</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>.venv<span class="op">/</span><span class="bu">bin</span><span class="op">/</span>python <span class="op">-</span>m streamlit run hiring_cv_bias<span class="op">/</span>bias_detection<span class="op">/</span>rule_based<span class="op">/</span>app<span class="op">/</span>fn_app.py</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co"># for Windows users</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">#.venv/Scripts/python.exe -m streamlit run hiring_cv_bias/bias_detection/rule_based/app/fn_app.py</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-28" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_lg,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"Male"</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Gender"</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TP: 10389, FP: 2392, TN: 132, FN: 5438
+Accuracy: 0.573, Precision: 0.813, Recall: 0.656, F1: 0.726
+
+Error and rates by Gender:
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (2, 12)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Gender</th>
+<th data-quarto-table-cell-role="th">total</th>
+<th data-quarto-table-cell-role="th">tp</th>
+<th data-quarto-table-cell-role="th">fp</th>
+<th data-quarto-table-cell-role="th">fn</th>
+<th data-quarto-table-cell-role="th">tn</th>
+<th data-quarto-table-cell-role="th">total_skills</th>
+<th data-quarto-table-cell-role="th">fp_rate</th>
+<th data-quarto-table-cell-role="th">fn_rate</th>
+<th data-quarto-table-cell-role="th">equality_of_opportunity</th>
+<th data-quarto-table-cell-role="th">calibration_npv</th>
+<th data-quarto-table-cell-role="th">disparate_impact</th>
+</tr>
+<tr class="even">
+<th>str</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"Male"</td>
+<td>3984</td>
+<td>5420</td>
+<td>1251</td>
+<td>2608</td>
+<td>77</td>
+<td>9356</td>
+<td>0.133711</td>
+<td>0.278752</td>
+<td>0.675137</td>
+<td>0.028678</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td>"Female"</td>
+<td>3420</td>
+<td>4969</td>
+<td>1141</td>
+<td>2830</td>
+<td>55</td>
+<td>8995</td>
+<td>0.126848</td>
+<td>0.314619</td>
+<td>0.637133</td>
+<td>0.019064</td>
+<td>0.952663</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="cell-29" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_lg,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"NORTH"</span>,</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Location"</span>,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TP: 10389, FP: 2392, TN: 132, FN: 5438
+Accuracy: 0.573, Precision: 0.813, Recall: 0.656, F1: 0.726
+
+Error and rates by Location:
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 12)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Location</th>
+<th data-quarto-table-cell-role="th">total</th>
+<th data-quarto-table-cell-role="th">tp</th>
+<th data-quarto-table-cell-role="th">fp</th>
+<th data-quarto-table-cell-role="th">fn</th>
+<th data-quarto-table-cell-role="th">tn</th>
+<th data-quarto-table-cell-role="th">total_skills</th>
+<th data-quarto-table-cell-role="th">fp_rate</th>
+<th data-quarto-table-cell-role="th">fn_rate</th>
+<th data-quarto-table-cell-role="th">equality_of_opportunity</th>
+<th data-quarto-table-cell-role="th">calibration_npv</th>
+<th data-quarto-table-cell-role="th">disparate_impact</th>
+</tr>
+<tr class="even">
+<th>str</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"SOUTH"</td>
+<td>1060</td>
+<td>1474</td>
+<td>348</td>
+<td>791</td>
+<td>14</td>
+<td>2627</td>
+<td>0.13247</td>
+<td>0.301104</td>
+<td>0.650773</td>
+<td>0.017391</td>
+<td>0.997271</td>
+</tr>
+<tr class="even">
+<td>"NORTH"</td>
+<td>5343</td>
+<td>7484</td>
+<td>1701</td>
+<td>3914</td>
+<td>108</td>
+<td>13207</td>
+<td>0.128795</td>
+<td>0.296358</td>
+<td>0.656606</td>
+<td>0.026852</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td>"CENTER"</td>
+<td>1001</td>
+<td>1431</td>
+<td>343</td>
+<td>733</td>
+<td>10</td>
+<td>2517</td>
+<td>0.136273</td>
+<td>0.29122</td>
+<td>0.661275</td>
+<td>0.013459</td>
+<td>1.013434</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="cell-30" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_lg,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"LONG"</span>,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"length"</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TP: 10389, FP: 2392, TN: 132, FN: 5438
+Accuracy: 0.573, Precision: 0.813, Recall: 0.656, F1: 0.726
+
+Error and rates by length:
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 12)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">length</th>
+<th data-quarto-table-cell-role="th">total</th>
+<th data-quarto-table-cell-role="th">tp</th>
+<th data-quarto-table-cell-role="th">fp</th>
+<th data-quarto-table-cell-role="th">fn</th>
+<th data-quarto-table-cell-role="th">tn</th>
+<th data-quarto-table-cell-role="th">total_skills</th>
+<th data-quarto-table-cell-role="th">fp_rate</th>
+<th data-quarto-table-cell-role="th">fn_rate</th>
+<th data-quarto-table-cell-role="th">equality_of_opportunity</th>
+<th data-quarto-table-cell-role="th">calibration_npv</th>
+<th data-quarto-table-cell-role="th">disparate_impact</th>
+</tr>
+<tr class="even">
+<th>str</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"SHORT"</td>
+<td>610</td>
+<td>489</td>
+<td>421</td>
+<td>219</td>
+<td>27</td>
+<td>1156</td>
+<td>0.364187</td>
+<td>0.189446</td>
+<td>0.690678</td>
+<td>0.109756</td>
+<td>1.19194</td>
+</tr>
+<tr class="even">
+<td>"LONG"</td>
+<td>3789</td>
+<td>5715</td>
+<td>925</td>
+<td>3371</td>
+<td>43</td>
+<td>10054</td>
+<td>0.092003</td>
+<td>0.335289</td>
+<td>0.62899</td>
+<td>0.012595</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td>"MEDIUM"</td>
+<td>3005</td>
+<td>4185</td>
+<td>1046</td>
+<td>1848</td>
+<td>62</td>
+<td>7141</td>
+<td>0.146478</td>
+<td>0.258787</td>
+<td>0.693685</td>
+<td>0.032461</td>
+<td>1.109166</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="bias-detection-for-job-title" class="level3">
+<h3 class="anchored" data-anchor-id="bias-detection-for-job-title">Bias detection for Job Title</h3>
+<p>Loading list of jobs from <a href="https://esco.ec.europa.eu/en/about-esco">ESCO</a> and filtering out those that are too specific (length &gt; 3).</p>
+<div id="cell-33" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>df_skills_cleaned <span class="op">=</span> df_skills.with_columns(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    pl.col(<span class="st">"Skill"</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">str</span>.to_lowercase()</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">str</span>.replace_all(<span class="st">"(m/f)"</span>, <span class="st">""</span>, literal<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">str</span>.strip_chars()</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    .alias(<span class="st">"Skill"</span>)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <strong>bias detection pipeline for job titles</strong> consists of two main components:</p>
+<ul>
+<li><p><strong>JobParser</strong>: a class that extracts job experiences listed in <a href="https://esco.ec.europa.eu/en/about-esco">ESCO</a> from raw CV texts, using SpaCy’s <code>PhraseMatcher</code>.</p></li>
+<li><p><strong>SemanticMatcher</strong>: once job experiences are extracted, the <code>SemanticMatcher</code> (<code>all-MiniLM-L6-v2</code>) is then used exclusively to determine which of these experiences match the parser extracted skills, employing semantic embeddings. Pairwise cosine similarity is calculated between the embeddings of <strong>JobParser</strong> skills and Parser skills. Matches are established when this similarity exceeds a specified threshold. This matching step is used only to compute metrics.</p></li>
+</ul>
+<div id="cell-35" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>parser <span class="op">=</span> JobParser(normalized_jobs)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>matcher <span class="op">=</span> SemanticMatcher()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-36" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>res_job <span class="op">=</span> compute_candidate_coverage(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    df_cv,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    df_skills_cleaned,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Job_title"</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    parser.parse_with_n_grams,</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    matcher<span class="op">=</span>matcher.semantic_comparison,</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Confusion matrix:"</span>, res_job.conf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"f8a83e5f0fac43a88b20fa603fe67885","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Regex positive candidates        : 5614
+Parser positive unique candidates: 6763
+- Both regex &amp; parser   : 5299
+- Only regex            : 315
+- Only parser           : 1464
+
+Confusion matrix: 
+Counts   -&gt; TP:7838   FP:14976 TN:326    FN:6394 
+Metrics  -&gt; Precision:0.34  Recall:0.551  F1:0.423  Acc:0.276</code></pre>
+</div>
+</div>
+<div id="cell-37" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>df_fn <span class="op">=</span> pl.DataFrame(res_job.fn_rows)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> df_fn.sample(n<span class="op">=</span><span class="dv">2</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> sample.to_dicts():</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    print_highlighted_cv(row, pattern<span class="op">=</span>jobs_pattern)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<div class="ansi-escaped-output">
+<pre>CANDIDATE ID: 6538036 - GENERE: Female
+
+Reason: Rule-based extractor found skill but parser missed it.
+
+--------------------------------------------------------------------------------
+
+e invoices in Italy, intra-European and <span class="ansi-red-fg">extra</span>-European countries. VAT settlements, re
+
+ttlements, relationship management with <span class="ansi-red-fg">accountant</span> and auditor. administrative / accountin
+
+d tax obligations to be provided to the <span class="ansi-red-fg">accountant</span> for electronic submissions. electronic 
+
+--------------------------------------------------------------------------------
+
+
+
+CANDIDATE ID: 6591312 - GENERE: Female
+
+Reason: Rule-based extractor found skill but parser missed it.
+
+--------------------------------------------------------------------------------
+
+mail] professional experience 2017–2018 <span class="ansi-red-fg">secretary</span> le sartoriali del viaggio, cremona (ita
+
+15–2016 graphics (intern) daniele oneta-<span class="ansi-red-fg">photographer</span>, cremona (italy) use of graphic softwar
+
+ photo retouching 20/06/2018–01/08/2018 <span class="ansi-red-fg">secretary</span> car dealership chiusi, cremona (italy) 
+
+y, document checking 10/08/2018–to date <span class="ansi-red-fg">waiter</span>/waitress old wild west (cigierre) via c
+
+ment checking 10/08/2018–to date waiter/<span class="ansi-red-fg">waitress</span> old wild west (cigierre) via castelleon
+
+ 26100 cremona (italy) I have worked as <span class="ansi-red-fg">waitress</span>, drinks counter, cash register and cust
+
+--------------------------------------------------------------------------------
+</pre>
+</div>
+</div>
+</div>
+<div id="cell-38" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"False negatives matching snippet pattern: </span><span class="sc">{</span>df_fn<span class="sc">.</span>height<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>df_fn.write_csv(JOB_TITLE_FALSE_NEGATIVES_PATH, separator<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved filtered false negatives to false_negative.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>False negatives matching snippet pattern: 6394
+Saved filtered false negatives to false_negative.csv</code></pre>
+</div>
+</div>
+<div id="cell-39" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash <span class="op">--</span>bg </span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>cd ..</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># for Unix users</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>.venv<span class="op">/</span><span class="bu">bin</span><span class="op">/</span>python <span class="op">-</span>m streamlit run hiring_cv_bias<span class="op">/</span>bias_detection<span class="op">/</span>rule_based<span class="op">/</span>app<span class="op">/</span>fn_app.py</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co"># for Windows users</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="co">#.venv/Scripts/python.exe -m streamlit run hiring_cv_bias/bias_detection/rule_based/app/fn_app.py</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-40" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_job,</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"Male"</span>,</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Gender"</span>,</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TP: 7838, FP: 14976, TN: 326, FN: 6394
+Accuracy: 0.276, Precision: 0.344, Recall: 0.551, F1: 0.423
+
+Error and rates by Gender:
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (2, 12)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Gender</th>
+<th data-quarto-table-cell-role="th">total</th>
+<th data-quarto-table-cell-role="th">tp</th>
+<th data-quarto-table-cell-role="th">fp</th>
+<th data-quarto-table-cell-role="th">fn</th>
+<th data-quarto-table-cell-role="th">tn</th>
+<th data-quarto-table-cell-role="th">total_skills</th>
+<th data-quarto-table-cell-role="th">fp_rate</th>
+<th data-quarto-table-cell-role="th">fn_rate</th>
+<th data-quarto-table-cell-role="th">equality_of_opportunity</th>
+<th data-quarto-table-cell-role="th">calibration_npv</th>
+<th data-quarto-table-cell-role="th">disparate_impact</th>
+</tr>
+<tr class="even">
+<th>str</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"Female"</td>
+<td>3420</td>
+<td>4265</td>
+<td>6534</td>
+<td>3273</td>
+<td>111</td>
+<td>14183</td>
+<td>0.460692</td>
+<td>0.230769</td>
+<td>0.5658</td>
+<td>0.032801</td>
+<td>0.972811</td>
+</tr>
+<tr class="even">
+<td>"Male"</td>
+<td>3984</td>
+<td>3573</td>
+<td>8442</td>
+<td>3121</td>
+<td>215</td>
+<td>15351</td>
+<td>0.549932</td>
+<td>0.203309</td>
+<td>0.533762</td>
+<td>0.064448</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="cell-41" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_job,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"NORTH"</span>,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Location"</span>,</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TP: 7838, FP: 14976, TN: 326, FN: 6394
+Accuracy: 0.276, Precision: 0.344, Recall: 0.551, F1: 0.423
+
+Error and rates by Location:
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 12)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Location</th>
+<th data-quarto-table-cell-role="th">total</th>
+<th data-quarto-table-cell-role="th">tp</th>
+<th data-quarto-table-cell-role="th">fp</th>
+<th data-quarto-table-cell-role="th">fn</th>
+<th data-quarto-table-cell-role="th">tn</th>
+<th data-quarto-table-cell-role="th">total_skills</th>
+<th data-quarto-table-cell-role="th">fp_rate</th>
+<th data-quarto-table-cell-role="th">fn_rate</th>
+<th data-quarto-table-cell-role="th">equality_of_opportunity</th>
+<th data-quarto-table-cell-role="th">calibration_npv</th>
+<th data-quarto-table-cell-role="th">disparate_impact</th>
+</tr>
+<tr class="even">
+<th>str</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"SOUTH"</td>
+<td>1060</td>
+<td>1078</td>
+<td>1956</td>
+<td>937</td>
+<td>62</td>
+<td>4033</td>
+<td>0.484999</td>
+<td>0.232333</td>
+<td>0.534988</td>
+<td>0.062062</td>
+<td>0.969529</td>
+</tr>
+<tr class="even">
+<td>"CENTER"</td>
+<td>1001</td>
+<td>1211</td>
+<td>2130</td>
+<td>938</td>
+<td>36</td>
+<td>4315</td>
+<td>0.493627</td>
+<td>0.217381</td>
+<td>0.563518</td>
+<td>0.036961</td>
+<td>0.997859</td>
+</tr>
+<tr class="odd">
+<td>"NORTH"</td>
+<td>5343</td>
+<td>5549</td>
+<td>10890</td>
+<td>4519</td>
+<td>228</td>
+<td>21186</td>
+<td>0.514019</td>
+<td>0.213301</td>
+<td>0.551152</td>
+<td>0.04803</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="cell-42" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_job,</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"LONG"</span>,</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"length"</span>,</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TP: 7838, FP: 14976, TN: 326, FN: 6394
+Accuracy: 0.276, Precision: 0.344, Recall: 0.551, F1: 0.423
+
+Error and rates by length:
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 12)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">length</th>
+<th data-quarto-table-cell-role="th">total</th>
+<th data-quarto-table-cell-role="th">tp</th>
+<th data-quarto-table-cell-role="th">fp</th>
+<th data-quarto-table-cell-role="th">fn</th>
+<th data-quarto-table-cell-role="th">tn</th>
+<th data-quarto-table-cell-role="th">total_skills</th>
+<th data-quarto-table-cell-role="th">fp_rate</th>
+<th data-quarto-table-cell-role="th">fn_rate</th>
+<th data-quarto-table-cell-role="th">equality_of_opportunity</th>
+<th data-quarto-table-cell-role="th">calibration_npv</th>
+<th data-quarto-table-cell-role="th">disparate_impact</th>
+</tr>
+<tr class="even">
+<th>str</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>u32</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"LONG"</td>
+<td>3789</td>
+<td>5212</td>
+<td>9071</td>
+<td>4065</td>
+<td>62</td>
+<td>18410</td>
+<td>0.492721</td>
+<td>0.220804</td>
+<td>0.56182</td>
+<td>0.015023</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td>"SHORT"</td>
+<td>610</td>
+<td>266</td>
+<td>783</td>
+<td>254</td>
+<td>97</td>
+<td>1400</td>
+<td>0.559286</td>
+<td>0.181429</td>
+<td>0.511538</td>
+<td>0.276353</td>
+<td>0.965788</td>
+</tr>
+<tr class="odd">
+<td>"MEDIUM"</td>
+<td>3005</td>
+<td>2360</td>
+<td>5122</td>
+<td>2075</td>
+<td>167</td>
+<td>9724</td>
+<td>0.526738</td>
+<td>0.21339</td>
+<td>0.532131</td>
+<td>0.074487</td>
+<td>0.991761</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Francesco Baiocchi &amp; Leonardo Petrilli</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/francescobaio/hiring_cv_bias">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/francesco-baiocchi-1aa2a2276/">
+      <i class="bi bi-linkedin" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
