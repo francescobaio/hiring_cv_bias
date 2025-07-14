@@ -8,7 +8,7 @@ format:
 Here we outline the work steps we followed to answer the questions in our problem statement. In the first subsection, we cover two initial setup tasks that prepare the data for the rest of the pipeline:
 
 1. Translating CVs **from Italian into English** so we can apply semantic-matching techniques consistently. 
-2. Labeling with an LLM each extracted skill as either a **hard skill or a soft skill**. 🔗 [See the Hard Soft skills labelling notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)   
+2. Labeling with an LLM each parser extracted skill as either a **hard skill or a soft skill**. <br>  🔗 [See the Hard Soft skills labelling notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)   
 
 With these preparations in place, our pipeline we built is divided into the following steps:
 
@@ -17,18 +17,20 @@ With these preparations in place, our pipeline we built is divided into the foll
    - Empty / Whitespace-Only/ Very Short Text
    - High Repetition / Low Structure
    - Low token & vocabulary Richness
-   - Corrupted CVs with a fraction of “unusual” characters
+   - Corrupted CVs with a fraction of invalid characters
    - CVs with Placeholder Tails (e.g. “XXXXXXXXXX…”)
    - CVs with Poor Translations
 
    Parsed skills of the candidates with corrupted CVs has been also excluded.
+
+   The candidates’ demographic data (age, gender, and geographic location) were then analyzed to uncover any potential correlations or redundancies among the features.
 
    🔗 [See the Cleaning notebook](../notebooks/data_cleaning.html)
 
 2. **Exploratory Analysis**  
    Once the data had been cleaned, we conducted an exploratory analysis of the skills extracted by the parser, focusing on:
    - **Distribution of parsed skills and job information** : explore how different skills are distributed across roles and sectors.
-   - **Skills-per-candidate distribution**: analyze the number of skills each candidate has, flagging any outliers.
+   - **Skills per candidate distribution**: analyze the number of skills each candidate has, flagging any outliers.
    - **Hard vs. soft skills**: examine and compare the distributions of hard skills versus soft skills.
 
    ![](../pages/images/skill_distribution.png){.lightbox style="max-width: 90%;"}
@@ -41,8 +43,9 @@ With these preparations in place, our pipeline we built is divided into the foll
    This analysis aims to uncover distributional imbalances in the parsed skills by considering the following demographic data:
    - **Gender**
    - **Location**
-   - **Age distribution**
    - **Hard vs. soft skills**
+
+   To quantify these imbalances, we have defined disparity metrics such as the Gini index and a custom bias strength measure.
 
    >**Why This Matters**: <br>
    > Detecting these imbalances is **critical** to designing a robust, fair pipeline that flags biases introduced by the CV parser relying only on raw CV inputs and their parsed outputs.  
@@ -56,18 +59,18 @@ With these preparations in place, our pipeline we built is divided into the foll
    After analyzing the various imbalances in the distributions of skills extracted by the parser, we tackled bias detection through a hybrid pipeline:
 
    * **On the skills side** (specifically **DRIVERSLIC** and **LANGUAGE\_SKILL**), we implemented a **regex-based extractor** that systematically scans each CV for patterns associated with driving licenses and language proficiencies, ensuring we capture every variant and format used by candidates.
-   * **On the job-title side**, we deployed a **two-step matching process**:
-      1. **Rule-based, exact matching** against the official **ESCO** european job list [(link)](https://esco.ec.europa.eu/en/about-esco ), pulling in any titles that appear in the raw CV text.
-      2. **Semantic matching** on top of that, which catches synonyms or paraphrases of the same job experience, making our extraction robust to differences in how the parser names each job.
-      (es,  Parsed skill: Hotel Receptionist -> , Semantic Matcher: -> Receptionist) !!!
+   * **On the job-title side**, we deployed a **two-step process**:
+      1. **Rule-based:** **exact matching** against the official **ESCO** european job list [(link)](https://esco.ec.europa.eu/en/about-esco ), pulling in any titles that appear in the raw CV text.
+      2. **Semantic matching**: catches synonyms or paraphrases of the same job experience, making our extraction robust to differences in how the parser names each job. <br>
+      **eg.**  ESCO: Postman, Parsed skill: Postal operator, Similarity: 0.64
     
    Using our pipeline results as the ground truth, we measured the overall performance of the proprietary parser by comparing its outputs against our method and analyzing their agreement.
 
-   For the **DRIVERSLIC** and **LANGUAGE_SKILL**, we focused on **false negatives**: candidates for whom the regex extractor found a match but the parser returned nothing. 
+   We focused on **false negatives**: candidates for whom our extractor found a match but the parser returned nothing. 
    
-   To make these insights more accessible, we built a **Streamlit app** that lets you s into individual candidates. For each false negative, the interface displays the raw CV text on the left with regex matched segments highlighted in red and on the right shows the skills the parser actually assigned to that candidate.
+   To make these insights more accessible, we built a **Streamlit app** that lets you dive into individual candidates. For each false negative, the interface on the left displays the raw CV text with regex matched segments highlighted in red and on the right shows the skills the parser actually assigned to that candidate.
 
-   Once we reviewed and analyzed the results of our methods, we broadened our bias assessment to the four previously identified, (gender, age, geographical position, hard vs soft skills) to determine whether the parser’s errors disproportionately impact under or over represented populations.
+   Once we reviewed and analyzed the results of our methods, we broadened our bias assessment to the three groups previously identified, (gender, geographical position, hard vs soft skills) to determine whether the parser’s errors disproportionately impact under or over represented populations.
 
    🔗 [See the Bias Detection notebook](../notebooks/bias_detection.html)
 

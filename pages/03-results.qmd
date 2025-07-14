@@ -7,20 +7,24 @@ format:
 
 In this section we walk through our key findings:
 
-## 1. Exploratory Findings  
+## 1. Error detection  
 As previously explained on the Pipeline page, our study first tried to highlight the errors the parser makes in categories such as Language, Driving License, and Job Title.
 
-
-| Skill                   |    TP   |    FP   |    TN  |   FN
-|-------------------------|--------:|--------:|-------:|-------:|
-| Language skills         |    70%  |    55%  |   50%  |   50%  |
-| Driving license skills  |    80%  |    78%  |   75%  |   75%  |
-| Driving license skills  |    80%  |    78%  |   75%  |   75%  |
+While for the Driving License we treat the task as a binary `has_any_driving_license` label for each candidate, for the other two categories we use a finer granularity, examining the agreement between our method and the parser on every individual skill.
 
 
+| Skill                   |    TP    |    FP    |    TN   |   FN.    |   Precision  |    Recall
+|-------------------------|:--------:|:--------:|:-------:|:--------:|:------------:|:----------:|
+| Driving License         |    1689  |    643   |   2927  |   2445   |    0.83      |   0.41     | 
+| Language skills         |          |    55%   |   50%   |   50%    |    50%       |   50%      |
+| Driving license skills  |    80%   |    78%   |   75%   |   75%    |    75%       |   75%      |
 
 
-> Watch the live demo of our bias-detection dashboard, where you can filter by gender or language and immediately see extraction disparities:
+
+> Watch the live demo of our bias-detection dashboard, where you can filter by gender, language or job titles and immediately see extraction disagreement:
+
+
+<video src="../pages/media/hiring_app.mov" width="100%" autoplay loop muted></video>
 
 
 
@@ -28,34 +32,33 @@ As previously explained on the Pipeline page, our study first tried to highlight
 
 Due to the presence of numerous errors from the parser, we focused our analysis on the previously discussed demographic groups. To do so, we employed several metrics that specifically account for false negatives, since these result from exact matches and therefore offer high reliability. 
 
-These metrics include:
+To assess the model’s fairness, we employed the following **bias detection metrics**:
 
-- **Equality of Opportunity** : the probability to be correctly classified as positive (recall):
-$$
-\frac{TP}{TP + FN}
-$$
-- **Calibration Negative Predictive Value**: the proportion of correct predictions should be equal within each group:
-$$
-\frac{TN}{TN + FN}
-$$
-- **Conditional Use Error for Negative Class**: the share of negative predictions that turn out to be wrong:
-$$
-\frac{FN}{TN + FN}
-$$
+| Metric | Formula | Interpretation |
+|--------|---------|----------------|
+| **Equality of Opportunity&nbsp;(TPR parity)** | $$\text{TPR}_g = \frac{TP_g}{TP_g + FN_g} $$ | $\text{TPR}_g$ equal for every $g$ ensures that **every individual who truly qualifies** for a positive outcome has the **same chance** of being correctly identified, regardless of group membership. |
+| **Calibration&nbsp;\(NPV\)** | $$\text{NPV}_g = \frac{TN_g}{TN_g + FN_g}\qquad $$ | $\text{NPV}_g$ parity for every $g$ ensures that **when the model predicts a negative outcome**, the probability of being correct is the **same** for every group. |
+| **Selection Rate** | $$\text{SR}_g = \frac{TP_g + FP_g}{TP_g + FP_g + TN_g + FN_g} $$ | Share of individuals in group $g$ predicted positive (selected). |
+| **Disparate Impact (DI)** | $$\displaystyle DI = \frac{\text{SR}_{\text{target}}}{\text{SR}_{\text{reference}}}$$ | Ratio of selection rates; values **\< 0.80** (four-fifths rule) indicate potential adverse impact against the target group. |
 
+
+
+<u>All these metrics were computed for the **Gender** and **Location** groups to detect and quantify possible bias in the selection process.</u>
 
 Spiegazione dei risultati ottenuti :
 
-| Skill                   |    TP   |    FP   |    TN  |   FN
-|-------------------------|--------:|--------:|-------:|-------:|
-| Language skills         |    70%  |    55%  |   50%  |   50%  |
-| Driving license skills  |    80%  |    78%  |   75%  |   75%  |
-| Driving license skills  |    80%  |    78%  |   75%  |   75%  |
+| Skill             |    TPR  |    NPV  |    DI  |  
+|-------------------|--------:|--------:|-------:|
+| Gender            |    70%  |    55%  |   50%  | 
+| Location          |    80%  |    78%  |   75%  | 
+| Length            |    80%  |    78%  |   75%  | 
 
 
 ## 3. Summary of Findings  
 - Systematic over-extraction of hard skills in all languages.  
 - Soft skills under-detected especially in Italian and French CVs.  
 - Gender skew: certain leadership-type skills more often missed in female profiles.
+
+
 
 
