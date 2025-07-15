@@ -10,18 +10,21 @@ LLMs can be subject to cultural biases. One such domain is recruiting, where LLM
 
 The goal of this study is to evaluate the **potential biases** in a proprietary CV parser, which automatically extracts skills from anonymized, raw resumes.
 
-<div align="center">
-  <img src="./data/app.png"
+<div>
+  <img src="https://github.com/user-attachments/assets/fb1caf28-1cf9-4079-bb58-715a57f6f9b7"
        alt="Hiring CV bias app"
-       style="width:75%; margin-bottom: 30px;">
+       style="display: block;
+              width: 100%;
+              margin: 50px auto 30px;" />
 </div>
+
 
 
 > [!NOTE]
 > Because the CV data, although anonymized is proprietary, it cannot be shared to reproduce the experiments using in the hiring_cv_bias module.
 
 
-To explore the work in detail, visit the page here: [link to the page](#)
+To explore the work in detail, visit the page here: [link to the page](https://francescobaio.github.io/hiring_cv_bias/)
 
 
 ## Repository Structure

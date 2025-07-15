@@ -2,6 +2,7 @@ from re import Pattern
 from typing import List, Optional
 
 import polars as pl
+from IPython.display import display
 
 from hiring_cv_bias.bias_detection.rule_based.evaluation.compare_parser import (
     error_rates_by_group,
@@ -38,16 +39,15 @@ def print_report(
             metrics=metrics,
             disparate_impact=disparate_impact,
         )
-        print(f"Error and rates by {group_col}:\n", df_rates)
+        print(f"Error and rates by {group_col}:\n")
+        display(df_rates)
     else:
         tot = df_population.height
         print("Overall FP-rate:", round(len(result.fp_rows) / tot, 3))
         print("Overall FN-rate:", round(len(result.fn_rows) / tot, 3))
 
 
-def highlight_snippets(
-    text: str, pattern: Pattern[str], context_chars=100
-) -> List[str]:
+def highlight_snippets(text: str, pattern: Pattern[str], context_chars=40) -> List[str]:
     snippets = []
     for match in pattern.finditer(text):
         start, end = match.span()

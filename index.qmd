@@ -1,0 +1,73 @@
+---
+title: "Bias Analysis in CV Parsing Pipeline"
+format:
+  html:
+    toc: false
+---
+
+### Introduction 
+
+LLMs can be subject to cultural biases. One such domain is recruiting, where LLMs are used to extract information from candidates’ CVs and then to select the most suitable profiles. These biases may favour or penalize applicants based on language or cultural cues, risking the exclusion of qualified talent.
+
+
+###  Our project
+
+Our project therefore inspects the CV parsing pipeline to uncover and mitigate such disparities.
+Below you’ll find the main sections, each linked to provide an overview and access to code/results.
+
+
+- **[01 – Problem Statement](pages/01-problem.qmd)**  
+    This section defines the scope, data sources and fairness questions guiding our bias analysis of the CV parser.
+
+- **[02 – Pipeline](pages/02-pipeline.qmd)**  
+    This section provides a comprehensive overview of the entire analysis pipeline, walking through all stages, from initial data cleaning to the final bias detection.
+
+- **[03 – Results](pages/03-results.qmd)**  
+    Presents visualizations and statistics that expose where and how the parser over or under represents certain skills.
+
+- **04 – Future work**  
+  Additional validation steps and bias mitigation strategies for the parsing pipeline.
+
+
+## Repository Structure
+```python
+
+── hiring_cv_bias
+│   ├── bias_detection
+│   │   ├── fuzzy
+│   │   │   ├── matcher.py  # perfoms matching between our extracted and parser skills 
+│   │   │   ├── parser.py  # performs exact matching on CVs with a list of jobs titles 
+│   │   │   └── utils.py # job filtering  
+│   │   └── rule_based
+│   │       ├── app
+│   │       │   └── fn_app.py # visualization app for extraction pipeline 
+│   │       ├── evaluation
+│   │       │   ├── compare_parser.py # computes bias detection metrics for each group 
+│   │       │   └── metrics.py  
+│   │       ├── extractors.py # extract and apply regex patterns 
+│   │       ├── patterns.py # define patterns for exact matching 
+│   │       └── utils.py
+│   ├── cleaning
+│   │   ├── common.py 
+│   │   └── raw_cv.py # cleaning of corrupted CVs 
+│   ├── config.py
+│   ├── exploration
+│   │   ├── gender_analysis.py # computes bias_strenght metric for each skill type   
+│   │   ├── disparity.py # computes Gini-Index metric for each skill type 
+│   │   ├── visualize.py # plotting functions for visualizing distribution
+│   │   └── utils.py 
+│   ├── hard_soft_skills_labelling
+│   │   ├── CoT.log # full CoT of the model used 
+│   │   ├── hard_soft_skill_labelling.ipynb 
+│   │   └── utils.py # automates the labeling of extracted Professional_Skill entries 
+│   ├── translation
+│   │   └── translate.py # script for translating CVs in English 
+│   └── utils.py
+│
+├── notebooks
+│   ├── data_cleaning.ipynb  
+│   ├── data_exploration.ipynb
+│   ├── distributions_analysis.ipynb
+│   └── bias_detection.ipynb
+
+```
