@@ -41,6 +41,7 @@ dependencies = [
   "jupyter>=1.1.1",
   "nltk>=3.9.1",
   "spacy>=3.8.7",
+  "levenshtein>=0.27.1",
 ]
 
 

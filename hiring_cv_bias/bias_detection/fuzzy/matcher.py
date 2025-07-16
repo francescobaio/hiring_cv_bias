@@ -18,17 +18,7 @@ class SemanticMatcher:
             custom_skills_list = list(custom_skills)
             parser_skills_list = list(parser_skills)
 
-            custom_embeddings = self.model.encode(
-                custom_skills_list,
-                convert_to_tensor=True,
-            )
-
-            parser_embeddings = self.model.encode(
-                parser_skills_list,
-                convert_to_tensor=True,
-            )
-
-            similarities = util.cos_sim(custom_embeddings, parser_embeddings)
+            similarities = self.get_similarity(custom_skills_list, parser_skills_list)
 
             matches_mask = similarities >= threshold
             custom_match_indices = torch.any(matches_mask, dim=1)
@@ -48,3 +38,17 @@ class SemanticMatcher:
             custom_skills.update(parser_matches)
 
         return custom_skills
+
+    def get_similarity(self, custom_skills, parser_skills):
+        custom_embeddings = self.model.encode(
+            custom_skills,
+            convert_to_tensor=True,
+        )
+
+        parser_embeddings = self.model.encode(
+            parser_skills,
+            convert_to_tensor=True,
+        )
+
+        similarities = util.cos_sim(custom_embeddings, parser_embeddings)
+        return similarities
