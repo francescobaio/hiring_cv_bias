@@ -7,6 +7,10 @@ format:
 
 The goal of this study is to evaluate the potential biases in a proprietary CV parser, which automatically extracts skills from anonymized, raw resumes. 
 
+> Note: 
+We did **not** have access to the proprietary parser; accordingly our analysis was carried out only on the parsing process’s input (the raw CV text) and its output (the skills extracted by the proprietary parser for each CV).
+
+
 Specifically, we aim to answer:
 
 1. **Candidate Representation:** 
