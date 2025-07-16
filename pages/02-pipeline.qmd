@@ -8,7 +8,7 @@ format:
 Here we outline the work steps we followed to answer the questions in our problem statement. In the first subsection, we cover two initial setup tasks that prepare the data for the rest of the pipeline:
 
 1. Translating CVs **from Italian into English** so we can apply semantic-matching techniques consistently. 
-2. Labeling with an LLM each parser extracted skill as either a **hard skill or a soft skill**. <br>  🔗 [See the Hard Soft skills labelling notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)   
+2. Labeling with an LLM each parser extracted skill as either **hard** or **soft**. <br>  🔗 [See the Hard Soft skills labelling notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)   
 
 With these preparations in place, our pipeline we built is divided into the following steps:
 

@@ -23,7 +23,7 @@ While for the Driving License we treat the task as a binary `has_any_driving_lic
 
 ### Demo
 
-> Here the demo of our bias-detection dashboard, where you can filter by gender, language or job titles and immediately see extraction disagreement:
+> Here the demo of our bias-detection dashboard, where you can filter by driving license, language skills or job titles and immediately see extraction disagreement:
 
 
 <video src="media/hiring_app.mov" width="100%" autoplay loop muted></video>
@@ -135,7 +135,7 @@ When we examine the metrics across demographic groups, **no strong bias** emerge
 
 - **Minimal gender disparity in Driving License:** the DI for females is **0.88**, slightly below that of males but still above the critical 0.80 threshold defined by the four-fifths rule.
 
-- **Length-based imbalances:** we observe that “Short” CVs are disadvantaged in driving-license extraction (DI = 0.75) and simultaneously advantaged for language skill extraction (DI = 1.19). These opposite effects suggest the parser’s performance varies significantly with document length and **deserve a more thorough analysis** to uncover the root causes of these imbalances and guide mitigation strategies.
+- **Length-based imbalances:** we observe that “Short” CVs are disadvantaged in driving license extraction (DI = 0.75) and simultaneously advantaged for language skill extraction (DI = 1.19). These opposite effects suggest the parser’s performance varies significantly with document length and **deserve a more thorough analysis** to uncover the root causes of these imbalances and guide mitigation strategies.
 
 
 

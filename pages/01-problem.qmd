@@ -8,7 +8,7 @@ format:
 The goal of this study is to evaluate the potential biases in a proprietary CV parser, which automatically extracts skills from anonymized, raw resumes. 
 
 > Note: 
-We did **not** have access to the proprietary parser; accordingly our analysis was carried out only on the parsing process’s input (the raw CV text) and its output (the skills extracted by the proprietary parser for each CV).
+We did **not** have access to the proprietary parser; accordingly our analysis was carried out only on the parsing process’s input (the raw CV text) and its output (the skills extracted by the proprietary parser).
 
 
 Specifically, we aim to answer:
@@ -26,7 +26,7 @@ Specifically, we aim to answer:
 
 4. **Hard vs. Soft Skills Distribution:**
 - What is the relative frequency of hard skills versus soft skills in the parsed output?
-- Does the parser systematically under‐detect one category, potentially skewing candidate profiles?
+- Does the parser under‐detect one category, potentially skewing candidate profiles?
 
 5. **Demographic Underrepresentation:** 
 - Are certain demographic groups (e.g., inferred by language, region, or other proxies) underrepresented in the overall skill set? 
