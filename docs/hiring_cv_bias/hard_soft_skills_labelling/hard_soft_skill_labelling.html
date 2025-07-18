@@ -58,7 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -102,6 +102,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../../pages/styles.css">
@@ -179,8 +182,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Main Objective:</strong></p>
 <p>This notebook automates the labeling of extracted <code>Professional_Skill</code> entries as <strong>Hard</strong>, <strong>Soft</strong>, or <strong>Unknown</strong>.</p>
 <p>We will do this using a <strong>4-bit quantized Llama-3.1 8B Instruct model</strong> on a GPU P100.</p>
-<p><strong>Steps</strong>: 1. It loads the list of unique skills 2. <strong>Classifies</strong> each skill in batches via the language model 3. <strong>Evaluate</strong> the model’s accuracy using the technique <strong>LLM as a judge</strong> via Chat Gpt o3 model. 4. Writes the results to a CSV.</p>
-<p>Additionally, we include the overall breakdown, the model’s Chain of Thought and each skill’s individual classification in the <code>CoT.log</code> file.</p>
+<p><strong>Steps</strong>:</p>
+<ol type="1">
+<li>It loads the list of unique skills</li>
+<li><strong>Classifies</strong> each skill in batches via the language model</li>
+<li><strong>Evaluate</strong> the model’s accuracy using the technique <strong>LLM as a judge</strong> via Chat Gpt o3 model.</li>
+<li>Writes the results to a CSV.</li>
+</ol>
+<p>Additionally, we include the overall breakdown, the model’s Chain of Thought and each skill’s individual classification in <a href="CoT.log"><code>CoT.log</code></a>.</p>
 <div id="cell-2" class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
@@ -228,17 +237,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The function <code>batch_classify_skills</code> in <code>utils.py</code> does the work. Let’s breakdown it:</p>
-<p><strong>Inputs:</strong><br>
-- <code>model</code>: A HuggingFace causal LM model instance (e.g.&nbsp;quantized Llama-3.1-8B Instruct).<br>
-- <code>tokenizer</code>: Corresponding tokenizer for the model.<br>
-- <code>skills</code>: List of skill strings to classify.<br>
-- <code>batch_size</code>: Number of skills to send to the model at once.</p>
-<p><strong>Process:</strong><br>
-1. Iterate over the <code>skills</code> list in chunks of size <code>batch_size</code>.<br>
-2. For each batch, construct a prompting template that:<br>
-- Instructs the model to think step by step about the skill.<br>
-- Provides four concrete examples (Data Analysis -&gt; Hard; Communication -&gt; Soft).</p>
-<ol start="3" type="1">
+<p><strong>Inputs:</strong></p>
+<ul>
+<li><code>model</code>: A HuggingFace causal LM model instance (e.g.&nbsp;quantized Llama-3.1-8B Instruct).<br>
+</li>
+<li><code>tokenizer</code>: Corresponding tokenizer for the model.<br>
+</li>
+<li><code>skills</code>: List of skill strings to classify.<br>
+</li>
+<li><code>batch_size</code>: Number of skills to send to the model at once.</li>
+</ul>
+<p><strong>Process:</strong></p>
+<ol type="1">
+<li>Iterate over the <code>skills</code> list in chunks of size <code>batch_size</code>.<br>
+</li>
+<li>For each batch, construct a prompting template that:
+<ul>
+<li>Instructs the model to think step by step about the skill.<br>
+</li>
+<li>Provides four concrete examples (Data Analysis -&gt; Hard; Communication -&gt; Soft).</li>
+</ul></li>
 <li>Tokenize all prompts simultaneously with padding/truncation and move tensors to the model’s device.<br>
 </li>
 <li>Call <code>model.generate(...)</code> to produce completions (up to 150 new tokens) for each prompt.<br>
@@ -269,24 +287,55 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Accuracy: - <strong>Hard</strong> –&gt; 49/50 - <strong>Soft</strong> –&gt; 23/50 - <strong>Overall</strong> –&gt; 72/100</p>
 <div id="cell-12" class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>hard_soft_df <span class="op">=</span> load_data(HARD_SOFT_SKILLS)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    hard_soft_df[<span class="st">"label"</span>]</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    .value_counts()</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(pl.col(<span class="st">"label"</span>).is_in([<span class="st">"Hard"</span>, <span class="st">"Soft"</span>, <span class="st">"Unknown"</span>]))</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    .sort(pl.col(<span class="st">"count"</span>), descending<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>hard_soft_df <span class="op">=</span> clean_results(hard_soft_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now any label not equal to <code>Hard</code>, <code>Soft</code> or <code>Unknown</code> is replaced with <code>Unknown</code>. This step helps correct misclassifications arising from the model’s reasoning (e.g.&nbsp;truncated responses or unexpected formats) since we use the last token of its output as the predicted label.</p>
-<div id="cell-14" class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>hard_soft_df <span class="op">=</span> clean_results(hard_soft_df)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    hard_soft_df[<span class="st">"label"</span>]</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    .value_counts()</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(pl.col(<span class="st">"label"</span>).is_in([<span class="st">"Hard"</span>, <span class="st">"Soft"</span>, <span class="st">"Unknown"</span>]))</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    .sort(pl.col(<span class="st">"count"</span>), descending<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-14" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>display(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    hard_soft_df[<span class="st">"label"</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    .value_counts()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(pl.col(<span class="st">"label"</span>).is_in([<span class="st">"Hard"</span>, <span class="st">"Soft"</span>, <span class="st">"Unknown"</span>]))</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    .sort(pl.col(<span class="st">"count"</span>), descending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 2)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">label</th>
+<th data-quarto-table-cell-role="th">count</th>
+</tr>
+<tr class="even">
+<th>str</th>
+<th>u32</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"Hard"</td>
+<td>2200</td>
+</tr>
+<tr class="even">
+<td>"Soft"</td>
+<td>401</td>
+</tr>
+<tr class="odd">
+<td>"Unknown"</td>
+<td>226</td>
+</tr>
+</tbody>
+</table>
 </div>
-<p>Accuracy: - <strong>Hard</strong> –&gt; 46/50 - <strong>Soft</strong> –&gt; 16/50 - <strong>Overall</strong> –&gt; /100</p>
+</div>
+</div>
+<p>Below is the code used to randomly sample skills for evaluation, with GPT as judge.</p>
 <div id="cell-16" class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>hard_skills <span class="op">=</span> (</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    hard_soft_df.<span class="bu">filter</span>(pl.col(<span class="st">"label"</span>) <span class="op">==</span> <span class="st">"Hard"</span>)</span>
