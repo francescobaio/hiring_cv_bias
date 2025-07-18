@@ -498,7 +498,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <blockquote class="blockquote">
 <p>The logic used to label each skill as <em>hard</em> or <em>soft</em> is documented in the <code>hard_soft_labelling.ipynb</code> notebook.</p>
 </blockquote>
-<p>Here we present: - <strong>Total distribution</strong> of hard vs soft skills across all candidates. - <strong>Distribution per candidate</strong>: number of hard vs soft skills per individual, to highlight representation gaps.</p>
+<p>Here we present:</p>
+<ul>
+<li><strong>Total distribution</strong> of hard vs soft skills across all candidates.</li>
+<li><strong>Distribution per candidate</strong>: number of hard vs soft skills per individual, to highlight representation gaps.</li>
+</ul>
 <div id="cell-21" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>hard_soft_skills <span class="op">=</span> load_data(HARD_SOFT_SKILLS)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>display(hard_soft_skills)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -676,7 +680,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>Soft skills</strong> are markedly under represented, at about one skill in five.</p></li>
 </ul>
 <blockquote class="blockquote">
-<p>A small remainder is classified as “Unknown” terms that did not match either taxonomy, highlighting the presence of noise in the parsed skills data. (see <code>hard_soft_labelling.ipynb</code>)</p>
+<p>Small remainder: we classified as “Unknown” terms that did not match either taxonomy, highlighting the presence of noise in the parsed skills data. (see <code>hard_soft_labelling.ipynb</code>)</p>
 </blockquote>
 <div id="cell-24" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> cv_skills_with_label[<span class="st">"label"</span>].value_counts()</span>
@@ -897,7 +901,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The box plot highlights several outliers. (20+ hard skills / 10+ soft skills)</p>
-<p>Such counts are well beyond the typical range and <strong>may</strong> indicate parsing errors (e.g bullet points misclassified as skills, the same skill split into multiple tokens ecc). These outliers should be reviewed manually to confirm whether they reflect genuine, unusually rich profiles or artefacts produced by the parsing pipeline.</p>
+<p>Such counts are well beyond the typical range and <strong>may</strong> indicate parsing errors (e.g bullet points misclassified as skills, the same skill split into multiple tokens ecc). These outliers should be reviewed manually to confirm whether they reflect unusually rich profiles or artefacts produced by the parsing pipeline.</p>
 <div id="cell-32" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>plot_boxplot(</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>[per_cand[<span class="st">"Hard"</span>], per_cand[<span class="st">"Soft"</span>]],</span>

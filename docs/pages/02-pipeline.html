@@ -192,7 +192,7 @@ Once the data had been cleaned, we conducted an exploratory analysis of the skil
 <li><strong>On the skills side</strong> (specifically <strong>DRIVERSLIC</strong> and <strong>LANGUAGE_SKILL</strong>), we implemented a <strong>regex-based extractor</strong> that systematically scans each CV for patterns associated with driving licenses and language proficiencies, ensuring we capture every variant and format used by candidates.</li>
 <li><strong>On the job-title side</strong>, we deployed a <strong>two-step process</strong>:
 <ol type="1">
-<li><strong>Rule-based:</strong> <strong>exact matching</strong> against the official <strong>ESCO</strong> european job list <a href="https://esco.ec.europa.eu/en/about-esco">(link)</a>, pulling in any titles that appear in the raw CV text.</li>
+<li><strong>Rule-based:</strong> <strong>exact matching</strong> against the official <strong>ESCO</strong> european job list <a href="https://esco.ec.europa.eu/en/about-esco" target="_blank">(link)</a>, pulling in any titles that appear in the raw CV text.</li>
 <li><strong>Semantic matching</strong>: catches synonyms or paraphrases of the same job experience, making our extraction robust to differences in how the parser names each job. <br> <strong>eg.</strong> ESCO: Postman, Parsed skill: Postal operator, Similarity: 0.64</li>
 </ol></li>
 </ul>

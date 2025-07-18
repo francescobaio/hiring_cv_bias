@@ -610,10 +610,14 @@ This notebook aims to uncover distributional imbalances by combining <strong>dem
 </div>
 </div>
 </div>
-<p>Compute for each skill type the counts and percentages of male vs.&nbsp;female candidates and their differences.</p>
-<p><strong>Steps:</strong><br>
-1. Count males and females per skill type. These counts are <strong>normalized</strong> with respect to the prior distribution. 2. Calculate total count, percent female/male (rounded to 1 decimal), absolute and percentage differences.<br>
-3. Sort by descending total count.</p>
+<p>Now we compute for each skill type the counts and percentages of male vs.&nbsp;female candidates and their differences.</p>
+<p><strong>Steps:</strong></p>
+<ol type="1">
+<li>Count males and females per skill type. These counts are <strong>normalized</strong> with respect to the prior distribution.</li>
+<li>Calculate total count, percent female/male (rounded to 1 decimal), absolute and percentage differences.<br>
+</li>
+<li>Sort by descending total count.</li>
+</ol>
 <div id="cell-14" class="cell" data-execution_count="36">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df_category_with_gender <span class="op">=</span> get_skill_target_share(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    df_skills_with_gender,</span>
@@ -751,7 +755,11 @@ This notebook aims to uncover distributional imbalances by combining <strong>dem
 <p><span class="math display">\[
 \text{bias\_strength} = \left| \frac{\text{count\_diff}}{\text{count\_total}} \cdot \log(1 + \text{count\_total}) \right|
 \]</span></p>
-<p>This formula combines: - the <strong>normalized difference</strong> between male and female counts, - a <strong>logarithmic weighting</strong> that increases confidence in imbalances occurring in larger samples.</p>
+<p>This formula combines</p>
+<ul>
+<li>the <strong>normalized difference</strong> between male and female counts,</li>
+<li>a <strong>logarithmic weighting</strong> that increases confidence in imbalances occurring in larger samples.</li>
+</ul>
 <p>The result is a score that emphasizes statistically meaningful disparities.</p>
 <p>A higher <code>bias_strength</code> indicates a stronger imbalance between male and female representations for that particular skill.</p>
 <div id="cell-18" class="cell" data-execution_count="38">
@@ -1129,8 +1137,8 @@ This notebook aims to uncover distributional imbalances by combining <strong>dem
 </div>
 </div>
 <p>In this section, we’re going to examine gender bias in the candidates job experiences (<strong>Job Titles</strong>) to understand how they differ for male and female candidates.</p>
-<p>For doing this we append two new columns <code>perc_female_zippia</code> and <code>perc_male_zippia</code> by scraping <strong>Zippia</strong> (USA) for the percentage of men and women in each role.</p>
-<p>By this we’ll see whether the same male/female proportions that we observe in our parsed skills and roles align with the real world distribution of those occupations determining whether observed disparities could reflect <strong>parser errors</strong> or <strong>real world biases</strong> already present in our CVs.</p>
+<p>For doing this we append two new columns <code>perc_female_zippia</code> and <code>perc_male_zippia</code> by scraping <a href="https://www.zippia.com/" target="_blank">Zippia</a> (USA) for the percentage of men and women in each role.</p>
+<p>By this we’ll see whether the same male/female proportions that we observe in our parsed skills and roles align with the real world distribution of those occupations. This will determine whether observed disparities could reflect <strong>parser errors</strong> or <strong>real world biases</strong> already present in our CVs.</p>
 <p>Example: If our parsed CVs dataset shows that 10% of “Software Engineer” CVs are female but Zippia reports 30%, this gap <strong>may</strong> indicate a parser bias. Conversely, if both sources match closely, it could suggests that any skew is likely a reflection of broader societal patterns rather than a flaw in the parser extraction process.</p>
 <div id="cell-23" class="cell" data-execution_count="41">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df_gender_bias.sort(pl.col(<span class="st">"bias_strength"</span>), descending<span class="op">=</span><span class="va">True</span>).head(<span class="dv">30</span>)</span>
@@ -1652,7 +1660,7 @@ This notebook aims to uncover distributional imbalances by combining <strong>dem
 </div>
 </div>
 </div>
-<p>The charts below display the <strong>percentage distribution</strong> of each <code>Skill_Type</code> within three geographic regions (North, Center, South). Each histogram is normalized, so differences in absolute CV counts (e.g., 71% of candidates coming from the North) do not affect the shape of the distribution <strong>across</strong> regions. The y-axis values represent the relative share of each skill type among CVs from that specific area, regardless of the total volume of CVs.</p>
+<p>The charts below display the <strong>percentage distribution</strong> of each <code>Skill_Type</code> within three geographic regions (North, Center, South). Each histogram is normalized, so differences in absolute CV counts do not affect the shape of the distribution <strong>across</strong> regions. The y-axis values represent the relative share of each skill type among CVs from that specific area, regardless of the total volume of CVs.</p>
 <blockquote class="blockquote">
 <p>Note: The only noticeable difference is that in the <strong>South</strong>, the <code>Job_title</code> category is slightly more prevalent than <code>IT_Skill</code>. In the North and Center, these two categories remain roughly similar. All other proportions (e.g., the dominance of <code>Professional_Skill</code> and the marginal share of <code>DRIVERSLIC</code>) are nearly identical across regions.</p>
 </blockquote>
@@ -1675,16 +1683,20 @@ This notebook aims to uncover distributional imbalances by combining <strong>dem
 <li><p><strong>Selecting the top skills with the maximum inequality</strong> and visualizing its breakdown to facilitate interpretation.</p></li>
 </ol>
 <p><strong>The Gini Index as an Inequality Metric</strong></p>
-<p>The chosen disparity metric is the <strong>Gini index</strong>, a widely used measure of statistical dispersion. For a given skill, let <span class="math inline">\(n\)</span> be the number of groups and let <span class="math inline">\(x_i\)</span> denote the frequency of that skill in group <span class="math inline">\(i\)</span>. We denote them by <span class="math inline">\(x_{(1)}\)</span>, <span class="math inline">\(x_{(2)}\)</span>, <span class="math inline">\(...\)</span>, <span class="math inline">\(x_{(n)}\)</span>. (in our case <span class="math inline">\(n=3\)</span>) The Gini index (G) is then computed as:</p>
+<p>The chosen disparity metric is the <strong>Gini index</strong>, a widely used measure of statistical dispersion. For a given skill, let <span class="math inline">\(n\)</span> be the number of groups and let <span class="math inline">\(x_i\)</span> denote the frequency of that skill in group <span class="math inline">\(i\)</span>. We denote them by <span class="math inline">\(x_{(1)}\)</span>, <span class="math inline">\(x_{(2)}\)</span>, <span class="math inline">\(...\)</span>, <span class="math inline">\(x_{(n)}\)</span>. (in our case <span class="math inline">\(n=3\)</span>) The Gini index is then computed as:</p>
 <p><span class="math display">\[
 G \;=\; \frac{\displaystyle\sum_{1 \,\le i &lt; j \,\le n} \bigl|x_i - x_j\bigr|}{\,n \,\sum_{i=1}^{n} x_i\,}\,
 \]</span></p>
-<p><strong>How this works:</strong><br>
-1. <strong>Intuition</strong>:<br>
-- It measures the <strong>average absolute difference</strong> between every pair of group values, scaled by the total.<br>
-- If all <span class="math inline">\(x_i\)</span> are identical, each <span class="math inline">\(\lvert x_i - x_j\rvert = 0\)</span>, so <span class="math inline">\(G=0\)</span> (perfect equality).<br>
-- If one group has <strong>all</strong> of the mass and the others have zero, then the numerator is maximized, driving <span class="math inline">\(G\)</span> toward 1 (maximal inequality).</p>
-<ol start="2" type="1">
+<p><strong>How this works:</strong></p>
+<ol type="1">
+<li><strong>Intuition</strong>:
+<ul>
+<li>It measures the <strong>average absolute difference</strong> between every pair of group values, scaled by the total.<br>
+</li>
+<li>If all <span class="math inline">\(x_i\)</span> are identical, each <span class="math inline">\(\lvert x_i - x_j\rvert = 0\)</span>, so <span class="math inline">\(G=0\)</span> (perfect equality).<br>
+</li>
+<li>If one group has <strong>all</strong> of the mass and the others have zero, then the numerator is maximized, driving <span class="math inline">\(G\)</span> toward 1 (maximal inequality).</li>
+</ul></li>
 <li><strong>Normalization</strong>:
 <ul>
 <li>Dividing by <span class="math inline">\(n \sum_{i=1}^{n} x_i\)</span> ensures <span class="math inline">\(G\)</span> ranges between 0 and (just under) 1 regardless of absolute scale or number of groups.<br>

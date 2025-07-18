@@ -229,7 +229,7 @@ In this notebook we inspect and clean missing or duplicate values in the three m
 </li>
 <li><strong>Matcher Results</strong> (output CSV from the matching algorithm)</li>
 </ol>
-<div id="1" class="cell" data-execution_count="149">
+<div id="1" class="cell" data-execution_count="248">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -276,7 +276,7 @@ In this notebook we inspect and clean missing or duplicate values in the three m
 <li>Define expected columns and data types</li>
 <li>Load CSV into Polars DataFrame, verify row count matches the number of uniques Candidate IDs.</li>
 </ul>
-<div id="5" class="cell" data-execution_count="13">
+<div id="5" class="cell" data-execution_count="249">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>raw_cv <span class="op">=</span> load_data(CANDIDATE_CVS_TRANSLATED_PATH)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"DataFrame schema:"</span>, raw_cv.schema)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Loaded: </span><span class="sc">{</span>raw_cv<span class="sc">.</span>height<span class="sc">}</span><span class="ss"> CVs"</span>)</span>
@@ -316,29 +316,29 @@ Unique CANDIDATE_ID: 7769</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td>5673003</td>
-<td>"CV: """ Curriculum Vitae INF…</td>
-<td>"cv: curriculum vitae personal …</td>
+<td>6892877</td>
+<td>"CV anonimizzato: """ Traduttri…</td>
+<td>" translator en&amp;lt;&amp;gt;it, es&amp;l…</td>
 </tr>
 <tr class="even">
-<td>6875578</td>
-<td>"CV: """ Sono una neolaureata i…</td>
-<td>"cv: i am a recent graduate in …</td>
+<td>5216553</td>
+<td>"CV anonimizzato: """ Formato …</td>
+<td>" European format for CV person…</td>
 </tr>
 <tr class="odd">
-<td>6777017</td>
-<td>"CV: Curriculum Vitae Informa…</td>
-<td>"cv: curriculum vitae personal …</td>
+<td>6965925</td>
+<td>"CV anonimizzato: """ ㅡ Possied…</td>
+<td>" ㅡ I have a certificate of low…</td>
 </tr>
 <tr class="even">
-<td>123828</td>
-<td>"CV: """ Operaio Data di Nascit…</td>
-<td>"CV: worker date of birth 18 Se…</td>
+<td>7329099</td>
+<td>"CV anonimizzato: """ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; F O…</td>
+<td>" europeanformatforcurriculumvi…</td>
 </tr>
 <tr class="odd">
-<td>7060637</td>
-<td>"CV anonimizzato: """ Addetta a…</td>
-<td>" cleaner/waitress via gandolfi…</td>
+<td>1698394</td>
+<td>"CV anonimizzato: """ Operaia I…</td>
+<td>" worker contact information da…</td>
 </tr>
 </tbody>
 </table>
@@ -351,7 +351,7 @@ Unique CANDIDATE_ID: 7769</code></pre>
 <ul>
 <li>Count nulls per column, compute percentage of missing values and report any columns with &gt; 0% missing.</li>
 </ul>
-<div id="8" class="cell" data-execution_count="14">
+<div id="8" class="cell" data-execution_count="250">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>inspect_missing(raw_cv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Missing value summary:
@@ -423,7 +423,7 @@ No missing values detected in any column.</code></pre>
 <li>These checks ensure we remove any CVs that are dominated by boilerplate before proceeding with further analysis.</li>
 </ul></li>
 </ol>
-<div id="11" class="cell" data-execution_count="15">
+<div id="11" class="cell" data-execution_count="251">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>plot_length_histogram(raw_cv, text_col<span class="op">=</span><span class="st">"CV_text_anon"</span>, bin_size<span class="op">=</span><span class="dv">300</span>, max_bin<span class="op">=</span><span class="dv">3000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -434,7 +434,7 @@ No missing values detected in any column.</code></pre>
 </div>
 </div>
 <p>Remove Empty / Whitespace-Only/ Very Short Text</p>
-<div id="13" class="cell" data-execution_count="16">
+<div id="13" class="cell" data-execution_count="252">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>raw_cv <span class="op">=</span> add_length_column(raw_cv, text_col<span class="op">=</span><span class="st">"CV_text_anon"</span>, length_col<span class="op">=</span><span class="st">"len_anon"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -458,11 +458,11 @@ No missing values detected in any column.</code></pre>
  9. ID 7230306: 238 chars
  10. ID 7163148: 253 chars
 
-Example full CV for ID 6183543:
-'CV anonimizzato:\n"""\n09/01/23, 21:42\nPagina 1 di 309/01/23, 21:42\nPagina 2 di 309/01/23, 21:42\nPagina 3 di 3\n"""'</code></pre>
+Example full CV for ID 5475487:
+'CV anonimizzato:\n"""\n03/2006 - 01/2010\n02/1995 - 01/2006\n04/1987 - 01/1995\n10/1981 - 01/1987Autorizzo il trattamento dei miei dati personali presenti nel curriculum vitae ai sensi del Decreto Legislativo 30 giugno 2003, n. 196 e del GDPR (Regolamento UE 2016/679).\n"""'</code></pre>
 </div>
 </div>
-<div id="14" class="cell" data-execution_count="17">
+<div id="14" class="cell" data-execution_count="253">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>short_cvs_ids <span class="op">=</span> too_short_df.select(pl.col(<span class="st">"CANDIDATE_ID"</span>)).to_series().to_list()</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>raw_cv_cleaned <span class="op">=</span> filter_out_candidate_ids(</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    raw_cv, short_cvs_ids, df_name<span class="op">=</span><span class="st">"CVs"</span>, description<span class="op">=</span><span class="st">"under 300 characters"</span></span>
@@ -476,7 +476,7 @@ CVs -&gt; Remaining rows: 7692</code></pre>
 </div>
 </div>
 <p>Remove High Repetition / Low Structure CVs</p>
-<div id="16" class="cell" data-execution_count="18">
+<div id="16" class="cell" data-execution_count="254">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>repetitive_cvs <span class="op">=</span> detect_repetitive_cvs(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    raw_cv_cleaned, text_col<span class="op">=</span><span class="st">"CV_text_anon"</span>, max_repetition<span class="op">=</span><span class="fl">0.5</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -568,7 +568,7 @@ CVs -&gt; Remaining rows: 7692</code></pre>
 </div>
 </div>
 </div>
-<div id="17" class="cell" data-execution_count="19">
+<div id="17" class="cell" data-execution_count="255">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>repetitive_cvs_ids <span class="op">=</span> repetitive_cvs.select(pl.col(<span class="st">"CANDIDATE_ID"</span>)).to_series().to_list()</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>raw_cv_cleaned <span class="op">=</span> filter_out_candidate_ids(</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    raw_cv_cleaned, repetitive_cvs_ids, df_name<span class="op">=</span><span class="st">"CVs"</span>, description<span class="op">=</span><span class="st">"repetitive CVs"</span></span>
@@ -602,7 +602,7 @@ CVs -&gt; Remaining rows: 7653</code></pre>
 </ol>
 <p>These additional checks will help us catch CVs that are too short, overly repetitive, or structurally invalid.</p>
 <p><strong>Token &amp; Vocabulary Richness</strong></p>
-<div id="21" class="cell" data-execution_count="20">
+<div id="21" class="cell" data-execution_count="256">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>sparse_cvs <span class="op">=</span> detect_vocab_sparsity(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    raw_cv_cleaned, text_col<span class="op">=</span><span class="st">"CV_text_anon"</span>, min_words<span class="op">=</span><span class="dv">30</span>, min_ttr<span class="op">=</span><span class="fl">0.3</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -712,7 +712,7 @@ CVs -&gt; Remaining rows: 7653</code></pre>
 </div>
 </div>
 </div>
-<div id="22" class="cell" data-execution_count="21">
+<div id="22" class="cell" data-execution_count="257">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>sparse_ids <span class="op">=</span> sparse_cvs.select(pl.col(<span class="st">"CANDIDATE_ID"</span>)).to_series().to_list()</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>raw_cv_cleaned <span class="op">=</span> filter_out_candidate_ids(</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    raw_cv_cleaned, sparse_ids, df_name<span class="op">=</span><span class="st">"CVs"</span>, description<span class="op">=</span><span class="st">"low lexical variety"</span></span>
@@ -726,7 +726,7 @@ CVs -&gt; Remaining rows: 7605</code></pre>
 </div>
 </div>
 <p><strong>Detect Placeholder Tails</strong></p>
-<div id="24" class="cell" data-execution_count="22">
+<div id="24" class="cell" data-execution_count="258">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>placeholder_cvs <span class="op">=</span> filter_placeholder_tails(</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    raw_cv_cleaned, text_col<span class="op">=</span><span class="st">"CV_text_anon"</span>, char<span class="op">=</span><span class="st">"X"</span>, min_run<span class="op">=</span><span class="dv">20</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -792,7 +792,7 @@ CVs -&gt; Remaining rows: 7605</code></pre>
 </div>
 </div>
 </div>
-<div id="25" class="cell" data-execution_count="23">
+<div id="25" class="cell" data-execution_count="259">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>placeholder_ids <span class="op">=</span> placeholder_cvs.select(pl.col(<span class="st">"CANDIDATE_ID"</span>)).to_series().to_list()</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>raw_cv_cleaned <span class="op">=</span> filter_out_candidate_ids(</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    raw_cv_cleaned,</span>
@@ -809,7 +809,7 @@ CVs -&gt; Remaining rows: 7553</code></pre>
 </div>
 </div>
 <p><strong>Detect Corrupted CVs</strong></p>
-<div id="27" class="cell" data-execution_count="24">
+<div id="27" class="cell" data-execution_count="260">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>corrupted_cvs <span class="op">=</span> detect_corrupted_cvs(</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    raw_cv_cleaned, text_col<span class="op">=</span><span class="st">"CV_text_anon"</span>, max_unusual_frac<span class="op">=</span><span class="fl">0.02</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -892,7 +892,7 @@ CVs -&gt; Remaining rows: 7553</code></pre>
 </div>
 </div>
 </div>
-<div id="28" class="cell" data-execution_count="25">
+<div id="28" class="cell" data-execution_count="261">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>corrupted_ids <span class="op">=</span> corrupted_cvs.select(pl.col(<span class="st">"CANDIDATE_ID"</span>)).to_series().to_list()</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>raw_cv_cleaned <span class="op">=</span> filter_out_candidate_ids(</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    raw_cv_cleaned, corrupted_ids, df_name<span class="op">=</span><span class="st">"CVs"</span>, description<span class="op">=</span><span class="st">"corrupted symbols"</span></span>
@@ -913,7 +913,7 @@ CVs -&gt; Remaining rows: 7539</code></pre>
 Compute len_ratio = <code>len(Translated_CV) / len(CV_text_anon)</code> and flag any CV with <br> <code>len_ratio &lt; 0.7</code> as an empty/missing translation. <br></li>
 </ul>
 <p>Since these cases are very rare, we drop them outright instead of attempting a re-translation.</p>
-<div id="31" class="cell" data-execution_count="26">
+<div id="31" class="cell" data-execution_count="262">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>translation_stats_df <span class="op">=</span> assess_translation_completeness(raw_cv_cleaned)</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>display(</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    translation_stats_df.<span class="bu">filter</span>(pl.col(<span class="st">"len_ratio"</span>) <span class="op">&lt;</span> <span class="fl">0.7</span>)</span>
@@ -1016,7 +1016,7 @@ Compute len_ratio = <code>len(Translated_CV) / len(CV_text_anon)</code> and flag
 </div>
 </div>
 </div>
-<div id="32" class="cell" data-execution_count="27">
+<div id="32" class="cell" data-execution_count="263">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>low_translation_ids <span class="op">=</span> (</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    translation_stats_df.<span class="bu">filter</span>(pl.col(<span class="st">"len_ratio"</span>) <span class="op">&lt;</span> <span class="fl">0.7</span>)</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    .select(<span class="st">"CANDIDATE_ID"</span>)</span>
@@ -1038,7 +1038,7 @@ CVs -&gt; Remaining rows: 7521</code></pre>
 </div>
 </div>
 <p>Since our analysis relies exclusively on the English translations, we will now verify that the <code>Translated_CV</code> column truly contains English text before proceeding with our analyses.</p>
-<div id="36" class="cell" data-execution_count="66">
+<div id="34" class="cell" data-execution_count="264">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>not_english_df <span class="op">=</span> (</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    raw_cv_cleaned.with_columns(</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>        [</span>
@@ -1111,12 +1111,12 @@ CVs -&gt; Remaining rows: 7521</code></pre>
 </div>
 </div>
 </div>
-<div id="37" class="cell" data-execution_count="109">
+<div id="35" class="cell" data-execution_count="287">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Sample CVs not in English:"</span>)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(not_english_df.sample(<span class="dv">1</span>)[<span class="st">"Translated_CV"</span>].item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Sample CVs not in English:
- experience bartender/barista • bar minerva (phanteon) • bar amadeus (corso trieste) assistant cook • il poeta (piazza trilussa) shelf stacker • acqua e sapone (campo di fiori) cleaning, roughing out hotel barcelò “4 stars” (tor marancia) education middle school diploma at amenodola guttuso</code></pre>
+ work experience 10/15/2015 – 01/18/2016 Vercelli, Italy Hertz mechanic 1. tire fitter 2. coupons address via fagiolini 11, 13100, Vercelli, Italy 09/01/2016 – 12/01/2016 Vercelli, Italy Hertz mechanic 1. tire fitter date of birth: 09/09/1995 2. coupons nationality: Italian address via fagiolini 11, 13100, Vercelli, Italy gender: male 04/02/2017 – 05/31/2017 Crescentino, Italy tire fitter Pneuscar sas di Mauro d&amp;#39;Altoè e c. contacts 1. tire dealer address via giotto 54, 13044, crescentino, italy via umberto i 22  27030 palestro, italy (other) 01/07/2017 – 15/06/2018 saluggia, italy manuelboni31@gmail.com  electrician electrician momo massimo (+39) 3515326965 1. electrician  2. removal worker address via taiola, 13040, saluggia, italy 22/10/2018 – 07/12/2018 crescentino, italy tire dealer pneuscar sas di mauro d&amp;#39;altoè e c. 1. tire dealer address via giotto 54, 13044, crescentino, italy 04/19/2019 – 06/15/2019 crescentino, italy tire dealer pneuscar sas di mauro d&amp;#39;altoè e c. 1. tire dealer address via giotto 54, 13044, crescentino, italy 07/14/2020 – 10/18/2022 desana, italy blacksmith il ferraccio di balbo fabrizio 1. metalworker 2. maintenance and repairer of agricultural vehicles at &amp;quot;claas agricoltura vercelli&amp;quot; address via gioberti 64, 13034, desana, italy 10/19/2022 – 12/31/2022 vercelli, italy worker ecam srl 1. worker 2. assistant mechanical repairer of trucks 1 / 23. blacksmith address via f. donato 11/a, 13100, vercelli, italy education and training 09/2006 – 06/2012 vercelli, italy middle school diploma state school of first degree &amp;quot;l. verga&amp;quot; address via trino 32, vercelli, italy language skills native language: italian additional information driving license 05/25/2015 – 09/09/2025 driving license: b I authorize the processing of my personal data in the CV pursuant to art. 13 legislative decree 30 June 2003 n. 196 - &amp;quot;personal data protection code&amp;quot; and art. 13 gdpr 679/16 - &amp;quot;european regulation on the protection of personal data&amp;quot;. 2 / 2 </code></pre>
 </div>
 </div>
 <p>We found only <strong>16</strong> records flagged as non-English. After a manual review, we discovered that these CVs are indeed written in English but include many Italian place names, addresses and organization titles which skew the language detector’s statistics. Since the underlying text is English and these cases are few, we will <strong>not</strong> drop them.</p>
@@ -1139,7 +1139,7 @@ Drop records in the Reverse Matching dataset (<code>ReverseMatching.xlsx</code>)
 <h2 class="anchored" data-anchor-id="parsed-skills">2. <strong>Parsed Skills</strong></h2>
 <section id="schema-load-1" class="level3">
 <h3 class="anchored" data-anchor-id="schema-load-1">1. Schema &amp; Load</h3>
-<div id="43" class="cell" data-execution_count="150">
+<div id="41" class="cell" data-execution_count="266">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>raw_cv <span class="op">=</span> load_data(CANDIDATE_CVS_TRANSLATED_PATH)</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>raw_skills <span class="op">=</span> load_data(PARSED_DATA_PATH)</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"DataFrame schema:"</span>, raw_skills.schema)</span>
@@ -1157,7 +1157,7 @@ Unique CANDIDATE_ID: 7769</code></pre>
 </div>
 </div>
 <p>Exclude parsed skills of the candidates with corrupted CVs.</p>
-<div id="45" class="cell" data-execution_count="151">
+<div id="43" class="cell" data-execution_count="267">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>raw_cv_ids <span class="op">=</span> raw_cv.select(pl.col(<span class="st">"CANDIDATE_ID"</span>)).to_series().to_list()</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of CVs loaded -&gt;"</span>, <span class="bu">len</span>(raw_cv_ids))</span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1183,7 +1183,7 @@ Number of CVs kept after cleaning -&gt; 7521
 Number of CVs deleted -&gt; 248</code></pre>
 </div>
 </div>
-<div id="46" class="cell" data-execution_count="152">
+<div id="44" class="cell" data-execution_count="268">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>raw_skills_cleaned <span class="op">=</span> filter_out_candidate_ids(</span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    raw_skills, raw_cv_deleted_ids, df_name<span class="op">=</span><span class="st">"Skills"</span>, description<span class="op">=</span><span class="st">"CVs deleted"</span></span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -1207,7 +1207,7 @@ Unique CANDIDATE_ID: 7521</code></pre>
 </section>
 <section id="missing-value-inspection-1" class="level3">
 <h3 class="anchored" data-anchor-id="missing-value-inspection-1">2. Missing Value Inspection</h3>
-<div id="48" class="cell" data-execution_count="153">
+<div id="46" class="cell" data-execution_count="269">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>inspect_missing(raw_skills_cleaned)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Missing value summary:
@@ -1295,7 +1295,7 @@ Columns with &gt; 0% missing values:
 </div>
 <p>Inspecting missing values we’ve found that 82 rows are missing a <code>Skill</code> value. Diving into the data, we see that these rows are all associated with the value <code>DRIVERSLIC</code> in the <code>Skill_Type</code> column. <br> This indicates that these rows are likely placeholders for driver license information, which is however useful to our analysis. <br> We will <strong>not</strong> drop these rows from the dataset.</p>
 <p><strong>Remove Missing or Null Skills</strong></p>
-<div id="51" class="cell" data-execution_count="154">
+<div id="49" class="cell" data-execution_count="270">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>invalid_rows <span class="op">=</span> raw_skills_cleaned.<span class="bu">filter</span>(</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    pl.col(<span class="st">"Skill"</span>).is_null() <span class="op">&amp;</span> (pl.col(<span class="st">"Skill_Type"</span>) <span class="op">!=</span> <span class="st">"DRIVERSLIC"</span>)</span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -1350,7 +1350,7 @@ Columns with &gt; 0% missing values:
 </section>
 <section id="find-exact-duplicate" class="level3">
 <h3 class="anchored" data-anchor-id="find-exact-duplicate">3. Find exact duplicate</h3>
-<div id="53" class="cell" data-execution_count="155">
+<div id="51" class="cell" data-execution_count="271">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>total_before <span class="op">=</span> raw_skills_cleaned.height</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>unique_before <span class="op">=</span> raw_skills_cleaned.unique(subset<span class="op">=</span>[<span class="st">"CANDIDATE_ID"</span>, <span class="st">"Skill"</span>]).height</span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1376,7 +1376,7 @@ No duplicates found, skipping deduplication.</code></pre>
 <ul>
 <li>Ensure Skill_Type only takes one of your known categories (<code>IT_Skill</code>, <code>Job_title</code>, <code>Language_Skill</code>, <code>Professional_Skill</code>, <code>DRIVERSLIC</code>).</li>
 </ul>
-<div id="56" class="cell" data-execution_count="156">
+<div id="54" class="cell" data-execution_count="272">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>VALID_TYPES <span class="op">=</span> [</span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"IT_Skill"</span>,</span>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Job_title"</span>,</span>
@@ -1408,7 +1408,7 @@ No duplicates found, skipping deduplication.</code></pre>
 </li>
 <li>Optionally remove entries matching placeholder patterns (like a long run of <code>X</code>).</li>
 </ul>
-<div id="59" class="cell" data-execution_count="157">
+<div id="57" class="cell" data-execution_count="273">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>garbage_skills <span class="op">=</span> find_garbage_skill_rows(raw_skills)</span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Dropped </span><span class="sc">{</span>garbage_skills<span class="sc">.</span>height<span class="sc">}</span><span class="ss"> skill rows:"</span>)</span>
 <span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>display(garbage_skills.head(<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1493,7 +1493,7 @@ No duplicates found, skipping deduplication.</code></pre>
 </div>
 </div>
 </div>
-<div id="60" class="cell" data-execution_count="159">
+<div id="58" class="cell" data-execution_count="274">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>display(garbage_skills.<span class="bu">filter</span>(pl.col(<span class="st">"Skill_Type"</span>) <span class="op">==</span> <span class="st">"DRIVERSLIC"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div><style>
@@ -1583,7 +1583,7 @@ No duplicates found, skipping deduplication.</code></pre>
 </section>
 <section id="matcher-results" class="level2">
 <h2 class="anchored" data-anchor-id="matcher-results">3. <strong>Matcher Results</strong></h2>
-<div id="63" class="cell" data-execution_count="119">
+<div id="61" class="cell" data-execution_count="275">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>reversed_skills_matching_dict <span class="op">=</span> load_excel_sheets(</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>    REVERSE_MATCHING_PATH, sheets<span class="op">=</span>[<span class="st">"Candidates"</span>]</span>
 <span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -1603,7 +1603,7 @@ Loaded: 7769 candidates
 Unique CANDIDATE_ID: 7769</code></pre>
 </div>
 </div>
-<div id="64" class="cell" data-execution_count="120">
+<div id="62" class="cell" data-execution_count="276">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>reversed_skills_matching <span class="op">=</span> filter_out_candidate_ids(</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>    reversed_skills_matching,</span>
 <span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>    raw_cv_deleted_ids,</span>
@@ -1627,7 +1627,7 @@ Reverse Matchhing Candidates -&gt; Remaining rows: 7521
 Unique CANDIDATE_ID: 7521</code></pre>
 </div>
 </div>
-<div id="65" class="cell">
+<div id="63" class="cell" data-execution_count="277">
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>inspect_missing(reversed_skills_matching)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Missing value summary:
@@ -1781,7 +1781,7 @@ Columns with &gt; 0% missing values:
 <section id="analyze-demographic-data" class="level3">
 <h3 class="anchored" data-anchor-id="analyze-demographic-data">Analyze demographic data</h3>
 <p>Next, we examine the <strong>demographic columns</strong> (age, gender, and location) to spot correlations and identify any redundant fields.</p>
-<div id="68" class="cell" data-execution_count="122">
+<div id="66" class="cell" data-execution_count="278">
 <div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>reversed_skills_matching <span class="op">=</span> reversed_skills_matching.with_columns(</span>
 <span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>    pl.when(pl.col(<span class="st">"LATITUDE"</span>) <span class="op">&gt;</span> <span class="fl">44.5</span>)</span>
 <span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"NORTH"</span>))</span>
@@ -1792,7 +1792,7 @@ Columns with &gt; 0% missing values:
 <span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>After classifying candidates as North, Center, or South by latitude, we select the columns of interest and examine their inter-correlations to decide which ones to analyze next.</p>
-<div id="70" class="cell" data-execution_count="123">
+<div id="68" class="cell" data-execution_count="279">
 <div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>reversed_skills_matching_filtered <span class="op">=</span> filter_unknown_and_other_rows(</span>
 <span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>    reversed_skills_matching</span>
 <span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -1887,7 +1887,7 @@ Columns with &gt; 0% missing values:
 </div>
 </div>
 <p><strong>Building a Cramér’s V Association Matrix</strong></p>
-<p>To find inter correlations, we compute a square matrix whose <em>(i, j)</em> entry is the Cramér’s V between column <em>i</em> and column <em>j</em> in <code>reversed_skills_matching</code>. (computed with polars-ds)</p>
+<p>To find inter correlations, we compute a square matrix whose <em>(i, j)</em> entry is the Cramér’s V between column <em>i</em> and column <em>j</em> in <code>reversed_skills_matching</code>. (computed with <a href="https://github.com/abstractqqq/polars_ds_extension" target="_blank">polars‑ds</a>)</p>
 <p>It normalises the χ² test of independence to the range [0, 1]:</p>
 <p><span class="math display">\[
 V \;=\; \sqrt{\frac{\chi^{2}}{\,n\bigl(k_{\min}-1\bigr)}}
@@ -1899,7 +1899,7 @@ V \;=\; \sqrt{\frac{\chi^{2}}{\,n\bigl(k_{\min}-1\bigr)}}
 <li><strong><span class="math inline">\(k_{\min}\)</span></strong> is the smaller of the two variables’ unique value counts.</li>
 </ul>
 <p>Thus <code>V = 0</code> means no association, <code>V = 1</code> means a perfect link.</p>
-<div id="72" class="cell" data-execution_count="124">
+<div id="70" class="cell" data-execution_count="280">
 <div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>cramer_corrs <span class="op">=</span> [</span>
 <span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>    [</span>
 <span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>        cramers_v(reversed_skills_matching_filtered, c1, c2)</span>
@@ -1921,7 +1921,7 @@ V \;=\; \sqrt{\frac{\chi^{2}}{\,n\bigl(k_{\min}-1\bigr)}}
 The heat-map reveals a striking finding: <strong>Age Bucket and Gender are perfectly correlated (Cramér’s V = 1.0).</strong><br>
 Since either variable fully determines the other, we will keep <strong>only one</strong> in subsequent analyses to avoid redundancy.</p>
 </blockquote>
-<div id="74" class="cell" data-execution_count="125">
+<div id="72" class="cell" data-execution_count="281">
 <div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>plot_cramer_matrix(cramer_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -1932,7 +1932,7 @@ Since either variable fully determines the other, we will keep <strong>only one<
 </div>
 </div>
 <p>The tables below makes this explicit: <strong>every female candidate is aged 55 – 74, while every male candidate is aged 25 – 34.</strong></p>
-<div id="76" class="cell" data-execution_count="126">
+<div id="74" class="cell" data-execution_count="282">
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>female_candidates <span class="op">=</span> reversed_skills_matching_filtered.<span class="bu">filter</span>(</span>
 <span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>    pl.col(<span class="st">"Gender"</span>) <span class="op">==</span> <span class="st">"Female"</span></span>
 <span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -1967,7 +1967,7 @@ Since either variable fully determines the other, we will keep <strong>only one<
 </div>
 </div>
 </div>
-<div id="77" class="cell" data-execution_count="127">
+<div id="75" class="cell" data-execution_count="283">
 <div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>male_candidates <span class="op">=</span> reversed_skills_matching_filtered.<span class="bu">filter</span>(pl.col(<span class="st">"Gender"</span>) <span class="op">==</span> <span class="st">"Male"</span>)</span>
 <span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>display(male_candidates[<span class="st">"Age_bucket"</span>].value_counts())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -2007,7 +2007,7 @@ Since either variable fully determines the other, we will keep <strong>only one<
 <ul>
 <li><strong>Export the cleaned CVs</strong>, the <strong>cleaned parsed skills</strong>, the <strong>cleaned matcher result</strong> to a <strong>new</strong> CSV file, ensuring the schema and data types are preserved.</li>
 </ul>
-<div id="80" class="cell" data-execution_count="128">
+<div id="78" class="cell" data-execution_count="284">
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>raw_cv_cleaned.write_csv(</span>
 <span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"../data/Adecco_Dataset_cleaned/CV_translated_cleaned.csv"</span>, separator<span class="op">=</span><span class="st">";"</span></span>
 <span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>)</span>
