@@ -155,7 +155,7 @@ ul.task-list li input[type="checkbox"] {
 We standardized and filtered the raw, anonymized CV texts with structural issues as:</p>
 <ul>
 <li>Empty / Whitespace-Only/ Very Short Text</li>
-<li>High Repetition / Low Structure</li>
+<li>High Repetition</li>
 <li>Low token &amp; vocabulary Richness</li>
 <li>Corrupted CVs with a fraction of invalid characters</li>
 <li>CVs with Placeholder Tails (e.g.&nbsp;“XXXXXXXXXX…”)</li>
@@ -197,9 +197,9 @@ Once the data had been cleaned, we conducted an exploratory analysis of the skil
 </ol></li>
 </ul>
 <p>Using our pipeline results as the ground truth, we measured the overall performance of the proprietary parser by comparing its outputs against our method and analyzing their agreement.</p>
-<p>We focused on <strong>false negatives</strong>: candidates for whom our extractor found a match but the parser returned nothing.</p>
+<p>We focused on <strong>false negatives</strong>, candidates for whom our extractor found a match but the parser returned nothing, by choosing a regex that ensures a high precision.</p>
 <p>To make these insights more accessible, we built a <strong>Streamlit app</strong> that lets you dive into individual candidates. For each false negative, the interface on the left displays the raw CV text with regex matched segments highlighted in red and on the right shows the skills the parser actually assigned to that candidate.</p>
-<p>Once we reviewed and analyzed the results of our methods, we broadened our bias assessment to the three groups previously identified, (gender, geographical position, hard vs soft skills) to determine whether the parser’s errors disproportionately impact under or over represented populations.</p>
+<p>After applying the pipeline to the skills mentioned above and observing numerous discrepancies between the parser and our extraction method, we conducted a bias assessment across three groups (gender, geographic location, and CV length) to determine whether parser errors disproportionately affect under or over represented populations.</p>
 <p>🔗 <a href="../notebooks/bias_detection.html">See the Bias Detection notebook</a></p></li>
 </ol>
 

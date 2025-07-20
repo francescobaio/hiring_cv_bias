@@ -409,11 +409,11 @@ No missing values detected in any column.</code></pre>
 <h3 class="anchored" data-anchor-id="short-or-empty-cv-detection">3. Short or Empty CV Detection</h3>
 <p>Under this step we will:</p>
 <ol type="1">
-<li><strong>Empty / Whitespace-Only/ Very Short Text</strong>
+<li><p><strong>Empty / Whitespace-Only/ Very Short Text</strong></p>
 <ul>
 <li>Filter out any records where <code>CV_text_anon</code> is below a chosen threshold (e.g.&nbsp;300 characters), showing their IDs and snippets for manual review.</li>
 </ul></li>
-<li><strong>High Repetition / Low Structure</strong>
+<li><p><strong>High Repetition</strong></p>
 <ul>
 <li>Split each CV into non-empty lines, count <code>n_lines</code> and <code>unique_lines</code>.<br>
 </li>
@@ -1583,6 +1583,8 @@ No duplicates found, skipping deduplication.</code></pre>
 </section>
 <section id="matcher-results" class="level2">
 <h2 class="anchored" data-anchor-id="matcher-results">3. <strong>Matcher Results</strong></h2>
+<section id="schema-load-2" class="level3">
+<h3 class="anchored" data-anchor-id="schema-load-2">1. Schema &amp; Load</h3>
 <div id="61" class="cell" data-execution_count="275">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>reversed_skills_matching_dict <span class="op">=</span> load_excel_sheets(</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>    REVERSE_MATCHING_PATH, sheets<span class="op">=</span>[<span class="st">"Candidates"</span>]</span>
@@ -1627,6 +1629,9 @@ Reverse Matchhing Candidates -&gt; Remaining rows: 7521
 Unique CANDIDATE_ID: 7521</code></pre>
 </div>
 </div>
+</section>
+<section id="missing-value-inspection-2" class="level3">
+<h3 class="anchored" data-anchor-id="missing-value-inspection-2">2. Missing Value Inspection</h3>
 <div id="63" class="cell" data-execution_count="277">
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>inspect_missing(reversed_skills_matching)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1778,8 +1783,9 @@ Columns with &gt; 0% missing values:
 </div>
 </div>
 </div>
+</section>
 <section id="analyze-demographic-data" class="level3">
-<h3 class="anchored" data-anchor-id="analyze-demographic-data">Analyze demographic data</h3>
+<h3 class="anchored" data-anchor-id="analyze-demographic-data">3. Analyze demographic data</h3>
 <p>Next, we examine the <strong>demographic columns</strong> (age, gender, and location) to spot correlations and identify any redundant fields.</p>
 <div id="66" class="cell" data-execution_count="278">
 <div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>reversed_skills_matching <span class="op">=</span> reversed_skills_matching.with_columns(</span>

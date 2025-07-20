@@ -110,7 +110,7 @@ def compute_candidate_coverage(
         only_t = truth_ids - parser_ids
         only_p = parser_ids - truth_ids
         print(f"Regex positive candidates        : {len(truth_ids)}")
-        print(f"Parser positive unique candidates: {len(parser_ids)}")
+        print(f"Parser positive candidates: {len(parser_ids)}")
         print(f"- Both regex & parser   : {len(both)}")
         print(f"- Only regex            : {len(only_t)}")
         print(f"- Only parser           : {len(only_p)}\n")

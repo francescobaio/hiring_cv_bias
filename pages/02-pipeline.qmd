@@ -15,7 +15,7 @@ With these preparations in place, our pipeline we built is divided into the foll
 1. **Data Cleaning**  
    We standardized and filtered the raw, anonymized CV texts with structural issues as:
    - Empty / Whitespace-Only/ Very Short Text
-   - High Repetition / Low Structure
+   - High Repetition 
    - Low token & vocabulary Richness
    - Corrupted CVs with a fraction of invalid characters
    - CVs with Placeholder Tails (e.g. “XXXXXXXXXX…”)
@@ -66,11 +66,12 @@ With these preparations in place, our pipeline we built is divided into the foll
     
    Using our pipeline results as the ground truth, we measured the overall performance of the proprietary parser by comparing its outputs against our method and analyzing their agreement.
 
-   We focused on **false negatives**: candidates for whom our extractor found a match but the parser returned nothing. 
+   We focused on **false negatives**, candidates for whom our extractor found a match but the parser returned nothing, by choosing a regex that ensures a high precision. 
    
    To make these insights more accessible, we built a **Streamlit app** that lets you dive into individual candidates. For each false negative, the interface on the left displays the raw CV text with regex matched segments highlighted in red and on the right shows the skills the parser actually assigned to that candidate.
 
-   Once we reviewed and analyzed the results of our methods, we broadened our bias assessment to the three groups previously identified, (gender, geographical position, hard vs soft skills) to determine whether the parser’s errors disproportionately impact under or over represented populations.
+   After applying the pipeline to the skills mentioned above and observing numerous discrepancies between the parser and our extraction method, we conducted a bias assessment across three groups (gender, geographic location, and CV length) to determine whether parser errors disproportionately affect under or over represented populations.
+
 
    🔗 [See the Bias Detection notebook](../notebooks/bias_detection.html)
 

@@ -229,7 +229,7 @@ Detect errors and biases introduced by the CV parser when extracting skills from
 <li>Analyze the errors identified in Step 1 for the groups previously examined (see <code>distribution_analysis.ipynb</code>) to determine whether the parser has disadvantaged or advantaged any of them.</li>
 </ul></li>
 </ol>
-<div id="cell-2" class="cell" data-execution_count="3">
+<div id="cell-2" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -275,24 +275,20 @@ Detect errors and biases introduced by the CV parser when extracting skills from
 <span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>pl.Config.set_tbl_cols(<span class="op">-</span><span class="dv">1</span>)</span>
 <span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>pl.Config.set_tbl_width_chars(<span class="dv">200</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>The autoreload extension is already loaded. To reload it, use:
-  %reload_ext autoreload</code></pre>
 </div>
-</div>
-<div id="cell-3" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"TOKENIZERS_PARALLELISM"</span>] <span class="op">=</span> <span class="st">"True"</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"token.json"</span>, <span class="st">"r"</span>) <span class="im">as</span> token:</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    login(token<span class="op">=</span>json.load(token)[<span class="st">"token"</span>])</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python <span class="op">-</span>m spacy download en_core_web_sm </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-3" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"TOKENIZERS_PARALLELISM"</span>] <span class="op">=</span> <span class="st">"True"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"token.json"</span>, <span class="st">"r"</span>) <span class="im">as</span> token:</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    login(token<span class="op">=</span>json.load(token)[<span class="st">"token"</span>])</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python <span class="op">-</span>m spacy download en_core_web_sm </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <div class="ansi-escaped-output">
 <pre>Collecting en-core-web-sm==3.8.0
 
   Downloading https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl (12.8 MB)
 
-     <span class="ansi-bright-black-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">12.8/12.8 MB</span> <span class="ansi-red-fg">2.2 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>a <span class="ansi-cyan-fg">0:00:01</span>m
+     <span class="ansi-bright-black-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">12.8/12.8 MB</span> <span class="ansi-red-fg">3.9 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>a <span class="ansi-cyan-fg">0:00:01</span>
 
 <span class="ansi-green-fg">✔ Download and installation successful</span>
 
@@ -303,29 +299,29 @@ You can now load the package via spacy.load('en_core_web_sm')
 </div>
 <section id="load-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="load-the-data">Load the data</h3>
-<div id="cell-5" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df_cv_raw <span class="op">=</span> load_data(CANDIDATE_CVS_TRANSLATED_CLEANED_PATH)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>df_skills <span class="op">=</span> load_data(CLEANED_SKILLS)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df_info_candidates <span class="op">=</span> load_data(CLEANED_REVERSE_MATCHING_PATH)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-5" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_cv_raw <span class="op">=</span> load_data(CANDIDATE_CVS_TRANSLATED_CLEANED_PATH)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df_skills <span class="op">=</span> load_data(CLEANED_SKILLS)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df_info_candidates <span class="op">=</span> load_data(CLEANED_REVERSE_MATCHING_PATH)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-6" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df_info_candidates <span class="op">=</span> df_info_candidates.with_columns(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    pl.when(pl.col(<span class="st">"LATITUDE"</span>) <span class="op">&gt;</span> <span class="fl">44.5</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"NORTH"</span>))</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    .when(pl.col(<span class="st">"LATITUDE"</span>) <span class="op">&lt;</span> <span class="dv">42</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"SOUTH"</span>))</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    .otherwise(pl.lit(<span class="st">"CENTER"</span>))</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    .alias(<span class="st">"Location"</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>df_cv_raw <span class="op">=</span> df_cv_raw.with_columns(</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    pl.when(pl.col(<span class="st">"len_anon"</span>) <span class="op">&lt;</span> <span class="dv">1000</span>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"SHORT"</span>))</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    .when(pl.col(<span class="st">"len_anon"</span>) <span class="op">&lt;</span> <span class="dv">2500</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"MEDIUM"</span>))</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    .otherwise(pl.lit(<span class="st">"LONG"</span>))</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    .alias(<span class="st">"length"</span>)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-6" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df_info_candidates <span class="op">=</span> df_info_candidates.with_columns(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    pl.when(pl.col(<span class="st">"LATITUDE"</span>) <span class="op">&gt;</span> <span class="fl">44.5</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"NORTH"</span>))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    .when(pl.col(<span class="st">"LATITUDE"</span>) <span class="op">&lt;</span> <span class="dv">42</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"SOUTH"</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    .otherwise(pl.lit(<span class="st">"CENTER"</span>))</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    .alias(<span class="st">"Location"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>df_cv_raw <span class="op">=</span> df_cv_raw.with_columns(</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    pl.when(pl.col(<span class="st">"len_anon"</span>) <span class="op">&lt;</span> <span class="dv">1000</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"SHORT"</span>))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    .when(pl.col(<span class="st">"len_anon"</span>) <span class="op">&lt;</span> <span class="dv">2500</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    .then(pl.lit(<span class="st">"MEDIUM"</span>))</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    .otherwise(pl.lit(<span class="st">"LONG"</span>))</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    .alias(<span class="st">"length"</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="bias-detection-for-driver-licences" class="level3">
@@ -349,10 +345,10 @@ We call <code>add_demographic_info()</code> to add a Boolean column, <code>has_d
 For now we only care whether a candidate has <em>any</em> licence. (given that the driver license type column contains a handful of null values (see <code>data_cleaning.ipynb</code>))</p>
 <p>The same regex already captures specific categories (A, B, C…), so the analysis could be extended later if we want to explore potential biases tied to particular licence types.</p></li>
 </ul>
-<div id="cell-9" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df_cv <span class="op">=</span> add_demographic_info(df_cv_raw, df_info_candidates)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_cv.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div id="cell-9" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df_cv <span class="op">=</span> add_demographic_info(df_cv_raw, df_info_candidates)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df_cv.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
 <div><style>
 .dataframe > thead > tr,
 .dataframe > tbody > tr {
@@ -440,35 +436,39 @@ For now we only care whether a candidate has <em>any</em> licence. (given that t
 </div>
 </div>
 </div>
-<p><strong>Comparing parser output and regex detection</strong></p>
+<p><strong>Comparing parser output and regex extraction</strong></p>
 <p>The <code>compute_candidate_coverage()</code> function evaluates how well the parsing system detects a specific category of skills by comparing it to our approach.</p>
 <p>In this case, the chosen category is <code>"DRIVERSLIC"</code> and we use a custom regex based extractor applied directly to the raw CV text.</p>
 <p>This step is crucial for measuring the parser’s coverage by quantifying <strong>false negatives</strong>. (skills that are mentioned in the CV but missed by the parser)</p>
-<p><strong>Output breakdown:</strong> 1. <strong>Regex positive candidates</strong>: number of unique candidates flagged by our rule based extractor. 2. <strong>Parser positive unique candidates</strong>: number of unique candidates flagged by the parser.</p>
+<p><strong>Output breakdown:</strong></p>
+<ol type="1">
+<li><strong>Regex positive candidates</strong>: number of unique candidates flagged by our rule based extractor.</li>
+<li><strong>Parser positive candidates</strong>: number of unique candidates flagged by the parser.</li>
+</ol>
 <ul>
 <li><strong>Both regex &amp; parser</strong>: candidates detected by both methods.</li>
 <li><strong>Only regex</strong>: candidates our regex caught but the parser missed.</li>
 <li><strong>Only parser</strong>: candidates the parser flagged but our regex did not.</li>
 </ul>
-<p>Then <code>print_report()</code> displays: - The overall confusion matrix and derived metrics (accuracy, precision, recall, F1).</p>
-<div id="cell-12" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>res_dl <span class="op">=</span> compute_candidate_coverage(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    df_cv<span class="op">=</span>df_cv,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    df_parser<span class="op">=</span>df_skills,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    skill_type<span class="op">=</span><span class="st">"DRIVERSLIC"</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    extractor<span class="op">=</span>extract_driver_license,</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    norm<span class="op">=</span>norm_driver_license,</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Confusion matrix:"</span>, res_dl.conf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then <code>print_report()</code> displays the overall confusion matrix and derived metrics (accuracy, precision, recall, F1).</p>
+<div id="cell-12" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>res_dl <span class="op">=</span> compute_candidate_coverage(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    df_cv<span class="op">=</span>df_cv,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    df_parser<span class="op">=</span>df_skills,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    skill_type<span class="op">=</span><span class="st">"DRIVERSLIC"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    extractor<span class="op">=</span>extract_driver_license,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    norm<span class="op">=</span>norm_driver_license,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Confusion matrix:"</span>, res_dl.conf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"b403d895cf9a4fb88708b3c41ac29618","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"571d9921e7e149ca8d761346aca5dace","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Regex positive candidates        : 4134
-Parser positive unique candidates: 2032
+Parser positive candidates: 2032
 - Both regex &amp; parser   : 1689
 - Only regex            : 2445
 - Only parser           : 343
@@ -482,58 +482,48 @@ Metrics  -&gt; Precision:0.83  Recall:0.409  F1:0.548  Acc:0.623</code></pre>
 In other words, when it flags a skill it is usually correct, yet it <strong>misses more than half of the skills</strong> that the regex finds.</p>
 <p>Let’s dive into <strong>false negatives (FN)</strong><br>
 * We’ll highlight in <strong>red</strong> the exact terms captured by the regex directly inside the CV text, making it easy to verify their presence at a glance.</p>
-<div id="cell-15" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df_fn <span class="op">=</span> pl.DataFrame(res_dl.fn_rows)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> df_fn.sample(n<span class="op">=</span><span class="dv">2</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> sample.to_dicts():</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    print_highlighted_cv(row, pattern<span class="op">=</span>driver_license_pattern_eng)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-15" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df_fn <span class="op">=</span> pl.DataFrame(res_dl.fn_rows)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> df_fn.sample(n<span class="op">=</span><span class="dv">2</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> sample.to_dicts():</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    print_highlighted_cv(row, pattern<span class="op">=</span>driver_license_pattern_eng)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <div class="ansi-escaped-output">
-<pre>CANDIDATE ID: 4454222 - GENERE: Female
+<pre>CANDIDATE ID: 7090785 - GENERE: Male
 
 Reason: Rule-based extractor found skill but parser missed it.
 
 --------------------------------------------------------------------------------
 
-aching of political economy in english. <span class="ansi-red-fg">driving license: b</span> professional skills: customer orientati
+lift driver in possession of a forklift <span class="ansi-red-fg">driving license</span>: use of electric and diesel forklifts s
 
 --------------------------------------------------------------------------------
 
 
 
-CANDIDATE ID: 4087594 - GENERE: Male
+CANDIDATE ID: 5108733 - GENERE: Male
 
 Reason: Rule-based extractor found skill but parser missed it.
 
 --------------------------------------------------------------------------------
 
-d in the field of technical maintenance <span class="ansi-red-fg">driving license</span> a1, b further information despite holdi
+stems. technical skills and competences <span class="ansi-red-fg">b driving license</span> or driving licenses I authorize the pro
 
-further information despite holding the <span class="ansi-red-fg">license b</span>, at the moment I do not have a car
+ls and competences b driving license or <span class="ansi-red-fg">driving licenses</span> I authorize the processing of personal 
 
 --------------------------------------------------------------------------------
 </pre>
 </div>
 </div>
 </div>
-<div id="cell-16" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"False negatives matching snippet pattern: </span><span class="sc">{</span>df_fn<span class="sc">.</span>height<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df_fn.write_csv(DRIVING_LICENSE_FALSE_NEGATIVES_PATH, separator<span class="op">=</span><span class="st">";"</span>)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved filtered false negatives!"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-16" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"False negatives matching snippet pattern: </span><span class="sc">{</span>df_fn<span class="sc">.</span>height<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df_fn.write_csv(DRIVING_LICENSE_FALSE_NEGATIVES_PATH, separator<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved filtered false negatives!"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>False negatives matching snippet pattern: 2445
 Saved filtered false negatives!</code></pre>
 </div>
-</div>
-<div id="cell-17" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash <span class="op">--</span>bg </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>cd ..</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># for Unix users  </span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>.venv<span class="op">/</span><span class="bu">bin</span><span class="op">/</span>python <span class="op">-</span>m streamlit run hiring_cv_bias<span class="op">/</span>bias_detection<span class="op">/</span>rule_based<span class="op">/</span>app<span class="op">/</span>fn_app.py</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># for Windows users</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#.venv/Scripts/python.exe -m streamlit run hiring_cv_bias/bias_detection/rule_based/app/fn_app.py</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="bias-detection-metrics" class="level3">
@@ -541,52 +531,52 @@ Saved filtered false negatives!</code></pre>
 <p>To assess the model’s fairness, we employed the following <strong>bias detection metrics</strong>:</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 24%">
-<col style="width: 27%">
-<col style="width: 48%">
+<col style="width: 22%">
+<col style="width: 30%">
+<col style="width: 47%">
 </colgroup>
 <thead>
 <tr class="header">
 <th>Metric</th>
-<th>Formula</th>
-<th>Interpretation</th>
+<th style="text-align: center;">Formula</th>
+<th style="text-align: left;">Interpretation</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td><strong>Equality of Opportunity&nbsp;(TPR parity)</strong></td>
-<td><span class="math display">\[\text{TPR}_g = \frac{TP_g}{TP_g + FN_g} \]</span></td>
-<td><span class="math inline">\(\text{TPR}_g\)</span> equal for every <span class="math inline">\(g\)</span> ensures that <strong>every individual who truly qualifies</strong> for a positive outcome has the <strong>same chance</strong> of being correctly identified, regardless of group membership.</td>
+<td style="text-align: center;"><span class="math display">\[\text{TPR}_g = \frac{TP_g}{TP_g + FN_g} \]</span></td>
+<td style="text-align: left;"><span class="math inline">\(\text{TPR}_g\)</span> equal for every <span class="math inline">\(g\)</span> ensures that <strong>every individual who truly qualifies</strong> for a positive outcome has the <strong>same chance</strong> of being correctly identified, regardless of group membership.</td>
 </tr>
 <tr class="even">
 <td><br> <strong>Calibration&nbsp;(NPV)</strong></td>
-<td><span class="math display">\[\text{NPV}_g = \frac{TN_g}{TN_g + FN_g}\qquad \]</span></td>
-<td><span class="math inline">\(\text{NPV}_g\)</span> parity for every <span class="math inline">\(g\)</span> ensures that <strong>when the model predicts a negative outcome</strong>, the probability of being correct is the <strong>same</strong> for every group.</td>
+<td style="text-align: center;"><span class="math display">\[\text{NPV}_g = \frac{TN_g}{TN_g + FN_g}\qquad \]</span></td>
+<td style="text-align: left;"><span class="math inline">\(\text{NPV}_g\)</span> parity for every <span class="math inline">\(g\)</span> ensures that <strong>when the model predicts a negative outcome</strong>, the probability of being correct is the <strong>same</strong> for every group.</td>
 </tr>
 <tr class="odd">
 <td><br> <strong>Selection Rate</strong></td>
-<td><span class="math display">\[\text{SR}_g = \frac{TP_g + FP_g}{TP_g + FP_g + TN_g + FN_g} \]</span></td>
-<td>Share of individuals in group <span class="math inline">\(g\)</span> predicted positive (selected).</td>
+<td style="text-align: center;"><span class="math display">\[\text{SR}_g = \frac{TP_g + FP_g}{TP_g + FP_g + TN_g + FN_g} \]</span></td>
+<td style="text-align: left;">Share of individuals in group <span class="math inline">\(g\)</span> predicted positive (selected).</td>
 </tr>
 <tr class="even">
 <td><br> <strong>Disparate Impact (DI)</strong></td>
-<td><span class="math display">\[\displaystyle DI = \frac{\text{SR}_{\text{target}}}{\text{SR}_{\text{reference}}}\]</span></td>
-<td>Ratio of selection rates; values <strong>&lt; 0.80</strong> (four-fifths rule) indicate potential adverse impact against the target group.</td>
+<td style="text-align: center;"><span class="math display">\[\displaystyle DI = \frac{\text{SR}_{\text{target}}}{\text{SR}_{\text{reference}}}\]</span></td>
+<td style="text-align: left;">Ratio of selection rates; values <strong>&lt; 0.80</strong> (four-fifths rule) indicate potential adverse impact against the target group.</td>
 </tr>
 </tbody>
 </table>
-<p><u>All these metrics were computed for the <strong>Gender</strong> and <strong>Location</strong> groups to detect and quantify possible bias in the selection process.</u></p>
-<div id="cell-19" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_dl,</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"Male"</span>,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Gender"</span>,</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><u>All these metrics were computed for the <strong>Gender</strong>, <strong>Location</strong> and <strong>CV length</strong> groups to detect and quantify possible bias in the extraction process.</u></p>
+<div id="cell-18" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_dl,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"Male"</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Gender"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TP: 1689, FP: 343, TN: 2927, FN: 2445
 Accuracy: 0.623, Precision: 0.831, Recall: 0.409, F1: 0.548
@@ -668,17 +658,17 @@ Error and rates by Gender:
 </div>
 </div>
 </div>
-<div id="cell-20" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_dl,</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"NORTH"</span>,</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Location"</span>,</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-19" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_dl,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"NORTH"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Location"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TP: 1689, FP: 343, TN: 2927, FN: 2445
 Accuracy: 0.623, Precision: 0.831, Recall: 0.409, F1: 0.548
@@ -774,17 +764,17 @@ Error and rates by Location:
 </div>
 </div>
 </div>
-<div id="cell-21" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_dl,</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"LONG"</span>,</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"length"</span>,</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-20" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_dl,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"LONG"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"length"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TP: 1689, FP: 343, TN: 2927, FN: 2445
 Accuracy: 0.623, Precision: 0.831, Recall: 0.409, F1: 0.548
@@ -834,20 +824,6 @@ Error and rates by length:
 </thead>
 <tbody>
 <tr class="odd">
-<td>"MEDIUM"</td>
-<td>3005</td>
-<td>698</td>
-<td>143</td>
-<td>872</td>
-<td>1292</td>
-<td>3005</td>
-<td>0.047587</td>
-<td>0.290183</td>
-<td>0.444586</td>
-<td>0.597043</td>
-<td>0.998508</td>
-</tr>
-<tr class="even">
 <td>"LONG"</td>
 <td>3789</td>
 <td>901</td>
@@ -861,7 +837,7 @@ Error and rates by length:
 <td>0.460946</td>
 <td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>"SHORT"</td>
 <td>610</td>
 <td>90</td>
@@ -875,6 +851,20 @@ Error and rates by length:
 <td>0.785863</td>
 <td>0.754501</td>
 </tr>
+<tr class="odd">
+<td>"MEDIUM"</td>
+<td>3005</td>
+<td>698</td>
+<td>143</td>
+<td>872</td>
+<td>1292</td>
+<td>3005</td>
+<td>0.047587</td>
+<td>0.290183</td>
+<td>0.444586</td>
+<td>0.597043</td>
+<td>0.998508</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -883,31 +873,31 @@ Error and rates by length:
 </section>
 <section id="bias-detection-for-language-skill" class="level3">
 <h3 class="anchored" data-anchor-id="bias-detection-for-language-skill">Bias detection for Language Skill</h3>
-<p>Just as we applied a simple presence check for driving licenses, we handle languages with a more granular, ad-hoc normalization and extraction pipeline that recognizes each specific language individually rather than merely flagging “has any language”.</p>
+<p>Just as we applied a simple presence check for driving licenses, we handle languages with a more granular, ad-hoc normalization and extraction pipeline that recognizes each specific language individually rather than just flagging “has any language”.</p>
 <p>Main <strong>steps</strong> for doing this are:</p>
 <ul>
-<li>Build a reverse lookup map (<code>_reverse_language_map</code>) by iterating over each language code in <code>LANGUAGE_VARIANTS</code> (populated from pycountry with English name variants <code>alpha_2</code>) and all its known name variants, storing entries like “english” -&gt; “en”, “italian” -&gt; “it”, etc.</li>
-<li>Apply <code>norm_languages</code>to every extracted mention from our regex based extractor so that each occurrence (like “English B2” is mapped to a clean ISO code (“en”).</li>
+<li>Build a reverse lookup map (<code>_reverse_language_map</code>) by iterating over each language code in <code>LANGUAGE_VARIANTS</code> (populated from <a href="https://github.com/pycountry/pycountry" target="_blank">pycountry</a> with English name variants <code>alpha_2</code>) and all its known name variants, storing entries like “english” -&gt; “en”, “italian” -&gt; “it”, etc.</li>
+<li>Apply <code>norm_languages</code>to every extracted mention from our regex based extractor so that each occurrence like “English B2” is mapped to a clean ISO code “en”.</li>
 <li>Once all language mentions have been normalized to ISO codes via <code>norm_languages</code>, we invoke the coverage routine to quantify how well the parser matches our “ground truth” extractions.</li>
 </ul>
-<div id="cell-24" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>res_lg <span class="op">=</span> compute_candidate_coverage(</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    df_cv<span class="op">=</span>df_cv,</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    df_parser<span class="op">=</span>df_skills,</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    skill_type<span class="op">=</span><span class="st">"Language_Skill"</span>,</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    extractor<span class="op">=</span>extract_languages,</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    norm<span class="op">=</span>norm_languages,</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Confusion matrix:"</span>, res_lg.conf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-23" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>res_lg <span class="op">=</span> compute_candidate_coverage(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    df_cv<span class="op">=</span>df_cv,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    df_parser<span class="op">=</span>df_skills,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    skill_type<span class="op">=</span><span class="st">"Language_Skill"</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    extractor<span class="op">=</span>extract_languages,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    norm<span class="op">=</span>norm_languages,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Confusion matrix:"</span>, res_lg.conf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"8573716be670482ebad479a47aab5ef4","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"5846b37322084f80af94329810a01d7b","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Regex positive candidates        : 6387
-Parser positive unique candidates: 6500
+Parser positive candidates: 6500
 - Both regex &amp; parser   : 5615
 - Only regex            : 772
 - Only parser           : 885
@@ -917,79 +907,78 @@ Counts   -&gt; TP:10389  FP:2392  TN:132    FN:5438
 Metrics  -&gt; Precision:0.81  Recall:0.656  F1:0.726  Acc:0.573</code></pre>
 </div>
 </div>
-<div id="cell-25" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>df_fn <span class="op">=</span> pl.DataFrame(res_lg.fn_rows)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> df_fn.sample(n<span class="op">=</span><span class="dv">2</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> sample.to_dicts():</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    print_highlighted_cv(row, pattern<span class="op">=</span>languages_pattern_eng)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-24" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df_fn <span class="op">=</span> pl.DataFrame(res_lg.fn_rows)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> df_fn.sample(n<span class="op">=</span><span class="dv">2</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> sample.to_dicts():</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    print_highlighted_cv(row, pattern<span class="op">=</span>languages_pattern_eng)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <div class="ansi-escaped-output">
-<pre>CANDIDATE ID: 5512414 - GENERE: Male
+<pre>CANDIDATE ID: 5184724 - GENERE: Female
 
 Reason: Rule-based extractor found skill but parser missed it.
 
 --------------------------------------------------------------------------------
 
- nationality: <span class="ansi-red-fg">Italian</span> date of birth: 30 Apr 1996 work experie
+tute adele pellitteri contacts teaching <span class="ansi-red-fg">Italian</span> to foreign students and observation of 
 
-Italy) language skills native language: <span class="ansi-red-fg">Italian</span> other languages: English French listeni
+on of actual improvements. nationality: <span class="ansi-red-fg">italian</span> palermo, italy gender: female 09/19/201
 
-tive language: Italian other languages: <span class="ansi-red-fg">English</span> French listening c2 reading c2 writing 
+y doctorate in linguistic mediation and <span class="ansi-red-fg">italian</span> as l2 university of palermo 09/20/2004 
 
-guage: Italian other languages: English <span class="ansi-red-fg">French</span> listening c2 reading c2 writing c1 list
+ china certificate of attendance of the <span class="ansi-red-fg">chinese</span> language course dalian university of fo
+
+age course dalian university of foreign <span class="ansi-red-fg">languages chinese</span> language courselanguage skills native l
+
+ courselanguage skills native language: <span class="ansi-red-fg">italian</span> english listening reading speaking oral
+
+anguage skills native language: italian <span class="ansi-red-fg">english</span> listening reading speaking oral interac
+
+oral interaction writing c1 c1 c1 c1 c1 <span class="ansi-red-fg">chinese</span> listening reading speaking oral interac
+
+oral interaction writing b1 b1 b1 b1 b1 <span class="ansi-red-fg">french</span> listening reading speaking oral interac
 
 --------------------------------------------------------------------------------
 
 
 
-CANDIDATE ID: 4675569 - GENERE: Male
+CANDIDATE ID: 1087369 - GENERE: Female
 
 Reason: Rule-based extractor found skill but parser missed it.
 
 --------------------------------------------------------------------------------
 
-eation of metadata and links. certified <span class="ansi-red-fg">languages italian</span> german english civil service (completed
+nuovo di napoli (italy) personal skills <span class="ansi-red-fg">italian</span> mother tongue production foreign langua
 
- and links. certified languages italian <span class="ansi-red-fg">german</span> english civil service (completed) 2019 
+eraction oral production a2 a2 a2 a2 a2 <span class="ansi-red-fg">english</span> 24/1/19 © european union, 2002-2019 | h
 
-nks. certified languages italian german <span class="ansi-red-fg">english</span> civil service (completed) 2019 spanish 
-
- english civil service (completed) 2019 <span class="ansi-red-fg">spanish</span> participation in the development of the
+ge 2 / 3curriculum vitae a1 a1 a1 a1 a1 <span class="ansi-red-fg">french</span> levels: a1 and a2: basic user - b1 and 
 
 --------------------------------------------------------------------------------
 </pre>
 </div>
 </div>
 </div>
-<div id="cell-26" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"False negatives matching snippet pattern: </span><span class="sc">{</span>df_fn<span class="sc">.</span>height<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>df_fn.write_csv(LANGUAGE_SKILL_FALSE_NEGATIVES_PATH, separator<span class="op">=</span><span class="st">";"</span>)</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved filtered false negatives to false_negative.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-25" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"False negatives matching snippet pattern: </span><span class="sc">{</span>df_fn<span class="sc">.</span>height<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>df_fn.write_csv(LANGUAGE_SKILL_FALSE_NEGATIVES_PATH, separator<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved filtered false negatives to false_negative.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>False negatives matching snippet pattern: 5438
 Saved filtered false negatives to false_negative.csv</code></pre>
 </div>
 </div>
-<div id="cell-27" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash <span class="op">--</span>bg </span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>cd ..</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># for Unix users</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>.venv<span class="op">/</span><span class="bu">bin</span><span class="op">/</span>python <span class="op">-</span>m streamlit run hiring_cv_bias<span class="op">/</span>bias_detection<span class="op">/</span>rule_based<span class="op">/</span>app<span class="op">/</span>fn_app.py</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co"># for Windows users</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">#.venv/Scripts/python.exe -m streamlit run hiring_cv_bias/bias_detection/rule_based/app/fn_app.py</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-28" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_lg,</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"Male"</span>,</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Gender"</span>,</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-26" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_lg,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"Male"</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Gender"</span>,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TP: 10389, FP: 2392, TN: 132, FN: 5438
 Accuracy: 0.573, Precision: 0.813, Recall: 0.656, F1: 0.726
@@ -1039,20 +1028,6 @@ Error and rates by Gender:
 </thead>
 <tbody>
 <tr class="odd">
-<td>"Male"</td>
-<td>3984</td>
-<td>5420</td>
-<td>1251</td>
-<td>2608</td>
-<td>77</td>
-<td>9356</td>
-<td>0.133711</td>
-<td>0.278752</td>
-<td>0.675137</td>
-<td>0.028678</td>
-<td>1.0</td>
-</tr>
-<tr class="even">
 <td>"Female"</td>
 <td>3420</td>
 <td>4969</td>
@@ -1066,22 +1041,36 @@ Error and rates by Gender:
 <td>0.019064</td>
 <td>0.952663</td>
 </tr>
+<tr class="even">
+<td>"Male"</td>
+<td>3984</td>
+<td>5420</td>
+<td>1251</td>
+<td>2608</td>
+<td>77</td>
+<td>9356</td>
+<td>0.133711</td>
+<td>0.278752</td>
+<td>0.675137</td>
+<td>0.028678</td>
+<td>1.0</td>
+</tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
-<div id="cell-29" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_lg,</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"NORTH"</span>,</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Location"</span>,</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-27" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_lg,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"NORTH"</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Location"</span>,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TP: 10389, FP: 2392, TN: 132, FN: 5438
 Accuracy: 0.573, Precision: 0.813, Recall: 0.656, F1: 0.726
@@ -1145,20 +1134,6 @@ Error and rates by Location:
 <td>0.997271</td>
 </tr>
 <tr class="even">
-<td>"NORTH"</td>
-<td>5343</td>
-<td>7484</td>
-<td>1701</td>
-<td>3914</td>
-<td>108</td>
-<td>13207</td>
-<td>0.128795</td>
-<td>0.296358</td>
-<td>0.656606</td>
-<td>0.026852</td>
-<td>1.0</td>
-</tr>
-<tr class="odd">
 <td>"CENTER"</td>
 <td>1001</td>
 <td>1431</td>
@@ -1172,22 +1147,36 @@ Error and rates by Location:
 <td>0.013459</td>
 <td>1.013434</td>
 </tr>
+<tr class="odd">
+<td>"NORTH"</td>
+<td>5343</td>
+<td>7484</td>
+<td>1701</td>
+<td>3914</td>
+<td>108</td>
+<td>13207</td>
+<td>0.128795</td>
+<td>0.296358</td>
+<td>0.656606</td>
+<td>0.026852</td>
+<td>1.0</td>
+</tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
-<div id="cell-30" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_lg,</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"LONG"</span>,</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"length"</span>,</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-28" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_lg,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"LONG"</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"length"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TP: 10389, FP: 2392, TN: 132, FN: 5438
 Accuracy: 0.573, Precision: 0.813, Recall: 0.656, F1: 0.726
@@ -1237,20 +1226,6 @@ Error and rates by length:
 </thead>
 <tbody>
 <tr class="odd">
-<td>"SHORT"</td>
-<td>610</td>
-<td>489</td>
-<td>421</td>
-<td>219</td>
-<td>27</td>
-<td>1156</td>
-<td>0.364187</td>
-<td>0.189446</td>
-<td>0.690678</td>
-<td>0.109756</td>
-<td>1.19194</td>
-</tr>
-<tr class="even">
 <td>"LONG"</td>
 <td>3789</td>
 <td>5715</td>
@@ -1263,6 +1238,20 @@ Error and rates by length:
 <td>0.62899</td>
 <td>0.012595</td>
 <td>1.0</td>
+</tr>
+<tr class="even">
+<td>"SHORT"</td>
+<td>610</td>
+<td>489</td>
+<td>421</td>
+<td>219</td>
+<td>27</td>
+<td>1156</td>
+<td>0.364187</td>
+<td>0.189446</td>
+<td>0.690678</td>
+<td>0.109756</td>
+<td>1.19194</td>
 </tr>
 <tr class="odd">
 <td>"MEDIUM"</td>
@@ -1287,42 +1276,42 @@ Error and rates by length:
 <section id="bias-detection-for-job-title" class="level3">
 <h3 class="anchored" data-anchor-id="bias-detection-for-job-title">Bias detection for Job Title</h3>
 <p>Loading list of jobs from <a href="https://esco.ec.europa.eu/en/about-esco" target="_blank">ESCO</a> and filtering out those that are too specific (length &gt; 3).</p>
-<div id="cell-33" class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>df_skills_cleaned <span class="op">=</span> df_skills.with_columns(</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    pl.col(<span class="st">"Skill"</span>)</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">str</span>.to_lowercase()</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">str</span>.replace_all(<span class="st">"(m/f)"</span>, <span class="st">""</span>, literal<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">str</span>.strip_chars()</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    .alias(<span class="st">"Skill"</span>)</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-31" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>df_skills_cleaned <span class="op">=</span> df_skills.with_columns(</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    pl.col(<span class="st">"Skill"</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">str</span>.to_lowercase()</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">str</span>.replace_all(<span class="st">"(m/f)"</span>, <span class="st">""</span>, literal<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">str</span>.strip_chars()</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    .alias(<span class="st">"Skill"</span>)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The <strong>bias detection pipeline for job titles</strong> consists of two main components:</p>
 <ul>
 <li><p><strong>JobParser</strong>: a class that extracts job experiences listed in ESCO from raw CV texts, using SpaCy’s <code>PhraseMatcher</code>.</p></li>
 <li><p><strong>SemanticMatcher</strong>: once job experiences are extracted, the <code>SemanticMatcher</code> (<a href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2" target="_blank">all‑MiniLM‑L6‑v2</a>) is then used exclusively to determine which of these experiences match the parser extracted skills, employing semantic embeddings. Pairwise cosine similarity is calculated between the embeddings of <strong>JobParser</strong> skills and Parser skills. Matches are established when this similarity exceeds a specified threshold. This matching step is used only to compute metrics.</p></li>
 </ul>
-<div id="cell-35" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>parser <span class="op">=</span> JobParser(normalized_jobs)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>matcher <span class="op">=</span> SemanticMatcher()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-33" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>parser <span class="op">=</span> JobParser(normalized_jobs)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>matcher <span class="op">=</span> SemanticMatcher()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-36" class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>res_job <span class="op">=</span> compute_candidate_coverage(</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    df_cv,</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    df_skills_cleaned,</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Job_title"</span>,</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    parser.parse_with_n_grams,</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    matcher<span class="op">=</span>matcher.semantic_comparison,</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Confusion matrix:"</span>, res_job.conf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-34" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>res_job <span class="op">=</span> compute_candidate_coverage(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    df_cv,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    df_skills_cleaned,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Job_title"</span>,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    parser.parse_with_n_grams,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    matcher<span class="op">=</span>matcher.semantic_comparison,</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Confusion matrix:"</span>, res_job.conf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"f8a83e5f0fac43a88b20fa603fe67885","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"db4dd52b8d49471983570e4883e36900","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Regex positive candidates        : 5614
-Parser positive unique candidates: 6763
+Parser positive candidates: 6763
 - Both regex &amp; parser   : 5299
 - Only regex            : 315
 - Only parser           : 1464
@@ -1332,82 +1321,68 @@ Counts   -&gt; TP:7838   FP:14976 TN:326    FN:6394
 Metrics  -&gt; Precision:0.34  Recall:0.551  F1:0.423  Acc:0.276</code></pre>
 </div>
 </div>
-<div id="cell-37" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>df_fn <span class="op">=</span> pl.DataFrame(res_job.fn_rows)</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> df_fn.sample(n<span class="op">=</span><span class="dv">2</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> sample.to_dicts():</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    print_highlighted_cv(row, pattern<span class="op">=</span>jobs_pattern)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-35" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>df_fn <span class="op">=</span> pl.DataFrame(res_job.fn_rows)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> df_fn.sample(n<span class="op">=</span><span class="dv">2</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> sample.to_dicts():</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    print_highlighted_cv(row, pattern<span class="op">=</span>jobs_pattern)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <div class="ansi-escaped-output">
-<pre>CANDIDATE ID: 6538036 - GENERE: Female
+<pre>CANDIDATE ID: 6646832 - GENERE: Female
 
 Reason: Rule-based extractor found skill but parser missed it.
 
 --------------------------------------------------------------------------------
 
-e invoices in Italy, intra-European and <span class="ansi-red-fg">extra</span>-European countries. VAT settlements, re
+, milan fashion week participation as a <span class="ansi-red-fg">dancer</span> for the zegna promotional video under t
 
-ttlements, relationship management with <span class="ansi-red-fg">accountant</span> and auditor. administrative / accountin
+ hotel serena majestic (pe) work with a <span class="ansi-red-fg">hostess</span> and dancer contract. further informatio
 
-d tax obligations to be provided to the <span class="ansi-red-fg">accountant</span> for electronic submissions. electronic 
+a majestic (pe) work with a hostess and <span class="ansi-red-fg">dancer</span> contract. further information • equippe
 
 --------------------------------------------------------------------------------
 
 
 
-CANDIDATE ID: 6591312 - GENERE: Female
+CANDIDATE ID: 6712718 - GENERE: Female
 
 Reason: Rule-based extractor found skill but parser missed it.
 
 --------------------------------------------------------------------------------
 
-mail] professional experience 2017–2018 <span class="ansi-red-fg">secretary</span> le sartoriali del viaggio, cremona (ita
+nd date of birth] professional profile: <span class="ansi-red-fg">secretary</span>, receptionist and front office assistan
 
-15–2016 graphics (intern) daniele oneta-<span class="ansi-red-fg">photographer</span>, cremona (italy) use of graphic softwar
+birth] professional profile: secretary, <span class="ansi-red-fg">receptionist</span> and front office assistant. I obtained 
 
- photo retouching 20/06/2018–01/08/2018 <span class="ansi-red-fg">secretary</span> car dealership chiusi, cremona (italy) 
+nt of the service. may - september 2016 <span class="ansi-red-fg">babysitter</span> for private individuals in orio al seri
 
-y, document checking 10/08/2018–to date <span class="ansi-red-fg">waiter</span>/waitress old wild west (cigierre) via c
-
-ment checking 10/08/2018–to date waiter/<span class="ansi-red-fg">waitress</span> old wild west (cigierre) via castelleon
-
- 26100 cremona (italy) I have worked as <span class="ansi-red-fg">waitress</span>, drinks counter, cash register and cust
+of the service. October 2005 - May 2007 <span class="ansi-red-fg">babysitter</span> for private individuals in Stezzano dur
 
 --------------------------------------------------------------------------------
 </pre>
 </div>
 </div>
 </div>
-<div id="cell-38" class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"False negatives matching snippet pattern: </span><span class="sc">{</span>df_fn<span class="sc">.</span>height<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>df_fn.write_csv(JOB_TITLE_FALSE_NEGATIVES_PATH, separator<span class="op">=</span><span class="st">";"</span>)</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved filtered false negatives to false_negative.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-36" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"False negatives matching snippet pattern: </span><span class="sc">{</span>df_fn<span class="sc">.</span>height<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>df_fn.write_csv(JOB_TITLE_FALSE_NEGATIVES_PATH, separator<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved filtered false negatives to false_negative.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>False negatives matching snippet pattern: 6394
 Saved filtered false negatives to false_negative.csv</code></pre>
 </div>
 </div>
-<div id="cell-39" class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash <span class="op">--</span>bg </span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>cd ..</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># for Unix users</span></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>.venv<span class="op">/</span><span class="bu">bin</span><span class="op">/</span>python <span class="op">-</span>m streamlit run hiring_cv_bias<span class="op">/</span>bias_detection<span class="op">/</span>rule_based<span class="op">/</span>app<span class="op">/</span>fn_app.py</span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co"># for Windows users</span></span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="co">#.venv/Scripts/python.exe -m streamlit run hiring_cv_bias/bias_detection/rule_based/app/fn_app.py</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-40" class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_job,</span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"Male"</span>,</span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Gender"</span>,</span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
-<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
-<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-37" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_job,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"Male"</span>,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Gender"</span>,</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TP: 7838, FP: 14976, TN: 326, FN: 6394
 Accuracy: 0.276, Precision: 0.344, Recall: 0.551, F1: 0.423
@@ -1489,17 +1464,17 @@ Error and rates by Gender:
 </div>
 </div>
 </div>
-<div id="cell-41" class="cell" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_job,</span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"NORTH"</span>,</span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Location"</span>,</span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-38" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_job,</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"NORTH"</span>,</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"Location"</span>,</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TP: 7838, FP: 14976, TN: 326, FN: 6394
 Accuracy: 0.276, Precision: 0.344, Recall: 0.551, F1: 0.423
@@ -1549,34 +1524,6 @@ Error and rates by Location:
 </thead>
 <tbody>
 <tr class="odd">
-<td>"SOUTH"</td>
-<td>1060</td>
-<td>1078</td>
-<td>1956</td>
-<td>937</td>
-<td>62</td>
-<td>4033</td>
-<td>0.484999</td>
-<td>0.232333</td>
-<td>0.534988</td>
-<td>0.062062</td>
-<td>0.969529</td>
-</tr>
-<tr class="even">
-<td>"CENTER"</td>
-<td>1001</td>
-<td>1211</td>
-<td>2130</td>
-<td>938</td>
-<td>36</td>
-<td>4315</td>
-<td>0.493627</td>
-<td>0.217381</td>
-<td>0.563518</td>
-<td>0.036961</td>
-<td>0.997859</td>
-</tr>
-<tr class="odd">
 <td>"NORTH"</td>
 <td>5343</td>
 <td>5549</td>
@@ -1590,22 +1537,50 @@ Error and rates by Location:
 <td>0.04803</td>
 <td>1.0</td>
 </tr>
+<tr class="even">
+<td>"SOUTH"</td>
+<td>1060</td>
+<td>1078</td>
+<td>1956</td>
+<td>937</td>
+<td>62</td>
+<td>4033</td>
+<td>0.484999</td>
+<td>0.232333</td>
+<td>0.534988</td>
+<td>0.062062</td>
+<td>0.969529</td>
+</tr>
+<tr class="odd">
+<td>"CENTER"</td>
+<td>1001</td>
+<td>1211</td>
+<td>2130</td>
+<td>938</td>
+<td>36</td>
+<td>4315</td>
+<td>0.493627</td>
+<td>0.217381</td>
+<td>0.563518</td>
+<td>0.036961</td>
+<td>0.997859</td>
+</tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
-<div id="cell-42" class="cell" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_job,</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"LONG"</span>,</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"length"</span>,</span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-39" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>print_report(</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>res_job,</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    df_population<span class="op">=</span>df_cv,</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    reference_col<span class="op">=</span><span class="st">"LONG"</span>,</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    group_col<span class="op">=</span><span class="st">"length"</span>,</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"equality_of_opportunity"</span>,</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"calibration_npv"</span>,</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TP: 7838, FP: 14976, TN: 326, FN: 6394
 Accuracy: 0.276, Precision: 0.344, Recall: 0.551, F1: 0.423
@@ -1655,18 +1630,18 @@ Error and rates by length:
 </thead>
 <tbody>
 <tr class="odd">
-<td>"LONG"</td>
-<td>3789</td>
-<td>5212</td>
-<td>9071</td>
-<td>4065</td>
-<td>62</td>
-<td>18410</td>
-<td>0.492721</td>
-<td>0.220804</td>
-<td>0.56182</td>
-<td>0.015023</td>
-<td>1.0</td>
+<td>"MEDIUM"</td>
+<td>3005</td>
+<td>2360</td>
+<td>5122</td>
+<td>2075</td>
+<td>167</td>
+<td>9724</td>
+<td>0.526738</td>
+<td>0.21339</td>
+<td>0.532131</td>
+<td>0.074487</td>
+<td>0.991761</td>
 </tr>
 <tr class="even">
 <td>"SHORT"</td>
@@ -1683,23 +1658,33 @@ Error and rates by length:
 <td>0.965788</td>
 </tr>
 <tr class="odd">
-<td>"MEDIUM"</td>
-<td>3005</td>
-<td>2360</td>
-<td>5122</td>
-<td>2075</td>
-<td>167</td>
-<td>9724</td>
-<td>0.526738</td>
-<td>0.21339</td>
-<td>0.532131</td>
-<td>0.074487</td>
-<td>0.991761</td>
+<td>"LONG"</td>
+<td>3789</td>
+<td>5212</td>
+<td>9071</td>
+<td>4065</td>
+<td>62</td>
+<td>18410</td>
+<td>0.492721</td>
+<td>0.220804</td>
+<td>0.56182</td>
+<td>0.015023</td>
+<td>1.0</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
+</div>
+<div id="cell-40" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash <span class="op">--</span>bg </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>cd ..</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co"># for Unix users</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>.venv<span class="op">/</span><span class="bu">bin</span><span class="op">/</span>python <span class="op">-</span>m streamlit run hiring_cv_bias<span class="op">/</span>bias_detection<span class="op">/</span>rule_based<span class="op">/</span>app<span class="op">/</span>fn_app.py</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="co"># for Windows users</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="co">#.venv/Scripts/python.exe -m streamlit run hiring_cv_bias/bias_detection/rule_based/app/fn_app.py</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="summary-of-findings" class="level2">
@@ -1708,7 +1693,7 @@ Error and rates by length:
 <p>When we examine the metrics across demographic groups, <strong>no strong bias</strong> emerges; nonetheless, a few observations merit discussion:</p>
 <ul>
 <li><p><strong>Minimal gender disparity in Driving License:</strong> the DI for females is <strong>0.88</strong>, slightly below that of males but still above the critical 0.80 threshold defined by the four-fifths rule.</p></li>
-<li><p><strong>Length-based imbalances:</strong> we observe that “Short” CVs are disadvantaged in driving license extraction (DI = 0.75) and simultaneously advantaged for language skill extraction (DI = 1.19). These opposite effects suggest the parser’s performance varies significantly with document length and <strong>deserve a more thorough analysis</strong> to uncover the root causes of these imbalances and guide mitigation strategies.</p></li>
+<li><p><strong>Length-based imbalances:</strong> we observe that “Short” CVs are disadvantaged in driving license extraction (DI = 0.75) and simultaneously advantaged for language skill extraction (DI = 1.19). These opposite effects suggest the parser’s performance varies significantly with document length and <strong>deserve a deeper analysis</strong> to uncover the root causes of these imbalances and guide mitigation strategies.</p></li>
 </ul>
 
 

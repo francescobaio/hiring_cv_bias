@@ -181,7 +181,7 @@ window.Quarto = {
 <p>In this section we walk through our key findings:</p>
 <section id="error-detection" class="level2">
 <h2 class="anchored" data-anchor-id="error-detection">1. Error detection</h2>
-<p>As previously explained on the Pipeline page, our study first tried to highlight the errors the parser makes in categories such as Language, Driving License, and Job Title.</p>
+<p>As previously explained on the Pipeline page, our study first tried to highlight the errors the parser makes in categories such as Driving License, Language and Job Title.</p>
 <p>While for the Driving License we treat the task as a binary <code>has_any_driving_license</code> label for each candidate, for the other two categories we use a finer granularity, examining the agreement between our method and the parser on every individual skill.</p>
 <section id="results" class="level3">
 <h3 class="anchored" data-anchor-id="results">Results</h3>
@@ -609,7 +609,7 @@ window.Quarto = {
 <p>When we examine the metrics across demographic groups, <strong>no strong bias</strong> emerges; nonetheless, a few observations merit discussion:</p>
 <ul>
 <li><p><strong>Minimal gender disparity in Driving License:</strong> the DI for females is <strong>0.88</strong>, slightly below that of males but still above the critical 0.80 threshold defined by the four-fifths rule.</p></li>
-<li><p><strong>Length-based imbalances:</strong> we observe that “Short” CVs are disadvantaged in driving license extraction (DI = 0.75) and simultaneously advantaged for language skill extraction (DI = 1.19). These opposite effects suggest the parser’s performance varies significantly with document length and <strong>deserve a more thorough analysis</strong> to uncover the root causes of these imbalances and guide mitigation strategies.</p></li>
+<li><p><strong>Length-based imbalances:</strong> we observe that “Short” CVs are disadvantaged in driving license extraction (DI = 0.75) and simultaneously advantaged for language skill extraction (DI = 1.19). These opposite effects suggest the parser’s performance varies significantly with document length and <strong>deserve a deeper analysis</strong> to uncover the root causes of these imbalances and guide mitigation strategies.</p></li>
 </ul>
 
 
