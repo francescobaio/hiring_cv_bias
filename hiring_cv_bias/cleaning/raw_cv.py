@@ -10,7 +10,6 @@ from langdetect import DetectorFactory, detect
 def add_length_column(
     df: pl.DataFrame, text_col: str = "CV_text_anon", length_col: str = "len_anon"
 ) -> pl.DataFrame:
-    """ """
     return df.with_columns(
         [
             pl.col(text_col)
@@ -27,12 +26,9 @@ def find_and_print_short_cvs(
     id_col: str = "CANDIDATE_ID",
     text_col: str = "CV_text_anon",
 ) -> pl.DataFrame:
-    """ """
-    # 1) Select short CVs
     too_short = df.filter(pl.col(length_col) < threshold)
     count = too_short.height
 
-    # 2) Print summary of up to first 10 candidate IDs
     print(f"Found {count} CVs with {text_col} < {threshold} chars. Showing up to 10:")
     rows = too_short.select([id_col, length_col]).iter_rows()
     for i, (cid, length) in enumerate(rows):
@@ -40,9 +36,7 @@ def find_and_print_short_cvs(
             break
         print(f" {i + 1}. ID {cid}: {length} chars")
 
-    # 3) Sample one CV at random and print full text
     if count > 0:
-        # collect candidate IDs and choose one
         ids = too_short.select(id_col).to_series().to_list()
         sample_id = random.choice(ids)
         sample_text = too_short.filter(pl.col(id_col) == sample_id)[text_col][0]
@@ -59,8 +53,6 @@ def plot_length_histogram(
     bin_size: int = 300,
     max_bin: int = 3000,
 ) -> None:
-    """ """
-    # 1) Compute lengths
     lengths = df.with_columns(
         [
             pl.col(text_col)
@@ -121,10 +113,6 @@ def detect_repetitive_cvs(
     text_col: str = "CV_text_anon",
     max_repetition: float = 0.5,
 ) -> pl.DataFrame:
-    """
-    Identify CVs that—despite having many repeated boilerplate.
-    """
-
     def analyze(text: str) -> Tuple[int, float]:
         if not text:
             return 0, 1.0
@@ -156,10 +144,6 @@ def detect_vocab_sparsity(
     min_words: int = 20,
     min_ttr: float = 0.1,
 ) -> pl.DataFrame:
-    """
-    Identifies CVs that are either too few unique words or too repetitive.
-    """
-
     # Extract raw texts
     texts: List[str] = df.select(text_col).to_series().to_list()
 
@@ -194,15 +178,12 @@ def detect_vocab_sparsity(
 def filter_placeholder_tails(
     df: pl.DataFrame, text_col: str = "CV_text_anon", char: str = "X", min_run: int = 10
 ) -> pl.DataFrame:
-    """q
-    Return rows where `text_col` ends with at least `min_run` repetitions of `char`.
-    """
     # Compile regex matching the character repeated min_run times at end of string
     pattern: Pattern[str] = re.compile(rf"{re.escape(char)}{{{min_run},}}\s*$")
 
     return df.filter(
         pl.col(text_col).map_elements(
-            lambda s, *_: bool(pattern.search(s)), return_dtype=pl.Boolean
+            lambda s: bool(pattern.search(s)), return_dtype=pl.Boolean
         )
     )
 
@@ -227,10 +208,6 @@ def detect_corrupted_cvs(
     text_col: str = "CV_text_anon_clean",
     max_unusual_frac: float = 0.01,
 ) -> pl.DataFrame:
-    """
-    Return rows where the fraction of 'unusual' chars > max_unusual_frac.
-    """
-
     def compute_frac(s: str) -> float:
         if not s:
             return 0.0
@@ -241,7 +218,7 @@ def detect_corrupted_cvs(
     annotated = df.with_columns(
         [
             pl.col(text_col)
-            .map_elements(lambda s, *_: compute_frac(s), return_dtype=pl.Float64)
+            .map_elements(lambda s: compute_frac(s), return_dtype=pl.Float64)
             .alias("unusual_frac")
         ]
     )
@@ -254,14 +231,13 @@ def assess_translation_completeness(
     orig_col: str = "CV_text_anon",
     trans_col: str = "Translated_CV",
 ) -> pl.DataFrame:
-    """ """
     df = df.with_columns(
         [
             pl.col(orig_col)
-            .map_elements(lambda s, *_: len(s or ""), return_dtype=pl.Int64)
+            .map_elements(lambda s: len(s or ""), return_dtype=pl.Int64)
             .alias("orig_len"),
             pl.col(trans_col)
-            .map_elements(lambda s, *_: len(s or ""), return_dtype=pl.Int64)
+            .map_elements(lambda s: len(s or ""), return_dtype=pl.Int64)
             .alias("trans_len"),
         ]
     )

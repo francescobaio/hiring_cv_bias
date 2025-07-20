@@ -8,14 +8,14 @@ format:
 Here we outline the work steps we followed to answer the questions in our problem statement. In the first subsection, we cover two initial setup tasks that prepare the data for the rest of the pipeline:
 
 1. Translating CVs **from Italian into English** so we can apply semantic-matching techniques consistently. 
-2. Labeling with an LLM each parser extracted skill as either a **hard skill or a soft skill**. <br>  🔗 [See the Hard Soft skills labelling notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)   
+2. Labeling with an LLM each parser extracted skill as either **hard** or **soft**. <br>  🔗 [See the Hard Soft skills labelling notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)   
 
 With these preparations in place, our pipeline we built is divided into the following steps:
 
 1. **Data Cleaning**  
    We standardized and filtered the raw, anonymized CV texts with structural issues as:
    - Empty / Whitespace-Only/ Very Short Text
-   - High Repetition / Low Structure
+   - High Repetition 
    - Low token & vocabulary Richness
    - Corrupted CVs with a fraction of invalid characters
    - CVs with Placeholder Tails (e.g. “XXXXXXXXXX…”)
@@ -60,17 +60,18 @@ With these preparations in place, our pipeline we built is divided into the foll
 
    * **On the skills side** (specifically **DRIVERSLIC** and **LANGUAGE\_SKILL**), we implemented a **regex-based extractor** that systematically scans each CV for patterns associated with driving licenses and language proficiencies, ensuring we capture every variant and format used by candidates.
    * **On the job-title side**, we deployed a **two-step process**:
-      1. **Rule-based:** **exact matching** against the official **ESCO** european job list [(link)](https://esco.ec.europa.eu/en/about-esco ), pulling in any titles that appear in the raw CV text.
+      1. **Rule-based:** **exact matching** against the official **ESCO** european job list <a href="https://esco.ec.europa.eu/en/about-esco" target="_blank">(link)</a>, pulling in any titles that appear in the raw CV text.
       2. **Semantic matching**: catches synonyms or paraphrases of the same job experience, making our extraction robust to differences in how the parser names each job. <br>
       **eg.**  ESCO: Postman, Parsed skill: Postal operator, Similarity: 0.64
     
    Using our pipeline results as the ground truth, we measured the overall performance of the proprietary parser by comparing its outputs against our method and analyzing their agreement.
 
-   We focused on **false negatives**: candidates for whom our extractor found a match but the parser returned nothing. 
+   We focused on **false negatives**, candidates for whom our extractor found a match but the parser returned nothing, by choosing a regex that ensures a high precision. 
    
    To make these insights more accessible, we built a **Streamlit app** that lets you dive into individual candidates. For each false negative, the interface on the left displays the raw CV text with regex matched segments highlighted in red and on the right shows the skills the parser actually assigned to that candidate.
 
-   Once we reviewed and analyzed the results of our methods, we broadened our bias assessment to the three groups previously identified, (gender, geographical position, hard vs soft skills) to determine whether the parser’s errors disproportionately impact under or over represented populations.
+   After applying the pipeline to the skills mentioned above and observing numerous discrepancies between the parser and our extraction method, we conducted a bias assessment across three groups (gender, geographic location, and CV length) to determine whether parser errors disproportionately affect under or over represented populations.
+
 
    🔗 [See the Bias Detection notebook](../notebooks/bias_detection.html)
 

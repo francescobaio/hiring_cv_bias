@@ -147,7 +147,7 @@ ul.task-list li input[type="checkbox"] {
 <p>Here we outline the work steps we followed to answer the questions in our problem statement. In the first subsection, we cover two initial setup tasks that prepare the data for the rest of the pipeline:</p>
 <ol type="1">
 <li>Translating CVs <strong>from Italian into English</strong> so we can apply semantic-matching techniques consistently.</li>
-<li>Labeling with an LLM each parser extracted skill as either a <strong>hard skill or a soft skill</strong>. <br> 🔗 <a href="../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html">See the Hard Soft skills labelling notebook</a></li>
+<li>Labeling with an LLM each parser extracted skill as either <strong>hard</strong> or <strong>soft</strong>. <br> 🔗 <a href="../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html">See the Hard Soft skills labelling notebook</a></li>
 </ol>
 <p>With these preparations in place, our pipeline we built is divided into the following steps:</p>
 <ol type="1">
@@ -155,7 +155,7 @@ ul.task-list li input[type="checkbox"] {
 We standardized and filtered the raw, anonymized CV texts with structural issues as:</p>
 <ul>
 <li>Empty / Whitespace-Only/ Very Short Text</li>
-<li>High Repetition / Low Structure</li>
+<li>High Repetition</li>
 <li>Low token &amp; vocabulary Richness</li>
 <li>Corrupted CVs with a fraction of invalid characters</li>
 <li>CVs with Placeholder Tails (e.g.&nbsp;“XXXXXXXXXX…”)</li>
@@ -184,7 +184,7 @@ Once the data had been cleaned, we conducted an exploratory analysis of the skil
 <blockquote class="blockquote">
 <p><strong>Why This Matters</strong>: <br> Detecting these imbalances is <strong>critical</strong> to designing a robust, fair pipeline that flags biases introduced by the CV parser relying only on raw CV inputs and their parsed outputs.</p>
 </blockquote>
-<p><img src="../pages/images/gender_distribution.png" class="lighbox img-fluid"></p>
+<p><a href="../pages/images/gender_distribution.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="../pages/images/gender_distribution.png" class="lighbox img-fluid"></a></p>
 <p>🔗 <a href="../notebooks/distributions_analysis.html">See the Distributions Analysis notebook</a></p></li>
 <li><p><strong>Bias Detection</strong></p>
 <p>After analyzing the various imbalances in the distributions of skills extracted by the parser, we tackled bias detection through a hybrid pipeline:</p>
@@ -192,14 +192,14 @@ Once the data had been cleaned, we conducted an exploratory analysis of the skil
 <li><strong>On the skills side</strong> (specifically <strong>DRIVERSLIC</strong> and <strong>LANGUAGE_SKILL</strong>), we implemented a <strong>regex-based extractor</strong> that systematically scans each CV for patterns associated with driving licenses and language proficiencies, ensuring we capture every variant and format used by candidates.</li>
 <li><strong>On the job-title side</strong>, we deployed a <strong>two-step process</strong>:
 <ol type="1">
-<li><strong>Rule-based:</strong> <strong>exact matching</strong> against the official <strong>ESCO</strong> european job list <a href="https://esco.ec.europa.eu/en/about-esco">(link)</a>, pulling in any titles that appear in the raw CV text.</li>
+<li><strong>Rule-based:</strong> <strong>exact matching</strong> against the official <strong>ESCO</strong> european job list <a href="https://esco.ec.europa.eu/en/about-esco" target="_blank">(link)</a>, pulling in any titles that appear in the raw CV text.</li>
 <li><strong>Semantic matching</strong>: catches synonyms or paraphrases of the same job experience, making our extraction robust to differences in how the parser names each job. <br> <strong>eg.</strong> ESCO: Postman, Parsed skill: Postal operator, Similarity: 0.64</li>
 </ol></li>
 </ul>
 <p>Using our pipeline results as the ground truth, we measured the overall performance of the proprietary parser by comparing its outputs against our method and analyzing their agreement.</p>
-<p>We focused on <strong>false negatives</strong>: candidates for whom our extractor found a match but the parser returned nothing.</p>
+<p>We focused on <strong>false negatives</strong>, candidates for whom our extractor found a match but the parser returned nothing, by choosing a regex that ensures a high precision.</p>
 <p>To make these insights more accessible, we built a <strong>Streamlit app</strong> that lets you dive into individual candidates. For each false negative, the interface on the left displays the raw CV text with regex matched segments highlighted in red and on the right shows the skills the parser actually assigned to that candidate.</p>
-<p>Once we reviewed and analyzed the results of our methods, we broadened our bias assessment to the three groups previously identified, (gender, geographical position, hard vs soft skills) to determine whether the parser’s errors disproportionately impact under or over represented populations.</p>
+<p>After applying the pipeline to the skills mentioned above and observing numerous discrepancies between the parser and our extraction method, we conducted a bias assessment across three groups (gender, geographic location, and CV length) to determine whether parser errors disproportionately affect under or over represented populations.</p>
 <p>🔗 <a href="../notebooks/bias_detection.html">See the Bias Detection notebook</a></p></li>
 </ol>
 

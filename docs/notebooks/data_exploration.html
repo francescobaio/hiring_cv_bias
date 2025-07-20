@@ -75,6 +75,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-8610558a007458a9b978551a034f4d85.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -180,7 +183,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p><strong>Main objective</strong></p>
-<p>In this notebook, the main objectives are: * Explore the distribution of parsed skills and job information. * Analyze the distribution of the number of skills per candidate and identify outliers. * Examine the distributions of hard and soft skills.</p>
+<p>In this notebook, the main objectives are:</p>
+<ul>
+<li>Explore the distribution of parsed skills and job information.</li>
+<li>Analyze the distribution of the number of skills per candidate and identify outliers.</li>
+<li>Examine the distributions of hard and soft skills.</li>
+</ul>
 <div id="cell-3" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
@@ -356,7 +364,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-5-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="data_exploration_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -378,7 +386,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-6-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="data_exploration_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -395,13 +403,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
 <li>Plots the top <em>n</em> skills by frequency.</li>
 </ol>
-<p>With the parameters below, we are displaying the <strong>top 10</strong> most frequent <strong>IT skills</strong> among candidates with <strong>“Commis Chef (m/f)”</strong> job experience.</p>
+<p>With the parameters below, we are displaying the <strong>top 20</strong> most frequent <strong>IT skills</strong> among candidates with <strong>“Commis Chef (m/f)”</strong> job experience.</p>
 <div id="cell-11" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>plot_top_skills_for_job_title(cv_skills, <span class="st">"Commis Chef (m/f)"</span>, <span class="st">"IT_Skill"</span>, top_n<span class="op">=</span><span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-7-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="data_exploration_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -413,7 +421,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-8-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="data_exploration_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -425,7 +433,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-9-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="data_exploration_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -435,7 +443,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-10-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="data_exploration_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -461,7 +469,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-11-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="data_exploration_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -478,7 +486,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-12-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="data_exploration_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -490,7 +498,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <blockquote class="blockquote">
 <p>The logic used to label each skill as <em>hard</em> or <em>soft</em> is documented in the <code>hard_soft_labelling.ipynb</code> notebook.</p>
 </blockquote>
-<p>Here we present: - <strong>Total distribution</strong> of hard vs soft skills across all candidates. - <strong>Distribution per candidate</strong>: number of hard vs soft skills per individual, to highlight representation gaps.</p>
+<p>Here we present:</p>
+<ul>
+<li><strong>Total distribution</strong> of hard vs soft skills across all candidates.</li>
+<li><strong>Distribution per candidate</strong>: number of hard vs soft skills per individual, to highlight representation gaps.</li>
+</ul>
 <div id="cell-21" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>hard_soft_skills <span class="op">=</span> load_data(HARD_SOFT_SKILLS)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>display(hard_soft_skills)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -668,7 +680,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>Soft skills</strong> are markedly under represented, at about one skill in five.</p></li>
 </ul>
 <blockquote class="blockquote">
-<p>A small remainder is classified as “Unknown” terms that did not match either taxonomy, highlighting the presence of noise in the parsed skills data. (see <code>hard_soft_labelling.ipynb</code>)</p>
+<p>Small remainder: we classified as “Unknown” terms that did not match either taxonomy, highlighting the presence of noise in the parsed skills data. (see <code>hard_soft_labelling.ipynb</code>)</p>
 </blockquote>
 <div id="cell-24" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> cv_skills_with_label[<span class="st">"label"</span>].value_counts()</span>
@@ -683,7 +695,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-15-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="data_exploration_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -736,7 +748,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-17-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="data_exploration_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -883,13 +895,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-19-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="data_exploration_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
 </div>
 <p>The box plot highlights several outliers. (20+ hard skills / 10+ soft skills)</p>
-<p>Such counts are well beyond the typical range and <strong>may</strong> indicate parsing errors (e.g bullet points misclassified as skills, the same skill split into multiple tokens ecc). These outliers should be reviewed manually to confirm whether they reflect genuine, unusually rich profiles or artefacts produced by the parsing pipeline.</p>
+<p>Such counts are well beyond the typical range and <strong>may</strong> indicate parsing errors (e.g bullet points misclassified as skills, the same skill split into multiple tokens ecc). These outliers should be reviewed manually to confirm whether they reflect unusually rich profiles or artefacts produced by the parsing pipeline.</p>
 <div id="cell-32" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>plot_boxplot(</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>[per_cand[<span class="st">"Hard"</span>], per_cand[<span class="st">"Soft"</span>]],</span>
@@ -902,7 +914,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_exploration_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
+<p><a href="data_exploration_files/figure-html/cell-20-output-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="data_exploration_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></a></p>
 </figure>
 </div>
 </div>
@@ -1338,6 +1350,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </div>
   </div>
 </footer>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 

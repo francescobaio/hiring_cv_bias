@@ -8,7 +8,7 @@ import seaborn as sns
 from IPython.display import display
 
 
-def inspect_missing(df: pl.DataFrame) -> pl.DataFrame:
+def inspect_missing(df: pl.DataFrame):
     total = df.height
 
     # count nulls per column, melt into (column, n_missing)
@@ -37,8 +37,6 @@ def inspect_missing(df: pl.DataFrame) -> pl.DataFrame:
     else:
         print("\nNo missing values detected in any column.")
 
-    return stats
-
 
 def filter_out_candidate_ids(
     df: pl.DataFrame,
@@ -65,11 +63,10 @@ def filter_out_candidate_ids(
     return cleaned
 
 
-# Regex to detect placeholder runs (e.g. “XXXXX…”)
 _PLACEHOLDER_PATTERN = re.compile(r"X{5,}")
 
 
-def find_dropped_skill_rows(
+def find_garbage_skill_rows(
     df: pl.DataFrame,
     skill_col: str = "Skill",
     id_col: str = "CANDIDATE_ID",
@@ -79,14 +76,14 @@ def find_dropped_skill_rows(
 ) -> pl.DataFrame:
     # clean mask: length, has_letter, no_placeholder
     length = pl.col(skill_col).map_elements(
-        lambda s, *_: len(s or ""), return_dtype=pl.Int64
+        lambda s: len(s or ""), return_dtype=pl.Int64
     )
     valid_length = (length >= min_len) & (length <= max_len)
     has_letter = pl.col(skill_col).map_elements(
-        lambda s, *_: bool(re.search(r"[A-Za-z]", s or "")), return_dtype=pl.Boolean
+        lambda s: bool(re.search(r"[A-Za-z]", s or "")), return_dtype=pl.Boolean
     )
     no_placeholder = pl.col(skill_col).map_elements(
-        lambda s, *_: not bool(placeholder_pattern.search(s or "")),
+        lambda s: not bool(placeholder_pattern.search(s or "")),
         return_dtype=pl.Boolean,
     )
     keep_mask = valid_length & has_letter & no_placeholder
