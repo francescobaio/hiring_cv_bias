@@ -1,6 +1,6 @@
 import re
 from collections.abc import Sequence
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import polars as pl
@@ -96,12 +96,6 @@ def extract_gender_from_zippia(
     except Exception as e:
         print(f"Errore su {url}: {e}")
         return None, None
-
-
-def add_suffix_and_concat(columns: List[pl.Series], suffixes: List[str]):
-    columns_with_suffix = [column + suffix for column, suffix in zip(columns, suffixes)]
-    concat_columns = pl.concat(columns_with_suffix)
-    return concat_columns
 
 
 def split_df_per_attribute(

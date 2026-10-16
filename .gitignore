@@ -12,3 +12,4 @@ hiring_cv_bias.egg-info
 .cache/
 _site/
 **/*_files/
+**/*.quarto_ipynb

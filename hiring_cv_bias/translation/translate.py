@@ -1,4 +1,11 @@
-import os
+"""Translate the anonymised CVs to English with the Google Cloud Translation API.
+
+Requires the `translation` extra and a service-account key:
+
+    uv sync --extra translation
+    GOOGLE_APPLICATION_CREDENTIALS=<key.json> python -m hiring_cv_bias.translation.translate
+"""
+
 import re
 
 import polars as pl
@@ -6,10 +13,6 @@ from google.cloud import translate_v2 as translate
 
 from hiring_cv_bias.config import CANDIDATE_CVS_PATH
 from hiring_cv_bias.utils import load_data
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
-    "magnetic-market-455110-t2-0dc68481bf13.json"
-)
 
 
 def clean_cv_text(cv_text: str) -> str:
@@ -29,7 +32,7 @@ def translate_text(text: str, target_language: str = "en") -> str:
     return str(result["translatedText"])
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     cv_data = load_data(CANDIDATE_CVS_PATH)
     cv_df_eng = cv_data.with_columns(
         pl.col("CV_text_anon")

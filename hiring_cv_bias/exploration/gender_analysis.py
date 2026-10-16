@@ -22,24 +22,6 @@ def get_category_distribution(
     return counts
 
 
-def get_skill_distribution_by_gender(
-    df: pl.DataFrame, skill_col: str = "Skill", gender_col: str = "Gender"
-) -> pl.DataFrame:
-    counts = df.group_by([gender_col, skill_col]).agg(pl.len().alias("count"))
-    totals = counts.group_by(gender_col).agg(
-        pl.col("count").sum().alias("total_skills")
-    )
-    result = (
-        counts.join(totals, on=gender_col)
-        .with_columns(
-            (pl.col("count") / pl.col("total_skills") * 100).alias("percentage")
-        )
-        .sort(["Gender", "percentage"], descending=[False, True])
-    )
-
-    return result
-
-
 def get_skill_target_share(
     df: pl.DataFrame,
     counts_df: pl.DataFrame,

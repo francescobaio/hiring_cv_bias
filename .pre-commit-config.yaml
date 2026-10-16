@@ -3,6 +3,7 @@ repos:
     rev: 0.8.1
     hooks:
       - id: nbstripout
+        args: [--keep-output]  # the website is rendered from the stored outputs
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.11.2
