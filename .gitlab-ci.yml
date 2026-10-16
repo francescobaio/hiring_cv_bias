@@ -1,0 +1,10 @@
+pages:
+  image: ghcr.io/quarto-dev/quarto:1.8.25
+  # Notebooks are rendered from their stored outputs: no Python or data needed
+  script:
+    - quarto render --output-dir public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
