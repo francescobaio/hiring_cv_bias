@@ -13,3 +13,4 @@ hiring_cv_bias.egg-info
 _site/
 **/*_files/
 **/*.quarto_ipynb
+notebooks/ethics/
