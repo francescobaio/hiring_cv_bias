@@ -1,5 +1,3 @@
-from typing import Set
-
 import torch
 from sentence_transformers import SentenceTransformer, util
 
@@ -10,10 +8,10 @@ class SemanticMatcher:
 
     def semantic_comparison(
         self,
-        custom_skills: Set[str],
-        parser_skills: Set[str],
+        custom_skills: set[str],
+        parser_skills: set[str],
         threshold: float = 0.5,
-    ) -> Set[str]:
+    ) -> set[str]:
         if len(custom_skills) != 0 and len(parser_skills) != 0:
             custom_skills_list = list(custom_skills)
             parser_skills_list = list(parser_skills)

@@ -1,6 +1,8 @@
 import re
 from collections import defaultdict
-from typing import Callable, Dict, List, Pattern, Tuple, TypedDict
+from collections.abc import Callable
+from re import Pattern
+from typing import TypedDict
 
 import polars as pl
 import streamlit as st
@@ -27,7 +29,7 @@ class CategoryConf(TypedDict):
     title: str
 
 
-CATEGORIES: Dict[str, CategoryConf] = {
+CATEGORIES: dict[str, CategoryConf] = {
     "Driver License": {
         "fn_path": DRIVING_LICENSE_FALSE_NEGATIVES_PATH,
         "regex": driver_license_pattern_eng,
@@ -65,9 +67,9 @@ def load_fn_raw(path: str) -> pl.DataFrame:
 
 
 @st.cache_data(show_spinner="Loading parser skills…")
-def load_skills(path: str = CLEANED_SKILLS) -> Dict[str, List[Tuple[str, str]]]:
+def load_skills(path: str = CLEANED_SKILLS) -> dict[str, list[tuple[str, str]]]:
     df = load_data(path).with_columns(pl.col("CANDIDATE_ID").cast(pl.Utf8))
-    d: Dict[str, List[Tuple[str, str]]] = defaultdict(list)
+    d: dict[str, list[tuple[str, str]]] = defaultdict(list)
     for r in df.to_dicts():
         d[r["CANDIDATE_ID"]].append((r["Skill"], r["Skill_Type"]))
     return d

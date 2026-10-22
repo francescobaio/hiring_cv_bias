@@ -6,7 +6,7 @@ repos:
         args: [--keep-output]  # the website is rendered from the stored outputs
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.2
+    rev: v0.16.9
     hooks:
       - id: ruff
         name: lint with ruff

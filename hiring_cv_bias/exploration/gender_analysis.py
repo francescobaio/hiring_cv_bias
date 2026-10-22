@@ -1,5 +1,5 @@
 import itertools
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,9 +26,11 @@ def get_skill_target_share(
     df: pl.DataFrame,
     counts_df: pl.DataFrame,
     target_col: str,
-    target_values: List[Any],
-    skill_col: List[str] = ["Skill_Type"],
+    target_values: list[Any],
+    skill_col: list[str] | None = None,
 ) -> pl.DataFrame:
+    if skill_col is None:
+        skill_col = ["Skill_Type"]
     counts_df = counts_df.with_columns(pl.col("percentage") / 100)
 
     target_value_counts = [
@@ -41,8 +43,8 @@ def get_skill_target_share(
     ]
 
     total_counts = target_value_counts[0]
-    for df in target_value_counts[1:]:
-        total_counts = total_counts.join(df, on=skill_col, how="full", coalesce=True)
+    for other in target_value_counts[1:]:
+        total_counts = total_counts.join(other, on=skill_col, how="full", coalesce=True)
     total_counts = total_counts.fill_null(0)
 
     normalize_factor = total_counts.select(
@@ -110,9 +112,11 @@ def get_skill_target_share(
 def compute_bias_strenght(
     df: pl.DataFrame,
     counts_df: pl.DataFrame,
-    skill_col: List[str] = ["Skill", "Skill_Type"],
+    skill_col: list[str] | None = None,
     gender_col: str = "Gender",
 ) -> pl.DataFrame:
+    if skill_col is None:
+        skill_col = ["Skill", "Skill_Type"]
     result = get_skill_target_share(
         df,
         counts_df,
@@ -137,12 +141,12 @@ def compute_bias_strenght(
 def plot_bias_skills_bar(
     df: pl.DataFrame,
     skill_col: str,
-    attribute_cols: Dict[str, str],
+    attribute_cols: dict[str, str],
     bias_col: str,
     title: str,
     top_n: int = 20,
-    colors: Optional[Dict[str, str]] = None,
-    figsize: Tuple[int, int] = (14, 6),
+    colors: dict[str, str] | None = None,
+    figsize: tuple[int, int] = (14, 6),
 ):
     if colors is None:
         colors = {key: "#1f77b4" for key in attribute_cols}

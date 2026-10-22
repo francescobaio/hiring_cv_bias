@@ -1,5 +1,3 @@
-from typing import Dict, List
-
 import polars as pl
 
 
@@ -7,7 +5,7 @@ def load_data(filepath: str) -> pl.DataFrame:
     return pl.read_csv(filepath, separator=";")
 
 
-def load_excel_sheets(path: str, sheets: List[str]) -> Dict[str, pl.DataFrame]:
+def load_excel_sheets(path: str, sheets: list[str]) -> dict[str, pl.DataFrame]:
     return {sheet: pl.read_excel(path, sheet_name=sheet) for sheet in sheets}
 
 

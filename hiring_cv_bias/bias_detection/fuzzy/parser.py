@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Set
+from typing import Any
 
 import nltk
 import polars as pl
@@ -11,7 +11,7 @@ from tqdm.notebook import tqdm
 class JobParser:
     def __init__(
         self,
-        job_list: List[str],
+        job_list: list[str],
     ):
         nltk.download("stopwords", quiet=True)
         self.stopwords = stopwords.words("english")
@@ -21,7 +21,7 @@ class JobParser:
         patterns = [self.spacy_model.make_doc(job) for job in self.job_list]
         self.phrase_matcher.add("Jobs", patterns)
 
-    def parse_with_n_grams(self, text: str) -> Set[str]:
+    def parse_with_n_grams(self, text: str) -> set[str]:
         jobs_found = set()
 
         doc = self.spacy_model(text)
@@ -35,7 +35,7 @@ class JobParser:
         return jobs_found
 
     def parse_df(self, df: pl.DataFrame) -> pl.DataFrame:
-        jobs_data: Dict[str, List[Any]] = {"CANDIDATE_ID": [], "Job_Title": []}
+        jobs_data: dict[str, list[Any]] = {"CANDIDATE_ID": [], "Job_Title": []}
         for row in tqdm(
             df.iter_rows(named=True), total=df.height, desc="Job parsing..."
         ):

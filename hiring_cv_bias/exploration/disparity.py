@@ -1,5 +1,5 @@
 from itertools import combinations
-from typing import Any, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt
@@ -8,11 +8,11 @@ from scipy.stats import zscore
 
 
 def compute_top_disparity_values(
-    columns: List[pl.Series],
-    weights: Optional[List[float]] = None,
+    columns: list[pl.Series],
+    weights: list[float] | None = None,
     min_threshold: float = 1.0,
     top_n: int = 5,
-) -> Tuple[npt.NDArray, npt.NDArray]:
+) -> tuple[npt.NDArray, npt.NDArray]:
     if weights is None:
         weights = [1] * len(columns)
     first_set = set(columns[0].drop_nulls())
@@ -25,7 +25,7 @@ def compute_top_disparity_values(
 
     counts_per_column_weighted = [
         column.with_columns(pl.col("count") * weight)
-        for column, weight in zip(counts_per_column, weights)
+        for column, weight in zip(counts_per_column, weights, strict=True)
     ]
 
     total_counts = (
@@ -44,9 +44,9 @@ def compute_top_disparity_values(
         for column in counts_per_column_weighted
     ]
 
-    disparity_values: List[str] = []
-    disparities: List[float] = []
-    disparity_counts: List[int] = []
+    disparity_values: list[str] = []
+    disparities: list[float] = []
+    disparity_counts: list[int] = []
     common_values_filtered.sort(in_place=True)
 
     for value in common_values_filtered:
@@ -68,7 +68,7 @@ def compute_top_disparity_values(
         [
             [value, disparity]
             for value, disparity, _ in sorted(
-                zip(disparity_values, disparities, disparity_counts),
+                zip(disparity_values, disparities, disparity_counts, strict=True),
                 key=lambda triplet: (triplet[1], triplet[2]),
                 reverse=True,
             )
@@ -81,7 +81,7 @@ def compute_top_disparity_values(
     return top_values, top_disparities
 
 
-def compute_disparity(data_points: List[Any]) -> float:
+def compute_disparity(data_points: list[Any]) -> float:
     data_point_pairs = list(combinations(data_points, 2))
     disparity = 0
     for first_data_point, second_data_point in data_point_pairs:

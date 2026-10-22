@@ -1,5 +1,6 @@
 import re
-from typing import Any, List, Pattern
+from re import Pattern
+from typing import Any
 
 import matplotlib.pyplot as plt
 import polars as pl
@@ -40,12 +41,11 @@ def inspect_missing(df: pl.DataFrame):
 
 def filter_out_candidate_ids(
     df: pl.DataFrame,
-    id_list: List[Any],
+    id_list: list[Any],
     id_col: str = "CANDIDATE_ID",
     df_name: str = "DataFrame",
     description: str = "",
 ) -> pl.DataFrame:
-    """ """
     original = df.height
     cleaned = df.filter(~pl.col(id_col).is_in(id_list))
     remaining = cleaned.height

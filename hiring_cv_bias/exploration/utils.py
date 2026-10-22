@@ -1,6 +1,5 @@
 import re
 from collections.abc import Sequence
-from typing import Dict, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import polars as pl
@@ -26,12 +25,12 @@ def plot_distribution_bar(
 
 
 def plot_boxplot(
-    data: Union[Sequence, pl.Series, Sequence[Sequence]],
-    labels: Optional[Sequence[str]] = None,
+    data: Sequence | pl.Series | Sequence[Sequence],
+    labels: Sequence[str] | None = None,
     title: str = "",
     xlabel: str = "",
-    figsize: Tuple[int, int] = (8, 3),
-    colors: Optional[Sequence[str]] = None,
+    figsize: tuple[int, int] = (8, 3),
+    colors: Sequence[str] | None = None,
     vert: bool = False,
     show_grid: bool = True,
 ) -> None:
@@ -42,12 +41,12 @@ def plot_boxplot(
         vert=vert,
         patch_artist=True,
         labels=labels,
-        boxprops=dict(edgecolor="black"),
-        medianprops=dict(color="red"),
+        boxprops={"edgecolor": "black"},
+        medianprops={"color": "red"},
     )
 
     if colors:
-        for patch, c in zip(box["boxes"], colors):
+        for patch, c in zip(box["boxes"], colors, strict=False):
             patch.set_facecolor(c)
     else:
         for patch in box["boxes"]:
@@ -67,11 +66,11 @@ def plot_boxplot(
 
 def extract_gender_from_zippia(
     url: str,
-) -> Union[Tuple[float, float], Tuple[None, None]]:
+) -> tuple[float, float] | tuple[None, None]:
     try:
         r = requests.get(url, timeout=10)
         soup = BeautifulSoup(r.text, "html.parser")
-        container = soup.find("div", string=re.compile(r"gender ratio", re.I))
+        container = soup.find("div", string=re.compile(r"gender ratio", re.IGNORECASE))
         if not container:
             return None, None
 
@@ -93,14 +92,14 @@ def extract_gender_from_zippia(
 
         return None, None
 
-    except Exception as e:
+    except Exception as e:  # scraping: any failure means no data
         print(f"Errore su {url}: {e}")
         return None, None
 
 
 def split_df_per_attribute(
     df: pl.DataFrame, attribute_name: str
-) -> Dict[str, pl.DataFrame]:
+) -> dict[str, pl.DataFrame]:
     dfs_per_attribute = {}
     for value in df[attribute_name].unique(maintain_order=True):
         filtered_df = df.filter(pl.col(attribute_name) == value)

@@ -1,7 +1,4 @@
-from __future__ import annotations
-
 import re
-from typing import Dict, Optional, Set
 
 from hiring_cv_bias.bias_detection.rule_based.patterns import (
     LANGUAGE_REGEXES_EN,
@@ -10,16 +7,16 @@ from hiring_cv_bias.bias_detection.rule_based.patterns import (
 )
 
 
-def extract_driver_license(text: str) -> Set[str]:
+def extract_driver_license(text: str) -> set[str]:
     return (
         {"driver_license"} if driver_license_pattern_eng.search(text.lower()) else set()
     )
 
 
-_driver_code = re.compile(r"^[a-e][1-9]?e?$", re.I)  # "B", "B1", "CE"
+_driver_code = re.compile(r"^[a-e][1-9]?e?$", re.IGNORECASE)  # "B", "B1", "CE"
 
 
-def norm_driver_license(skill: Optional[str]) -> str:
+def norm_driver_license(skill: str | None) -> str:
     if not isinstance(skill, str):
         return ""
     skill = skill.lower().strip()
@@ -29,24 +26,21 @@ def norm_driver_license(skill: Optional[str]) -> str:
     return skill
 
 
-# ---------------------------------
-
-
-def extract_languages(text: str) -> Set[str]:
+def extract_languages(text: str) -> set[str]:
     text = text.lower()
     return {lang for lang, rx in LANGUAGE_REGEXES_EN.items() if rx.search(text)}
 
 
-_reverse_language_map: Dict[str, str] = {
+_reverse_language_map: dict[str, str] = {
     variant.lower(): code
     for code, variants in LANGUAGE_VARIANTS.items()
     for variant in variants
 }
 
-_missing: Set[str] = set()
+_missing: set[str] = set()
 
 
-def norm_languages(skill: Optional[str]) -> str:
+def norm_languages(skill: str | None) -> str:
     if not isinstance(skill, str):
         return ""
 

@@ -1,4 +1,5 @@
-from typing import Any, Callable, Dict, List, Optional, Set
+from collections.abc import Callable
+from typing import Any
 
 import polars as pl
 from tqdm.notebook import tqdm
@@ -7,10 +8,10 @@ from hiring_cv_bias.bias_detection.rule_based.evaluation.metrics import Conf, Re
 
 
 def collect_confusion_rows(
-    rows: List[Dict[str, Any]],
-    base_row: Dict[str, Any],
-    keys: List[str],
-    skills: Set[Optional[str]],
+    rows: list[dict[str, Any]],
+    base_row: dict[str, Any],
+    keys: list[str],
+    skills: set[str | None],
     reason: str,
 ) -> None:
     base = {k: base_row[k] for k in keys}
@@ -27,16 +28,16 @@ def compute_candidate_coverage(
     df_cv: pl.DataFrame,
     df_parser: pl.DataFrame,
     skill_type: str,
-    extractor: Callable[[str], Set[str]],
+    extractor: Callable[[str], set[str]],
     norm: Callable[[str], str] = str.lower,
-    matcher: Optional[Callable[[Set[str], Set[str]], Set[str]]] = None,
+    matcher: Callable[[set[str], set[str]], set[str]] | None = None,
     verbose: bool = True,
 ) -> Result:
     tp = fp = tn = fn = 0
-    tp_rows: List[Dict] = []
-    fp_rows: List[Dict] = []
-    fn_rows: List[Dict] = []
-    tn_rows: List[Dict] = []
+    tp_rows: list[dict] = []
+    fp_rows: list[dict] = []
+    fn_rows: list[dict] = []
+    tn_rows: list[dict] = []
     truth_ids, parser_ids = set(), set()
 
     features = ["CANDIDATE_ID", "Gender", "Location", "length"]
@@ -129,7 +130,7 @@ def error_rates_by_group(
     df_population: pl.DataFrame,
     reference_col: str,
     group_col: str = "Gender",
-    metrics: Optional[List[str]] = None,
+    metrics: list[str] | None = None,
     disparate_impact: bool = True,
 ) -> pl.DataFrame:
     metrics = metrics or []
@@ -167,7 +168,7 @@ def error_rates_by_group(
         df = df.with_columns(
             pl.struct(["tp", "fp", "tn", "fn"])
             .map_elements(
-                lambda d: float(getattr(Conf(**d), m)), return_dtype=pl.Float64
+                lambda d, m=m: float(getattr(Conf(**d), m)), return_dtype=pl.Float64
             )
             .alias(m)
         )

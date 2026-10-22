@@ -1,6 +1,5 @@
 import sys
 from collections import defaultdict
-from typing import Dict, List, Optional, Tuple
 
 import matplotlib
 import numpy as np
@@ -16,15 +15,15 @@ EPSILON = sys.float_info.epsilon
 
 def plot_histogram(
     column: pl.Series,
-    ax: Optional[matplotlib.axes.Axes] = None,
+    ax: matplotlib.axes.Axes | None = None,
     title: str = "",
     normalize: bool = False,
     top_n: int = 10,
     sort=True,
-    custom_colors: Optional[Dict[str, str]] = None,
+    custom_colors: dict[str, str] | None = None,
     use_only_suffixes: bool = False,
     x_labels_rotation: int = 70,
-    weights_dict: Optional[Dict[str, float]] = None,
+    weights_dict: dict[str, float] | None = None,
 ) -> None:
     frequencies = column.value_counts(
         normalize=normalize, name="frequency", sort=sort
@@ -57,13 +56,13 @@ def plot_histogram(
         x_labels = frequencies[column.name].to_numpy()
 
     ax.set_xticks(
-        ticks=[*range(0, len(frequencies[column.name]))],
+        ticks=[*range(len(frequencies[column.name]))],
         labels=x_labels,
         rotation=x_labels_rotation,
     )
     ax.set_title(title)
     if custom_colors is not None:
-        colors: List[str] = []
+        colors: list[str] = []
         for label in frequencies[column.name]:
             for suffix, color in custom_colors.items():
                 if label.endswith(suffix):
@@ -84,7 +83,6 @@ def plot_histogram(
 
 
 def compute_skills_frequency(cv_skills: pl.DataFrame, column_name: str) -> pl.DataFrame:
-    """ """
     skills_frequency = (
         cv_skills.filter(cv_skills[column_name].is_not_null())
         .group_by(column_name)
@@ -123,7 +121,6 @@ def plot_frequency(
 
 
 def plot_skills_frequency(cv_skills: pl.DataFrame) -> None:
-    """ """
     skills_frequency = compute_skills_frequency(cv_skills, "Skill_Type")
     plot_frequency(
         skills_frequency,
@@ -137,7 +134,6 @@ def plot_skills_frequency(cv_skills: pl.DataFrame) -> None:
 def plot_skills_per_category(
     cv_skills: pl.DataFrame, skill_type: str, top_n: int = 5
 ) -> pl.DataFrame:
-    """ """
     filtered_data = cv_skills.filter(cv_skills["Skill_Type"] == skill_type)
     skills_frequency = compute_skills_frequency(filtered_data, "Skill")
     plot_frequency(
@@ -153,7 +149,6 @@ def plot_skills_per_category(
 def plot_top_skills_for_job_title(
     cv_skills: pl.DataFrame, job_title: str, type_skill: str, top_n: int = 10
 ):
-    """"""
     job_titles_df = (
         cv_skills.filter(pl.col("Skill_Type") == "Job_title")
         .select(["CANDIDATE_ID", "Skill"])
@@ -185,13 +180,13 @@ def plot_top_skills_for_job_title(
 
 
 def compute_and_plot_disparity(
-    columns: Dict[str, pl.Series],
+    columns: dict[str, pl.Series],
     min_threshold: float = 1.0,
-    colors: Optional[Dict[str, str]] = None,
+    colors: dict[str, str] | None = None,
     attribute_name: str = "",
-    weights_dict: Optional[Dict[str, float]] = None,
+    weights_dict: dict[str, float] | None = None,
     top_n: int = 5,
-    fig_size: Tuple[int, int] = (14, 8),
+    fig_size: tuple[int, int] = (14, 8),
 ):
     if weights_dict is not None:
         weights = list(weights_dict.values())
@@ -208,10 +203,9 @@ def compute_and_plot_disparity(
         top_n=top_n,
     )
 
-    if len(top_values) < top_n:
-        top_n = len(top_values)
+    top_n = min(top_n, len(top_values))
 
-    percs: Dict[str, List[float]] = defaultdict(list)
+    percs: dict[str, list[float]] = defaultdict(list)
     for value in top_values:
         raw_counts = {
             attr: (len(column.filter(column == value)) * weights_dict[attr]) + EPSILON
@@ -219,7 +213,7 @@ def compute_and_plot_disparity(
         }
         normalization_factor = sum(list(raw_counts.values()))
         for attr, count in raw_counts.items():
-            percs[attr].append((count / normalization_factor))
+            percs[attr].append(count / normalization_factor)
 
     x = np.arange(top_n)
     num_attributes = len(columns)
@@ -292,7 +286,7 @@ def compute_and_plot_disparity(
 
 
 def plot_target_distribution(
-    dfs_per_attribute: Dict[str, pl.DataFrame],
+    dfs_per_attribute: dict[str, pl.DataFrame],
     title: str,
     group_by: str = "Skill_Type",
     normalize=True,

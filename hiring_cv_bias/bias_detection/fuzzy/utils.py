@@ -1,7 +1,4 @@
-from typing import List
-
-
-def normalize_jobs(jobs: List[str]) -> List[str]:
+def normalize_jobs(jobs: list[str]) -> list[str]:
     for job in jobs.copy():
         words = job.split()
         if len(words) > 3:

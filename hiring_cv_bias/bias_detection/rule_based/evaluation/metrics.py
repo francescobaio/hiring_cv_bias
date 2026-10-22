@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, NamedTuple
+from typing import NamedTuple
 
 
 @dataclass(frozen=True)
@@ -69,7 +69,7 @@ class Conf:
 
 class Result(NamedTuple):
     conf: Conf
-    tp_rows: List[Dict]
-    fp_rows: List[Dict]
-    fn_rows: List[Dict]
-    tn_rows: List[Dict]
+    tp_rows: list[dict]
+    fp_rows: list[dict]
+    fn_rows: list[dict]
+    tn_rows: list[dict]

@@ -22,8 +22,6 @@ driver_license_pattern_eng = re.compile(
 )
 
 
-# ---------------------------------------------------
-
 LANGUAGE_VARIANTS = {}
 
 for lang in pycountry.languages:
@@ -70,7 +68,6 @@ languages_pattern_eng = re.compile(
 )
 
 
-# ---------------------------------------------------
 jobs = pl.read_csv(JOBS_PATH)["preferredLabel"].to_list()
 normalized_jobs = normalize_jobs(jobs)
 

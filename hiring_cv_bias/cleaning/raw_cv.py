@@ -1,10 +1,11 @@
 import random
 import re
-from typing import List, Pattern, Tuple
+from re import Pattern
 
 import matplotlib.pyplot as plt
 import polars as pl
 from langdetect import DetectorFactory, detect
+from langdetect.lang_detect_exception import LangDetectException
 
 
 def add_length_column(
@@ -113,7 +114,7 @@ def detect_repetitive_cvs(
     text_col: str = "CV_text_anon",
     max_repetition: float = 0.5,
 ) -> pl.DataFrame:
-    def analyze(text: str) -> Tuple[int, float]:
+    def analyze(text: str) -> tuple[int, float]:
         if not text:
             return 0, 1.0
         lines = [line.strip() for line in text.splitlines() if line.strip()]
@@ -145,7 +146,7 @@ def detect_vocab_sparsity(
     min_ttr: float = 0.1,
 ) -> pl.DataFrame:
     # Extract raw texts
-    texts: List[str] = df.select(text_col).to_series().to_list()
+    texts: list[str] = df.select(text_col).to_series().to_list()
 
     totals, uniques, ttrs = [], [], []
     for s in texts:
@@ -258,5 +259,5 @@ def is_this_language(text: str, language: str) -> bool:
     """
     try:
         return bool(detect(text) == language)
-    except Exception:
+    except LangDetectException:
         return False

@@ -1,5 +1,4 @@
 from re import Pattern
-from typing import List, Optional
 
 import polars as pl
 from IPython.display import display
@@ -16,8 +15,8 @@ def print_report(
     result: Result,
     df_population: pl.DataFrame,
     reference_col: str,
-    group_col: Optional[str] = None,
-    metrics: Optional[List[str]] = None,
+    group_col: str | None = None,
+    metrics: list[str] | None = None,
     disparate_impact: bool = True,
 ) -> None:
     print(
@@ -47,7 +46,7 @@ def print_report(
         print("Overall FN-rate:", round(len(result.fn_rows) / tot, 3))
 
 
-def highlight_snippets(text: str, pattern: Pattern[str], context_chars=40) -> List[str]:
+def highlight_snippets(text: str, pattern: Pattern[str], context_chars=40) -> list[str]:
     snippets = []
     for match in pattern.finditer(text):
         start, end = match.span()
