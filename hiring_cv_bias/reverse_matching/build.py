@@ -22,6 +22,7 @@ from hiring_cv_bias.reverse_matching.experience import (
 )
 from hiring_cv_bias.reverse_matching.loader import (
     dedupe_pairs,
+    load_esco_italian_titles,
     load_false_negatives,
     load_parser_output,
 )
@@ -71,6 +72,7 @@ def build_dataset() -> BuildResult:
         load_false_negatives("driving_license"),
         load_false_negatives("language_skill"),
         load_false_negatives("job_title"),
+        load_esco_italian_titles(),
     )
     for v, prof in profiles.items():
         pairs = add_components(pairs, prof, jobs_req, suffix=f"_{v}")
