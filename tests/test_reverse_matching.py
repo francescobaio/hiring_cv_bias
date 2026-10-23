@@ -3,7 +3,14 @@ import polars as pl
 import pytest
 
 from hiring_cv_bias.reverse_matching.components import add_components, job_requirements
-from hiring_cv_bias.reverse_matching.experience import calibration_table
+from hiring_cv_bias.reverse_matching.experience import (
+    ExperienceEstimator,
+    LexicalSimilarity,
+    compare_estimators,
+    evaluate_estimate,
+    language_shares,
+    probe_table,
+)
 from hiring_cv_bias.reverse_matching.loader import dedupe_pairs
 from hiring_cv_bias.reverse_matching.profiles import (
     build_profile_corrected,
@@ -256,17 +263,82 @@ def test_add_components_on_three_versions():
     assert o["match_skills_O"].to_list() == p["match_skills_P"].to_list()  # unchanged
 
 
-def test_calibration_table_groups_by_raw_similarity():
+class _StubEstimator(ExperienceEstimator):
+    """Deterministic 2-d unit vectors: texts that share their first word point the same way."""
+
+    def _encode(self, texts):
+        angles = [hash(t.split()[0]) % 7 / 7 * np.pi / 2 for t in texts]
+        return np.array([[np.cos(a), np.sin(a)] for a in angles], dtype=np.float32)
+
+    def n_parameters(self):
+        return 2_000_000
+
+
+def _experience_fixture():
     pairs = pl.DataFrame(
         {
-            "Experience_raw_P": [0.0, 0.5, 0.65, 0.85, 1.0, 1.0],
-            "Experience_hat_P": [0.0, 0.9, 0.9, 0.95, 1.0, 1.0],
-            "Experience": [0.0, 0.9, 0.9, 0.95, 1.0, 1.0],
+            "CANDIDATE_ID": [1, 1, 2, 3],
+            "Job_id": ["ORD_1", "ORD_2", "ORD_1", "ORD_2"],
+            "Experience": [1.0, 0.9, 0.0, 0.95],
         }
     )
-    out = calibration_table(pairs)
-    assert out["group"].to_list()[0] == "no titles (raw = 0)"
-    assert out["group"].to_list()[-1] == "verbatim match (raw = 1)"
-    assert out["n_pairs"].sum() == 6
-    verbatim = out.filter(pl.col("group") == "verbatim match (raw = 1)")
-    assert verbatim["n_pairs"][0] == 2 and verbatim["calibrated_mean"][0] == 1.0
+    profile = pl.DataFrame(
+        {
+            "CANDIDATE_ID": [1, 2, 3],
+            "experience": [["cassiere", "commesso"], [], ["muratore edile"]],
+        }
+    )
+    jobs_req = pl.DataFrame(
+        {"Job_id": ["ORD_1", "ORD_2"], "job_category": ["cassiere", "muratore"]}
+    )
+    return pairs, profile, jobs_req
+
+
+def test_similarity_rule_verbatim_no_titles_and_max():
+    pairs, profile, jobs_req = _experience_fixture()
+    sim = LexicalSimilarity().similarity(pairs, profile, jobs_req)
+    assert sim[0] == 1.0  # category among the titles
+    assert sim[2] == 0.0  # no titles
+    # the best of the titles, here the character ratio of "muratore edile" vs "muratore"
+    assert 0 < sim[3] < 1 and sim[3] == pytest.approx(
+        LexicalSimilarity().pair_similarity("muratore edile", "muratore")
+    )
+    emb = _StubEstimator("stub").similarity(pairs, profile, jobs_req)
+    assert emb[0] == 1.0 and emb[2] == 0.0 and emb[3] == pytest.approx(1.0)
+
+
+def test_embeddings_are_cached(tmp_path):
+    pairs, profile, jobs_req = _experience_fixture()
+    cache = str(tmp_path / "stub.npz")
+    _StubEstimator("stub", cache).similarity(pairs, profile, jobs_req)
+    reloaded = _StubEstimator("stub", cache)
+    assert set(np.load(cache)["texts"]) == {
+        "cassiere",
+        "commesso",
+        "muratore",
+        "muratore edile",
+    }
+    assert reloaded.pair_similarity("muratore edile", "muratore") == pytest.approx(1.0)
+
+
+def test_evaluate_and_compare_estimators():
+    pairs, profile, jobs_req = _experience_fixture()
+    estimators = {"lexical": LexicalSimilarity(), "stub": _StubEstimator("stub")}
+    table = compare_estimators(pairs, profile, jobs_req, estimators)
+    assert table["estimator"].to_list() == ["lexical", "stub"]
+    assert table["parameters_M"].to_list() == [None, 2]
+    metrics = evaluate_estimate(pairs, np.array([1.0, 0.3, 0.0, 0.9]))
+    assert metrics["n_far_below"] == 1  # 0.3 estimated, 0.9 real
+    assert metrics["min_with_titles"] == pytest.approx(0.3)
+    assert metrics["mae"] == pytest.approx((0.6 + 0.05) / 4)
+    probes = probe_table(estimators, [("muratore edile", "muratore")])
+    assert probes.columns == ["title", "job_category", "lexical", "stub"]
+    assert probes["stub"][0] == pytest.approx(1.0)
+
+
+def test_language_shares_counts_occurrences():
+    out = language_shares(
+        ["warehouse worker", "warehouse worker", "autista di ambulanza"]
+    )
+    assert out["language"].to_list() == ["italian", "english"]
+    assert out["share"].to_list() == pytest.approx([1 / 3, 2 / 3])

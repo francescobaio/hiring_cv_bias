@@ -1,6 +1,7 @@
 """Build ``data/ethics/pairs.parquet``: one row per (candidate, job) pair of the clean
-candidates, without the score outliers, with the components and the re-computed score
-under the three profile versions P, O and C. Run with ``python -m hiring_cv_bias.reverse_matching.build``."""
+candidates, without the score outliers, with the components, the estimated ``Experience``
+and the re-computed score under the three profile versions P, O and C.
+Run with ``python -m hiring_cv_bias.reverse_matching.build``."""
 
 import os
 from dataclasses import dataclass
@@ -14,7 +15,9 @@ from hiring_cv_bias.config import (
 )
 from hiring_cv_bias.reverse_matching.components import add_components, job_requirements
 from hiring_cv_bias.reverse_matching.experience import (
+    MODEL_NAME,
     ExperienceEstimator,
+    embedding_cache_path,
     evaluate_estimate,
 )
 from hiring_cv_bias.reverse_matching.loader import (
@@ -37,7 +40,7 @@ from hiring_cv_bias.utils import load_data, load_excel_sheets
 
 ETHICS_DATA_DIR = DATA_DIR + "ethics/"
 PAIRS_PATH = ETHICS_DATA_DIR + "pairs.parquet"
-EMBEDDINGS_CACHE = ETHICS_DATA_DIR + "embeddings_cache.npz"
+EMBEDDINGS_DIR = ETHICS_DATA_DIR + "embeddings/"
 
 
 @dataclass
@@ -72,18 +75,16 @@ def build_dataset() -> BuildResult:
     for v, prof in profiles.items():
         pairs = add_components(pairs, prof, jobs_req, suffix=f"_{v}")
 
-    # the estimator is calibrated on P and applied to every version
-    estimator = ExperienceEstimator(cache_path=EMBEDDINGS_CACHE)
-    raw_sim = {
-        v: estimator.raw_similarity(pairs, prof, jobs_req)
-        for v, prof in profiles.items()
+    # the same estimator for every version; its accuracy is measured on P
+    estimator = ExperienceEstimator(
+        MODEL_NAME, embedding_cache_path(EMBEDDINGS_DIR, MODEL_NAME)
+    )
+    hat = {
+        v: estimator.similarity(pairs, prof, jobs_req) for v, prof in profiles.items()
     }
-    estimator.calibrate(raw_sim["P"], pairs["Experience"].to_numpy())
-    hat = {v: estimator.predict(raw_sim[v]) for v in profiles}
     diagnostics = evaluate_estimate(pairs, hat["P"])
     pairs = pairs.with_columns(
-        [pl.Series(f"Experience_raw_{v}", raw_sim[v]) for v in profiles]
-        + [pl.Series(f"Experience_hat_{v}", hat[v]) for v in profiles]
+        pl.Series(f"Experience_hat_{v}", hat[v]) for v in profiles
     )
     # the formula on each version's components; Interest is the same in every version
     pairs = pairs.with_columns(
