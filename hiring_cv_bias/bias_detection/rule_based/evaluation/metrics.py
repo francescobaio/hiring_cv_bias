@@ -20,19 +20,6 @@ class Conf:
             f"Acc:{self.accuracy:.3f}"
         )
 
-    def as_dict(self) -> dict[str, float]:
-        return {
-            "tp": self.tp,
-            "fp": self.fp,
-            "tn": self.tn,
-            "fn": self.fn,
-            "precision": self.precision,
-            "recall": self.equality_of_opportunity,
-            "f1": self.f1,
-            "accuracy": self.accuracy,
-            "selection_rate": self.selection_rate,
-        }
-
     @property
     def precision(self) -> float:
         return self.tp / (self.tp + self.fp) if self.tp + self.fp else 0.0

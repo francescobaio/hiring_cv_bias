@@ -2,6 +2,9 @@ build
 data/**
 !data/.gitkeep
 !data/hard_soft_skills.csv
+!data/fuzzy_data/
+data/fuzzy_data/**
+!data/fuzzy_data/occupations_it.csv
 .ipynb_checkpoints
 notebooks/token.json
 __pycache__

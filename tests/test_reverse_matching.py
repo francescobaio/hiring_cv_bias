@@ -11,7 +11,7 @@ from hiring_cv_bias.reverse_matching.experience import (
     language_shares,
     probe_table,
 )
-from hiring_cv_bias.reverse_matching.loader import dedupe_pairs
+from hiring_cv_bias.reverse_matching.loader import dedupe_pairs, italian_job_titles
 from hiring_cv_bias.reverse_matching.profiles import (
     build_profile_corrected,
     build_profile_original,
@@ -228,16 +228,43 @@ def test_profile_original_uses_parser_and_keeps_skills():
     assert r3["licenses"] == []  # parser missed both licenses
 
 
-def test_profile_corrected_adds_false_negatives_only_in_whitelist():
+def test_italian_job_titles_joins_on_uri_and_normalizes():
+    en = pl.DataFrame(
+        {
+            "conceptUri": ["u1", "u2", "u3"],
+            "preferredLabel": ["cashier", "waiter", "bridge operator"],
+            "altLabels": ["till operator\ncheckout operator", None, None],
+        }
+    )
+    it = pl.DataFrame(
+        {
+            "conceptUri": ["u1", "u2", "u3"],
+            "preferredLabel": ["Cassiere/Cassiera", "cameriere/cameriera", None],
+        }
+    )
+    titles = italian_job_titles(en, it)
+    assert titles["cashier"] == "cassiere"
+    assert titles["till operator"] == "cassiere"  # alternative labels too
+    assert titles["waiter"] == "cameriere"
+    assert "bridge operator" not in titles  # no Italian label: left to the caller
+
+
+def test_profile_corrected_translates_titles_and_drops_noise():
     fn_lic = pl.DataFrame({"CANDIDATE_ID": [3], "skill": ["driver_license"]})
     fn_lang = pl.DataFrame({"CANDIDATE_ID": [1, 1], "skill": ["it", "xx"]})
     fn_job = pl.DataFrame(
-        {"CANDIDATE_ID": [1, 1], "skill": ["sales assistant", "medium"]}
+        {
+            "CANDIDATE_ID": [1, 1, 1],
+            "skill": ["Sales Assistant ", "medium", "club hostess"],
+        }
     )
-    c = build_profile_corrected(_profile_original(), fn_lic, fn_lang, fn_job)
+    c = build_profile_corrected(
+        _profile_original(), fn_lic, fn_lang, fn_job, {"sales assistant": "commesso"}
+    )
     r1 = c.filter(pl.col("CANDIDATE_ID") == 1).to_dicts()[0]
     assert r1["languages"] == ["inglese", "italiano"]
-    assert r1["experience"] == ["cassiere", "commesso"]  # "medium" ignored
+    # "medium" is noise; "club hostess" has no Italian label and stays English
+    assert r1["experience"] == ["cassiere", "commesso", "club hostess"]
     r3 = c.filter(pl.col("CANDIDATE_ID") == 3).to_dicts()[0]
     assert r3["licenses"] == ["b"]  # generic license recorded as B
 

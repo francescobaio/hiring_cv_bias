@@ -1,11 +1,7 @@
-from typing import Any
-
 import nltk
-import polars as pl
 import spacy
 from nltk.corpus import stopwords
 from spacy.matcher import PhraseMatcher
-from tqdm.notebook import tqdm
 
 
 class JobParser:
@@ -33,19 +29,3 @@ class JobParser:
                 jobs_found.add(doc[start:end].text)
 
         return jobs_found
-
-    def parse_df(self, df: pl.DataFrame) -> pl.DataFrame:
-        jobs_data: dict[str, list[Any]] = {"CANDIDATE_ID": [], "Job_Title": []}
-        for row in tqdm(
-            df.iter_rows(named=True), total=df.height, desc="Job parsing..."
-        ):
-            cv = row["Translated_CV"]
-            jobs = self.parse_with_n_grams(cv)
-            if len(jobs) > 0:
-                jobs_data["Job_Title"].extend(jobs)
-                jobs_data["CANDIDATE_ID"].extend([row["CANDIDATE_ID"]] * len(jobs))
-            else:
-                jobs_data["Job_Title"].append(None)
-                jobs_data["CANDIDATE_ID"].append(row["CANDIDATE_ID"])
-
-        return pl.DataFrame(jobs_data)

@@ -21,71 +21,39 @@ _P_COLUMNS = {
     "experience": "experience",
 }
 
-# English ESCO job titles found by the rule-based extractor -> Italian title
-# used in the ``experience`` field. Only titles judged unambiguous are kept;
-# ``medium``, ``illustrator``, ``extra``, ``host``, ``companion``, ``dresser``,
-# ``producer`` and ``animator`` are deliberately excluded as noisy matches.
-FN_JOB_TITLE_MAP: dict[str, str] = {
-    "cashier": "cassiere",
-    "secretary": "segretario",
-    "warehouse worker": "magazziniere",
-    "waiter": "cameriere",
-    "waitress": "cameriere",
-    "sales assistant": "commesso",
-    "shop assistant": "commesso",
-    "bartender": "barman",
-    "barista": "barista",
-    "accountant": "contabile",
-    "promoter": "promoter",
-    "chef": "cuoco",
-    "cook": "cuoco",
-    "babysitter": "baby sitter",
-    "tutor": "tutor",
-    "receptionist": "receptionist",
-    "hostess": "hostess",
-    "steward": "steward",
-    "electrician": "elettricista",
-    "forklift operator": "carrellista",
-    "welder": "saldatore",
-    "graphic designer": "grafico",
-    "bricklayer": "muratore",
-    "hairdresser": "parrucchiere",
-    "photographer": "fotografo",
-    "plumber": "idraulico",
-    "carpenter": "falegname",
-    "lawyer": "avvocato",
-    "security guard": "guardia giurata",
-    "office manager": "office manager",
-    "tourist guide": "guida turistica",
-    "pastry chef": "pasticcere",
-    "doorman": "portiere",
-    "office clerk": "impiegato",
-    "baker": "panettiere",
-    "translator": "traduttore",
-    "project manager": "project manager",
-    "department manager": "responsabile di reparto",
-    "notary": "notaio",
-    "postman": "postino",
-    "personal trainer": "personal trainer",
-    "sommelier": "sommelier",
-    "management assistant": "assistente di direzione",
-    "kitchen assistant": "aiuto cuoco",
-    "warehouse manager": "responsabile di magazzino",
-    "accounting analyst": "analista contabile",
-    "interpreter": "interprete",
-    "butcher": "macellaio",
-    "fitness instructor": "istruttore di fitness",
-    "electrical engineer": "ingegnere elettrico",
-    "goldsmith": "orafo",
-    "architect": "architetto",
-    "room attendant": "cameriere ai piani",
-    "journalist": "giornalista",
-    "archivist": "archivista",
-    "social worker": "assistente sociale",
-    "sales manager": "responsabile vendite",
-    "visual merchandiser": "visual merchandiser",
-    "human resources manager": "responsabile risorse umane",
-}
+# English ESCO titles found by the rule-based extractor that are not job experience
+# in a CV. They are frequent (``medium`` alone hits 276 candidates) and the real
+# profile P never confirms them, so they are dropped before translation.
+FN_JOB_TITLE_NOISE: frozenset[str] = frozenset(
+    {
+        # common English words the translated CV uses in another sense
+        "medium",
+        "extra",
+        "host",
+        "companion",
+        "producer",
+        "presenter",
+        "dresser",
+        "mover",
+        "usher",
+        "escort",
+        "groom",
+        "model maker",
+        # software, degrees and roles mistaken for occupations
+        "illustrator",  # Adobe Illustrator
+        "animator",  # ESCO: digital animator; "animatore" in CVs is an entertainer
+        "mediator",  # "mediazione linguistica" degrees
+        "ambassador",  # brand ambassador
+        "philosopher",  # philosophy degrees
+        # titles that are not Adecco placements
+        "mayor",
+        "judge",
+        "lieutenant",
+        "missionary",
+        "hunter",
+        "astronaut",
+    }
+)
 
 _GENDER_SUFFIX = r"(?i)\s*\((m/f|f/m|other|altro|m/w)\)\s*"
 
@@ -190,7 +158,10 @@ def build_profile_original(real: pl.DataFrame, parser: pl.DataFrame) -> pl.DataF
 
 
 def _fn_lists(
-    fn_license: pl.DataFrame, fn_language: pl.DataFrame, fn_job_title: pl.DataFrame
+    fn_license: pl.DataFrame,
+    fn_language: pl.DataFrame,
+    fn_job_title: pl.DataFrame,
+    job_titles_it: dict[str, str],
 ) -> pl.DataFrame:
     lic = (
         fn_license.select("CANDIDATE_ID")
@@ -209,15 +180,11 @@ def _fn_lists(
         .group_by("CANDIDATE_ID")
         .agg(pl.col("item").unique(maintain_order=True).alias("fn_languages"))
     )
+    title = pl.col("skill").str.to_lowercase().str.strip_chars()
     job = (
-        fn_job_title.with_columns(
-            pl.col("skill")
-            .str.to_lowercase()
-            .str.strip_chars()
-            .replace_strict(FN_JOB_TITLE_MAP, default=None)
-            .alias("item")
-        )
-        .drop_nulls("item")
+        fn_job_title.filter(~title.is_in(FN_JOB_TITLE_NOISE))
+        # a title ESCO has no Italian label for keeps its English form (e5 is multilingual)
+        .with_columns(title.replace(job_titles_it).alias("item"))
         .group_by("CANDIDATE_ID")
         .agg(pl.col("item").unique(maintain_order=True).alias("fn_experience"))
     )
@@ -231,13 +198,15 @@ def build_profile_corrected(
     fn_license: pl.DataFrame,
     fn_language: pl.DataFrame,
     fn_job_title: pl.DataFrame,
+    job_titles_it: dict[str, str],
 ) -> pl.DataFrame:
     """C: O plus the recovered false negatives. A recovered generic license is recorded as
-    class B; language codes are named with langcodes, titles with ``FN_JOB_TITLE_MAP``
-    (unmapped titles are ignored)."""
+    class B; language codes are named with langcodes; English ESCO titles are dropped when
+    in ``FN_JOB_TITLE_NOISE`` and otherwise translated with ``job_titles_it`` (the ESCO
+    Italian labels, see ``loader.italian_job_titles``)."""
     merged = _fill_empty_lists(
         original.join(
-            _fn_lists(fn_license, fn_language, fn_job_title),
+            _fn_lists(fn_license, fn_language, fn_job_title, job_titles_it),
             on="CANDIDATE_ID",
             how="left",
         ),
