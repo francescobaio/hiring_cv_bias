@@ -44,6 +44,11 @@ PAIRS_PATH = ETHICS_DATA_DIR + "pairs.parquet"
 EMBEDDINGS_DIR = ETHICS_DATA_DIR + "embeddings/"
 
 
+def profile_path(version: str) -> str:
+    """Parquet file of the profile ``version`` (P, O or C)."""
+    return ETHICS_DATA_DIR + f"profile_{version}.parquet"
+
+
 @dataclass
 class BuildResult:
     pairs: pl.DataFrame
@@ -101,7 +106,7 @@ def build_dataset() -> BuildResult:
     os.makedirs(ETHICS_DATA_DIR, exist_ok=True)
     pairs.write_parquet(PAIRS_PATH)
     for v, prof in profiles.items():
-        prof.write_parquet(ETHICS_DATA_DIR + f"profile_{v}.parquet")
+        prof.write_parquet(profile_path(v))
     return BuildResult(pairs, profiles, diagnostics)
 
 

@@ -7,6 +7,14 @@ from hiring_cv_bias.reverse_matching.components import add_components
 from hiring_cv_bias.reverse_matching.profiles import PARSER_FIELDS, PROFILE_FIELDS
 from hiring_cv_bias.reverse_matching.scoring import RULE_COMPONENTS
 
+# how much a column of the pairs must move between two versions to count as different
+TOLERANCES = {c: 0.0 for c in RULE_COMPONENTS} | {"Experience_hat": 0.01, "score": 1e-6}
+
+
+def differs(col: str, a: str, b: str) -> pl.Expr:
+    """Whether ``col`` differs between versions ``a`` and ``b`` by more than its tolerance."""
+    return (pl.col(f"{col}_{a}") - pl.col(f"{col}_{b}")).abs() > TOLERANCES[col]
+
 
 def list_lengths(pairs: pl.DataFrame) -> pl.DataFrame:
     """Number of candidates per job list."""
@@ -79,17 +87,8 @@ def profile_overlap(real: pl.DataFrame, original: pl.DataFrame) -> pl.DataFrame:
 
 def version_differences(pairs: pl.DataFrame, a: str, b: str) -> pl.DataFrame:
     """Share of pairs where each component and the score differ between versions ``a`` and ``b``."""
-    tolerances = [(c, 0.0) for c in RULE_COMPONENTS] + [
-        ("Experience_hat", 0.01),
-        ("score", 1e-6),
-    ]
     return (
-        pairs.select(
-            [
-                ((pl.col(f"{c}_{a}") - pl.col(f"{c}_{b}")).abs() > tol).mean().alias(c)
-                for c, tol in tolerances
-            ]
-        )
+        pairs.select(differs(c, a, b).mean().alias(c) for c in TOLERANCES)
         .unpivot(variable_name="column", value_name="share_different")
         .with_columns(pl.lit(f"{a} vs {b}").alias("comparison"))
     )
