@@ -14,7 +14,7 @@ test:
     paths:
       - .uv-cache
   script:
-    - uv sync --extra dev
+    - uv sync --extra ethics
     - uv run pytest -q
     - uv run mypy tests
   rules:

@@ -14,33 +14,51 @@ license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.11"
 
+# Shared by both notebook sets; pick the set to run with an extra:
+#   uv sync --extra ethics        -> notebooks/ethics
+#   uv sync --extra ai-industry   -> notebooks/ai_in_industry
 dependencies = [
-  "beautifulsoup4==4.13.3",
-  "matplotlib==3.8.3",
   "polars==1.29.0",
-  "requests==2.32.3",
-  "seaborn==0.13.2",
   "fastexcel==0.13.0",
+  "pyarrow>=19.0.0", 
+  "numpy>=2.0",
+  "matplotlib>=3.9",
   "ipykernel>=6.0.0",
-  "langdetect==1.0.9",
-  "pycountry==24.6.1",
-  "langcodes==3.5.0",
-  "language-data==1.3.0",
-  "pandas>=2.2.3",
-  "transformers==4.52.4",
-  "ipywidgets>=8.1.7",
-  "scipy>=1.13.1",
-  "polars-ds>=0.10.0",
-  "sentence-transformers==5.0.0",
-  "streamlit==1.44.0",
-  "jupyter>=1.1.1",
-  "nltk>=3.9.1",
-  "spacy>=3.8.7",
-  "lingua-language-detector>=2.1.1",
 ]
 
-
 [project.optional-dependencies]
+ethics = [
+  "scipy>=1.13.1",
+  "langcodes==3.5.0",
+  "language-data==1.3.0",
+  "lingua-language-detector>=2.1.1",
+  "sentence-transformers==5.0.0",
+  "torch",  # CPU build, see [tool.uv.sources]
+]
+ai-industry = [
+  "scipy>=1.13.1",
+  "langcodes==3.5.0",
+  "language-data==1.3.0",
+  "sentence-transformers==5.0.0",
+  "torch",  # CPU build, see [tool.uv.sources]
+  "transformers==4.52.4",
+  "beautifulsoup4==4.13.3",
+  "requests==2.32.3",
+  "seaborn==0.13.2",
+  "polars-ds>=0.10.0",
+  "langdetect==1.0.9",
+  "pycountry==24.6.1",
+  "nltk>=3.9.1",
+  "spacy>=3.8.7",
+  "streamlit==1.44.0",
+  "tqdm",
+  "ipywidgets>=8.1.7",
+]
+translation = [
+  "google-cloud-translate==3.26.0",
+]
+
+[dependency-groups]
 dev = [
   "pytest>=8.0",
   "pre-commit",
@@ -49,9 +67,15 @@ dev = [
   "mypy",
   "types-requests",
 ]
-translation = [
-  "google-cloud-translate==3.26.0",
-]
+
+# CPU-only torch: the CUDA build from PyPI adds ~5 GB of nvidia-* wheels
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [tool.ruff]
 target-version = "py311"
