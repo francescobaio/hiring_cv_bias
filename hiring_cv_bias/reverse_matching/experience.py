@@ -1,7 +1,7 @@
 """Estimate of the ``Experience`` component: the highest cosine similarity between the job
 category and the candidate's job titles under a multilingual sentence encoder
 (``intfloat/multilingual-e5-base``). The encoder was chosen on the P profile, where Adecco's
-value is known, against three other encoders and a string-matching baseline (section 1.3 of
+value is known, against four other encoders and a string-matching baseline (section 1.3 of
 the notebook). Its cosine lives on the same scale as Adecco's value, so the estimate is the
 cosine itself, with no calibration step."""
 
@@ -23,13 +23,19 @@ BATCH_SIZE = 256
 CANDIDATE_MODELS = {
     "MiniLM-L12": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
     "mpnet-base": "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
-    "LaBSE": "sentence-transformers/LaBSE",
     "e5-base": MODEL_NAME,
     "e5-large": "intfloat/multilingual-e5-large",
-    "bge-m3": "BAAI/bge-m3",
-    # Italian-only encoders
+    # Italian-only encoder
     "it: sentence-BERTino": "efederici/sentence-BERTino",
-    "it: sbert-italian-xxl": "nickprock/sentence-bert-base-italian-xxl-uncased",
+}
+# Their sizes in millions of parameters, so that an encoder whose embeddings are all cached
+# is never downloaded.
+N_PARAMETERS_M = {
+    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": 118,
+    "sentence-transformers/paraphrase-multilingual-mpnet-base-v2": 278,
+    MODEL_NAME: 278,
+    "intfloat/multilingual-e5-large": 560,
+    "efederici/sentence-BERTino": 68,
 }
 
 # (title, job category) pairs that a good estimator must rate as close.
@@ -138,6 +144,8 @@ class ExperienceEstimator(TitleSimilarity):
         return self._model
 
     def n_parameters(self) -> int:
+        if self._model is None and self.model_name in N_PARAMETERS_M:
+            return N_PARAMETERS_M[self.model_name] * 1_000_000
         return sum(int(p.numel()) for p in self._load().parameters())
 
     def _encode(self, texts: Sequence[str]) -> np.ndarray:
