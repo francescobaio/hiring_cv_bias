@@ -46,6 +46,18 @@ def test_selection_rates_spd_and_di_against_the_reference():
     assert rates["group"].to_list()[:2] == ["Female", "Male"]
 
 
+def test_groups_outside_the_display_order_go_last():
+    df = _outcomes().with_columns(
+        pl.when(pl.col("CANDIDATE_ID") == 7)
+        .then(pl.lit("Other"))
+        .otherwise(pl.col("Gender"))
+        .alias("Gender")
+    )
+    rates = selection_rates(df, ["Gender"])
+    assert rates["group"].to_list() == ["Female", "Male", "Other"]
+    assert _row(rates, "Other")["spd_O"] == pytest.approx(0 - 0.5)
+
+
 def test_weights_count_a_candidate_several_times():
     df = _outcomes().with_columns(
         pl.when(pl.col("CANDIDATE_ID") == 4).then(3.0).otherwise(1.0).alias("w")
@@ -67,6 +79,13 @@ def test_parser_effect_false_negative_and_false_positive_rates():
     assert female["rate_change"] == 0.5
     assert female["fnr_diff"] == pytest.approx(2 / 3 - 0.5)
     assert female["fpr_diff"] == -0.5
+    # sufficiency: men have one true positive of two selected and one true negative of
+    # two rejected; women one of one and one of three
+    assert (male["ppv"], male["npv"]) == (0.5, 0.5)
+    assert female["ppv"] == 1
+    assert female["npv"] == pytest.approx(1 / 3)
+    assert female["ppv_diff"] == 0.5
+    assert female["npv_diff"] == pytest.approx(1 / 3 - 0.5)
 
 
 def test_parser_changes_share_of_pairs_whose_components_change():
@@ -161,14 +180,21 @@ def test_for_display_formats_percentages_ratios_and_intervals():
             "fnr_diff_lo": [0.0046, -0.0004],
             "fnr_diff_hi": [0.0536, 0.0],
             "di": [0.9512, 1.0],
+            "di_lo": [0.9, 0.9512],
+            "di_hi": [1.0, 1.0488],
         }
     )
     out = for_display(table, ratios=["di"])
     assert out.columns == ["group", "pairs", "fnr", "fnr_diff", "di"]
     assert out["fnr"].to_list() == [10.2, 7.5]
     assert out["fnr_diff"].to_list() == ["2.7 [0.5, 5.4]", "0.0 [0.0, 0.0]"]
-    assert out["di"].to_list() == [0.95, 1.0]
+    # intervals keep their decimals: 1 reads 1.00, not 1.0
+    assert out["di"].to_list() == ["0.95 [0.90, 1.00]", "1.00 [0.95, 1.05]"]
     assert for_display(table, ["fnr_diff"]).columns == ["group", "pairs", "fnr_diff"]
+    assert for_display(table.drop("di_lo", "di_hi"), ratios=["di"])["di"].to_list() == [
+        0.95,
+        1.0,
+    ]
 
 
 def test_profile_corrections_count_candidates_and_items_added():
@@ -196,25 +222,27 @@ def test_outcome_change_sources_only_look_at_pairs_that_change():
     df = add_group(
         pl.DataFrame(
             {
-                "Gender": ["Male"] * 4,
-                "Location": ["NORTH"] * 4,
-                "top_half_O": [False, True, True, True],
-                "top_half_C": [True, False, False, True],
-                "Card_match_O": [0.0, 1.0, 1.0, 0.0],
-                "Card_match_C": [1.0, 1.0, 1.0, 1.0],
-                "Languages_match_O": [1.0] * 4,
-                "Languages_match_C": [1.0] * 4,
-                "Experience_hat_O": [0.9] * 4,
-                "Experience_hat_C": [0.9, 0.95, 0.9, 0.9],
-                "score_O": [3.0, 3.0, 3.0, 3.0],
-                "score_C": [3.3, 3.1, 3.0, 3.3],
+                "Gender": ["Male"] * 5,
+                "Location": ["NORTH"] * 5,
+                "top_half_O": [False, True, True, True, False],
+                "top_half_C": [True, False, False, True, True],
+                "Card_match_O": [0.0, 1.0, 1.0, 0.0, 1.0],
+                "Card_match_C": [1.0, 1.0, 1.0, 1.0, 1.0],
+                "Languages_match_O": [1.0] * 5,
+                "Languages_match_C": [1.0] * 5,
+                "Experience_hat_O": [0.9] * 5,
+                "Experience_hat_C": [0.9, 0.95, 0.9, 0.9, 0.905],
+                "score_O": [3.0, 3.0, 3.0, 3.0, 3.0],
+                "score_C": [3.3, 3.1, 3.0, 3.3, 3.01],
             }
         )
     )
     row = outcome_change_sources(df, ["Gender"]).to_dicts()[0]
-    # three pairs change outcome: one gets a license, one a title, one nothing
-    assert row["changed_pairs"] == 3
-    assert row["Card_match"] == pytest.approx(1 / 3)
-    assert row["Experience"] == pytest.approx(1 / 3)
+    # four pairs change outcome: one gets a license, one a title, one nothing, and one
+    # only an Experience move below the 0.01 tolerance
+    assert row["changed_pairs"] == 4
+    assert row["Card_match"] == pytest.approx(1 / 4)
+    assert row["Experience"] == pytest.approx(1 / 4)
     assert row["Languages_match"] == 0
-    assert row["score_unchanged"] == pytest.approx(1 / 3)
+    assert row["other"] == pytest.approx(1 / 4)
+    assert row["score_unchanged"] == pytest.approx(1 / 4)

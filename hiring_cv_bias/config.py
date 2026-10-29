@@ -44,3 +44,13 @@ LANGUAGE_SKILL_FALSE_NEGATIVES_PATH = (
     CV_CLEANED_DIR + "/language_skill/false_negatives.csv"
 )
 JOB_TITLE_FALSE_NEGATIVES_PATH = CV_CLEANED_DIR + "/job_title/false_negatives.csv"
+
+# outputs of the ethics pipeline (``hiring_cv_bias.reverse_matching.build``)
+ETHICS_DATA_DIR = DATA_DIR + "ethics/"
+PAIRS_PATH = ETHICS_DATA_DIR + "pairs.parquet"
+EMBEDDINGS_DIR = ETHICS_DATA_DIR + "embeddings/"
+
+
+def profile_path(version: str) -> str:
+    """Parquet file of the profile ``version`` (P, O or C)."""
+    return ETHICS_DATA_DIR + f"profile_{version}.parquet"

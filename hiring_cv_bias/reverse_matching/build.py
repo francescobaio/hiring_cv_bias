@@ -10,8 +10,11 @@ import polars as pl
 
 from hiring_cv_bias.config import (
     CLEANED_REVERSE_MATCHING_PATH,
-    DATA_DIR,
+    EMBEDDINGS_DIR,
+    ETHICS_DATA_DIR,
+    PAIRS_PATH,
     REVERSE_MATCHING_PATH,
+    profile_path,
 )
 from hiring_cv_bias.reverse_matching.components import add_components, job_requirements
 from hiring_cv_bias.reverse_matching.experience import (
@@ -38,15 +41,6 @@ from hiring_cv_bias.reverse_matching.scoring import (
     score_outliers,
 )
 from hiring_cv_bias.utils import load_data, load_excel_sheets
-
-ETHICS_DATA_DIR = DATA_DIR + "ethics/"
-PAIRS_PATH = ETHICS_DATA_DIR + "pairs.parquet"
-EMBEDDINGS_DIR = ETHICS_DATA_DIR + "embeddings/"
-
-
-def profile_path(version: str) -> str:
-    """Parquet file of the profile ``version`` (P, O or C)."""
-    return ETHICS_DATA_DIR + f"profile_{version}.parquet"
 
 
 @dataclass

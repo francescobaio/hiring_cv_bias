@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 
 import matplotlib.pyplot as plt
 import polars as pl
@@ -128,23 +128,36 @@ def plot_selection_rates(rates: pl.DataFrame, overall: float) -> Figure:
     return fig
 
 
-def plot_parser_effect(effect: pl.DataFrame) -> Figure:
-    """Three panels, one dot per group with its 95% interval, in percentage points: the
-    change of the selection rate when the parser is corrected, and the gap from the
-    reference group in the false negative and false positive rates of O."""
+# the panels of ``plot_parser_effect``: column -> title, one figure per criterion
+SEPARATION_PANELS = {
+    "rate_change": "selection rate change (C − O)",
+    "fnr_diff": "FNR gap from the reference",
+    "fpr_diff": "FPR gap from the reference",
+}
+SUFFICIENCY_PANELS = {
+    "ppv_diff": "PPV gap from the reference",
+    "npv_diff": "NPV gap from the reference",
+}
+
+
+def plot_parser_effect(
+    effect: pl.DataFrame, panels: Mapping[str, str] = SEPARATION_PANELS
+) -> Figure:
+    """One panel per column of ``panels``, one dot per group with its 95% interval, in
+    percentage points: by default the change of the selection rate when the parser is
+    corrected and the gaps from the reference group in the false negative and false
+    positive rates of O (separation); with ``SUFFICIENCY_PANELS`` the gaps in its
+    predictive values (sufficiency)."""
     ys = _group_rows(effect)
-    panels = {
-        "rate_change": "selection rate change (C − O)",
-        "fnr_diff": "FNR gap from the reference",
-        "fpr_diff": "FPR gap from the reference",
-    }
-    fig, axes = plt.subplots(1, 3, figsize=(11, 5), sharey=True)
-    for ax, (col, title) in zip(axes, panels.items(), strict=True):
+    fig, axes = plt.subplots(
+        1, len(panels), figsize=(3.7 * len(panels), 5), sharey=True, squeeze=False
+    )
+    for ax, (col, title) in zip(axes[0], panels.items(), strict=True):
         ax.axvline(0, color="tab:gray", ls="--", lw=1, zorder=1)
         _dots(ax, effect, col, [ys[g] for g in effect["group"]], color=INK)
         ax.set_title(title, fontsize=10)
         ax.set_xlabel("percentage points")
         ax.grid(axis="x", alpha=0.3)
-    _group_axis(axes[0], ys)
+    _group_axis(axes[0][0], ys)
     fig.tight_layout()
     return fig

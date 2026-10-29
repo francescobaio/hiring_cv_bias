@@ -37,7 +37,7 @@ def test_filter_protocol_drops_other_genders_and_short_lists():
     df = filter_protocol(_pairs())
     assert set(df["Job_id"]) == {"a", "c"}
     assert set(df["Gender"]) == {"Female", "Male"}
-    assert df.filter(pl.col("Job_id") == "a")["n_in_job"].unique().to_list() == [5]
+    assert df.filter(pl.col("Job_id") == "a").height == 5
 
 
 def test_outcomes_rank_within_the_job_and_break_ties_by_the_draw():
