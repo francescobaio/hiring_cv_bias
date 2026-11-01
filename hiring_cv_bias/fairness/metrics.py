@@ -4,8 +4,8 @@ the questions of phase 3 of the notebooks.
 What the correction changes and for whom (``profile_corrections``, ``parser_changes``,
 ``outcome_change_sources``); whether every group is selected at the same rate
 (``selection_rates``, independence); whether the parser's errors have the same rates in
-every group (``parser_effect``, separation); confidence intervals for all of it
-(``bootstrap``) and tables readable in percent (``for_display``).
+every group (``parser_effect``, separation and sufficiency); confidence intervals for all
+of it (``bootstrap``) and tables readable in percent (``for_display``).
 
 Every statistic is computed on the protocol pairs with their outcomes (``add_outcomes``)
 and reported per group of each sensitive attribute, in long form, each group against the
@@ -59,7 +59,7 @@ SCORE_CHANGED = differs("score", "O", "C")
 Stat = Callable[[pl.DataFrame], pl.DataFrame]
 
 
-def _share(event: pl.Expr, among: pl.Expr | None = None) -> pl.Expr:
+def share(event: pl.Expr, among: pl.Expr | None = None) -> pl.Expr:
     """Share of the pairs where ``event`` holds, among those where ``among`` holds (all the
     pairs by default), as a weighted mean with the weights ``w``. Every rate of the module
     is built from it."""
@@ -67,14 +67,19 @@ def _share(event: pl.Expr, among: pl.Expr | None = None) -> pl.Expr:
     return (w * event.cast(pl.Float64)).sum() / w.sum()
 
 
-def _per_group(
+def with_weights(df: pl.DataFrame) -> pl.DataFrame:
+    """Add unit weights ``w`` when ``df`` has none, so that ``share`` can rely on them."""
+    if "w" in df.columns:
+        return df
+    return df.with_columns(pl.lit(1.0).alias("w"))
+
+
+def per_group(
     df: pl.DataFrame, attributes: Sequence[str], aggs: Sequence[pl.Expr]
 ) -> pl.DataFrame:
     """Compute ``aggs`` for every group of every attribute and stack the results in one long
-    table: one row per (attribute, group), in display order, with the number of pairs.
-    Adds unit weights when ``df`` has no ``w`` column, so the aggregations can rely on it."""
-    if "w" not in df.columns:
-        df = df.with_columns(pl.lit(1.0).alias("w"))
+    table: one row per (attribute, group), in display order, with the number of pairs."""
+    df = with_weights(df)
     order = pl.col("group").replace_strict(
         _ORDER, default=len(_ORDER), return_dtype=pl.Int64
     )
@@ -94,7 +99,7 @@ def _per_group(
 
 
 def _reference(col: str) -> pl.Expr:
-    """On every row of a ``_per_group`` table, the value of ``col`` for the reference group
+    """On every row of a ``per_group`` table, the value of ``col`` for the reference group
     of the row's attribute, so that a gap can be written as ``col - _reference(col)``."""
     is_ref = pl.any_horizontal(
         (pl.col("attribute") == a) & (pl.col("group") == g)
@@ -134,7 +139,7 @@ def parser_changes(
     match, language match, estimated ``Experience`` (beyond the tolerance of the data
     audit) or score differs between O and C."""
     changed = {**COMPONENT_CHANGED, "score": SCORE_CHANGED}
-    return _per_group(df, attributes, [_share(e).alias(k) for k, e in changed.items()])
+    return per_group(df, attributes, [share(e).alias(k) for k, e in changed.items()])
 
 
 def outcome_change_sources(
@@ -148,13 +153,13 @@ def outcome_change_sources(
     of the same job was corrected."""
     changed = df.filter(pl.col(f"{outcome}_O") != pl.col(f"{outcome}_C"))
     any_component = pl.any_horizontal(*COMPONENT_CHANGED.values())
-    return _per_group(
+    return per_group(
         changed,
         attributes,
-        [_share(e).alias(k) for k, e in COMPONENT_CHANGED.items()]
+        [share(e).alias(k) for k, e in COMPONENT_CHANGED.items()]
         + [
-            _share(SCORE_CHANGED & ~any_component).alias("other"),
-            _share(~SCORE_CHANGED).alias("score_unchanged"),
+            share(SCORE_CHANGED & ~any_component).alias("other"),
+            share(~SCORE_CHANGED).alias("score_unchanged"),
         ],
     ).rename({"pairs": "changed_pairs"})
 
@@ -169,10 +174,10 @@ def selection_rates(
     (``rate_<version>``), with its gap from the reference group as a difference
     (``spd_<version>``, statistical parity difference, 0 at parity) and as a ratio
     (``di_<version>``, disparate impact, 1 at parity)."""
-    rates = _per_group(
+    rates = per_group(
         df,
         attributes,
-        [_share(pl.col(f"{outcome}_{v}")).alias(f"rate_{v}") for v in versions],
+        [share(pl.col(f"{outcome}_{v}")).alias(f"rate_{v}") for v in versions],
     )
     return rates.with_columns(
         *[
@@ -187,29 +192,34 @@ def selection_rates(
 
 
 def parser_effect(
-    df: pl.DataFrame, attributes: Sequence[str] = ATTRIBUTES, outcome: str = "top_half"
+    df: pl.DataFrame,
+    attributes: Sequence[str] = ATTRIBUTES,
+    outcome: str = "top_half",
+    decision: str = "O",
+    label: str = "C",
 ) -> pl.DataFrame:
-    """Separation and sufficiency. The parser's errors per group, taking the outcome with
-    the corrected profile as the label and the outcome with the parser's profile as the
-    decision: the selection rates with O and C and their change (``rate_change``); the
-    false negative rate of O (``fnr``, pairs selected with C that O leaves out) and its
-    false positive rate (``fpr``, pairs not selected with C that O selects), whose
-    equality across groups is separation; the positive and negative predictive values
-    (``ppv``, pairs O selects that C confirms; ``npv``, pairs O rejects that C confirms),
-    whose equality is sufficiency; and the gap of each rate from the reference group
+    """Separation and sufficiency. The errors of one version against another per group,
+    by default those of the parser: the outcome with the corrected profile (``label``) is
+    the label and the outcome with the parser's profile (``decision``) is the decision.
+    The table gives the selection rate of the decision (``rate_<decision>``) and how much
+    the label's differs (``rate_change``); the false negative rate of the decision (``fnr``,
+    pairs the label selects that the decision leaves out) and its false positive rate
+    (``fpr``, pairs the label does not select that the decision selects), whose equality
+    across groups is separation; the positive and negative predictive values (``ppv``,
+    selected pairs the label confirms; ``npv``, rejected pairs the label confirms), whose
+    equality is sufficiency; and the gap of each rate from the reference group
     (``<rate>_diff``, 0 when the criterion holds)."""
-    d, y = pl.col(f"{outcome}_O"), pl.col(f"{outcome}_C")
-    effect = _per_group(
+    d, y = pl.col(f"{outcome}_{decision}"), pl.col(f"{outcome}_{label}")
+    effect = per_group(
         df,
         attributes,
         [
-            _share(d).alias("rate_O"),
-            _share(y).alias("rate_C"),
-            (_share(y) - _share(d)).alias("rate_change"),
-            _share(~d, among=y).alias("fnr"),
-            _share(d, among=~y).alias("fpr"),
-            _share(y, among=d).alias("ppv"),
-            _share(~y, among=~d).alias("npv"),
+            share(d).alias(f"rate_{decision}"),
+            (share(y) - share(d)).alias("rate_change"),
+            share(~d, among=y).alias("fnr"),
+            share(d, among=~y).alias("fpr"),
+            share(y, among=d).alias("ppv"),
+            share(~y, among=~d).alias("npv"),
         ],
     )
     return effect.with_columns(

@@ -59,6 +59,26 @@ def filter_protocol(
     return out.filter(pl.len().over("Job_id") >= min_candidates)
 
 
+def rank_within_job(score: pl.Expr) -> pl.Expr:
+    """Position of the pair among the candidates of its job under ``score`` (1 is best),
+    ties broken by the pair's ``tie_break``."""
+    return (
+        pl.struct(score, pl.col("tie_break"))
+        .rank(method="ordinal", descending=True)
+        .over("Job_id")
+        .cast(pl.Int32)
+    )
+
+
+def decided_by_draw(score: pl.Expr, outcome: str = "top_half") -> pl.Expr:
+    """Whether the pair's outcome depends on the tie-break: tied under ``score`` with another
+    candidate of the job across the cutoff."""
+    cutoff = CUTOFFS[outcome]
+    best = score.rank(method="min", descending=True).over("Job_id")
+    worst = score.rank(method="max", descending=True).over("Job_id")
+    return (best <= cutoff) & (worst > cutoff)
+
+
 def add_outcomes(
     df: pl.DataFrame, score_cols: Sequence[str] = SCORES, seed: int = SEED
 ) -> pl.DataFrame:
@@ -75,11 +95,7 @@ def add_outcomes(
     )
     suffixes = [c.removeprefix("score") for c in score_cols]
     out = out.with_columns(
-        pl.struct(c, "tie_break")
-        .rank(method="ordinal", descending=True)
-        .over("Job_id")
-        .cast(pl.Int32)
-        .alias("rank" + s)
+        rank_within_job(pl.col(c)).alias("rank" + s)
         for c, s in zip(score_cols, suffixes, strict=True)
     )
     return out.with_columns(
@@ -109,16 +125,14 @@ def outcome_summary(
     pairs whose outcome is decided by the tie-break (tied with another candidate of the
     job across the cutoff) and the share that gets the same outcome as under the first
     version in ``versions``, the agreement with it."""
-    cutoff = CUTOFFS[outcome]
     rows = []
     for v in versions:
-        score = pl.col(f"score_{v}")
-        best = score.rank(method="min", descending=True).over("Job_id")
-        worst = score.rank(method="max", descending=True).over("Job_id")
         rows.append(
             df.select(
                 pl.lit(v).alias("version"),
-                ((best <= cutoff) & (worst > cutoff)).mean().alias("decided_by_draw"),
+                decided_by_draw(pl.col(f"score_{v}"), outcome)
+                .mean()
+                .alias("decided_by_draw"),
                 (pl.col(f"{outcome}_{v}") == pl.col(f"{outcome}_{versions[0]}"))
                 .mean()
                 .alias(f"agree_{versions[0]}"),

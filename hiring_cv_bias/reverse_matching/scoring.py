@@ -17,6 +17,19 @@ COMPONENTS = [
 ]
 # the components we can recompute from a profile and the job requirements
 RULE_COMPONENTS = [c for c in COMPONENTS if c not in ("Experience", "Interest")]
+# the formula recovered in phase 1: least-squares weights rounded to one decimal, exact on
+# 99.9% of the pairs. ``build`` re-fits them from the data; the robustness analysis of
+# phase 3 and the tests use this copy.
+WEIGHTS = {
+    "Experience": 2.0,
+    "Interest": 1.0,
+    "Card_match": 0.3,
+    "Languages_match": 0.3,
+    "Regulated_Trainings_match": 0.3,
+    "match_skills": 1.0,
+    "Distance_match": 1.0,
+    "intercept": 0.0,
+}
 
 
 def score_outliers(pairs: pl.DataFrame) -> pl.Series:
@@ -29,13 +42,15 @@ def score_outliers(pairs: pl.DataFrame) -> pl.Series:
 
 
 def score_expr(
-    weights: Mapping[str, float], columns: Mapping[str, str] | None = None
+    weights: Mapping[str, float], columns: Mapping[str, str | pl.Expr] | None = None
 ) -> pl.Expr:
-    """The formula as a polars expression; ``columns`` renames the component columns."""
+    """The formula as a polars expression; ``columns`` replaces a component with another
+    column or with an expression."""
     columns = columns or {}
     expr: pl.Expr = pl.lit(weights["intercept"])
     for c in COMPONENTS:
-        expr = expr + weights[c] * pl.col(columns.get(c, c))
+        term = columns.get(c, c)
+        expr = expr + weights[c] * (pl.col(term) if isinstance(term, str) else term)
     return expr
 
 

@@ -5,6 +5,8 @@ import polars as pl
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
+from hiring_cv_bias.fairness.robustness import reachable_tpr
+
 
 def plot_score_distribution(
     scores: Sequence[float], threshold: float, title: str = ""
@@ -159,5 +161,161 @@ def plot_parser_effect(
         ax.set_xlabel("percentage points")
         ax.grid(axis="x", alpha=0.3)
     _group_axis(axes[0][0], ys)
+    fig.tight_layout()
+    return fig
+
+
+# one fixed color per region, after the three scores (categorical slots 4 and 5)
+REGION_COLORS = {"NORTH": "#eda100", "SOUTH": "#e87ba4"}
+
+
+def _reachable_hull(fpr: float, tpr: float) -> list[tuple[float, float]]:
+    """The rates a group with point (fpr, tpr) can reach by flipping its decisions at
+    random: the quadrilateral of (0, 0), its point, (1, 1) and the mirrored point."""
+    return [(0.0, 0.0), (fpr, tpr), (1.0, 1.0), (1 - fpr, 1 - tpr)]
+
+
+def plot_reachable_region(
+    effect: pl.DataFrame,
+    reference: str = "NORTH",
+    group: str = "SOUTH",
+    attribute: str = "Location",
+) -> Figure:
+    """The leveling-down argument of a post-processing that flips decisions at random
+    per group (Hardt et al. 2016), in ROC space (FPR, TPR). Each group's region holds the
+    rates it can reach; equalized odds needs a point inside both. Left: the whole space;
+    right: a zoom around the two points, with the TPR the reference could reach at the
+    group's FPR (dotted). When the group's point lies inside the reference's region, the
+    best common point is the group's own."""
+    r = reachable_tpr(effect, attribute, reference, group).row(0, named=True)
+    fpr_r, tpr_r = r["fpr_reference"], r["tpr_reference"]
+    fpr_g, tpr_g = r["fpr_group"], r["tpr_group"]
+    reachable = r["reachable_tpr_at_group_fpr"]
+    points = {reference: (fpr_r, tpr_r), group: (fpr_g, tpr_g)}
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+    lo_x, hi_x = 0.0, max(fpr_r, fpr_g) + 0.08
+    lo_y, hi_y = min(tpr_r, tpr_g) - 0.08, 1.0
+    for ax, zoom in zip(axes, (False, True), strict=True):
+        ax.plot([0, 1], [0, 1], color="tab:gray", ls="--", lw=1, zorder=1)
+        for g, (fpr, tpr) in points.items():
+            color = REGION_COLORS.get(g, INK)
+            ax.add_patch(
+                plt.Polygon(
+                    _reachable_hull(fpr, tpr),
+                    closed=True,
+                    facecolor=color,
+                    alpha=0.18,
+                    edgecolor=color,
+                    lw=2,
+                    zorder=2,
+                )
+            )
+            ax.plot(
+                fpr,
+                tpr,
+                "o",
+                markersize=8,
+                color=color,
+                markeredgecolor="white",
+                markeredgewidth=2,
+                zorder=4,
+            )
+            # in the zoom the reference's label goes up-left, clear of the dotted line
+            left = zoom and g == reference
+            ax.annotate(
+                f"{g.title()} ({fpr:.3f}, {tpr:.3f})" if zoom else g.title(),
+                (fpr, tpr),
+                xytext=(-6, 8) if left else (8, -4 if g == group else 6),
+                textcoords="offset points",
+                ha="right" if left else "left",
+                color=INK,
+                fontsize=9,
+                zorder=5,
+            )
+        if zoom:
+            ax.plot(
+                [fpr_g, fpr_g], [tpr_g, reachable], color=INK, ls=":", lw=1.5, zorder=3
+            )
+            ax.plot(fpr_g, reachable, "o", markersize=5, color=INK, zorder=4)
+            ax.annotate(
+                f"{reference.title()} reachable at the same FPR: {reachable:.3f}",
+                (fpr_g, reachable),
+                xytext=(8, 0),
+                textcoords="offset points",
+                va="center",
+                color=INK,
+                fontsize=9,
+            )
+            ax.set_xlim(lo_x, hi_x)
+            ax.set_ylim(lo_y, hi_y)
+            ax.set_title("zoom around the two points", fontsize=10)
+        else:
+            ax.add_patch(
+                plt.Rectangle(
+                    (lo_x, lo_y),
+                    hi_x - lo_x,
+                    hi_y - lo_y,
+                    fill=False,
+                    edgecolor=INK,
+                    lw=1,
+                    ls="-",
+                    zorder=3,
+                )
+            )
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            ax.set_aspect("equal")
+            ax.set_title("ROC space; dashed: TPR = FPR", fontsize=10)
+        ax.set_xlabel("false positive rate (FPR)")
+        ax.set_ylabel("true positive rate (TPR = 1 − FNR)")
+        ax.grid(alpha=0.3)
+    fig.tight_layout()
+    return fig
+
+
+# the classes of ``list_class``, as short labels for a figure
+CLASS_LABELS = {
+    "none required": "no skill required",
+    "required, same for all": "skills required,\nsame for all",
+    "required, discriminate": "skills that separate\nthe candidates",
+}
+
+
+def plot_error_by_class(
+    by_class: pl.DataFrame,
+    reference: str = "NORTH",
+    group: str = "SOUTH",
+    labels: Mapping[str, str] = CLASS_LABELS,
+) -> Figure:
+    """The error rate of ``reference`` and ``group`` in every class of lists, with their
+    95% intervals, from a bootstrapped ``error_by_class`` table; the gap of ``group``
+    with its interval is written on the right of each row."""
+    fig, ax = plt.subplots(figsize=(7, 3.2))
+    ys = {c: i for i, c in enumerate(by_class["class"])}
+    for offset, region in ((-0.14, reference), (0.14, group)):
+        col = f"error_{region.lower()}"
+        _dots(
+            ax,
+            by_class,
+            col,
+            [ys[c] + offset for c in by_class["class"]],
+            color=REGION_COLORS.get(region, INK),
+            label=region.title(),
+        )
+    for r in by_class.iter_rows(named=True):
+        ax.annotate(
+            f"gap {100 * r['gap']:+.1f} [{100 * r['gap_lo']:.1f}, {100 * r['gap_hi']:.1f}]",
+            (1.02, ys[r["class"]]),
+            xycoords=("axes fraction", "data"),
+            va="center",
+            color=INK,
+            fontsize=9,
+        )
+    ax.set_yticks(list(ys.values()), [labels.get(c, c) for c in ys])
+    ax.invert_yaxis()
+    ax.set_xlabel("error rate, % (outcome differs between O and C)")
+    ax.grid(axis="x", alpha=0.3)
+    ax.legend(frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=2)
     fig.tight_layout()
     return fig

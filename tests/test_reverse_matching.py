@@ -20,23 +20,12 @@ from hiring_cv_bias.reverse_matching.profiles import (
     split_items,
 )
 from hiring_cv_bias.reverse_matching.scoring import (
+    WEIGHTS,
     fit_weights,
     score_expr,
     score_outliers,
     validate_formula,
 )
-
-# the formula recovered from the Adecco data, used as known truth in the tests
-WEIGHTS = {
-    "Experience": 2.0,
-    "Interest": 1.0,
-    "Card_match": 0.3,
-    "Languages_match": 0.3,
-    "Regulated_Trainings_match": 0.3,
-    "match_skills": 1.0,
-    "Distance_match": 1.0,
-    "intercept": 0.0,
-}
 
 
 def score_of(components: dict[str, float]) -> float:

@@ -88,6 +88,16 @@ def test_parser_effect_false_negative_and_false_positive_rates():
     assert female["npv_diff"] == pytest.approx(1 / 3 - 0.5)
 
 
+def test_parser_effect_with_another_decision_and_label():
+    effect = parser_effect(_outcomes(), ["Gender"], decision="C", label="adecco")
+    assert effect.columns[3:5] == ["rate_C", "rate_change"]
+    female = _row(effect, "Female")
+    # Adecco selects 4 and 5, C selects 4, 5 and 6: no false negative, one false
+    # positive of two negatives
+    assert (female["fnr"], female["fpr"]) == (0, 0.5)
+    assert female["rate_change"] == pytest.approx(0.5 - 0.75)
+
+
 def test_parser_changes_share_of_pairs_whose_components_change():
     df = add_group(
         pl.DataFrame(
