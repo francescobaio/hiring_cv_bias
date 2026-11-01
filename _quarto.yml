@@ -14,6 +14,8 @@ website:
         href: pages/02-pipeline.html
       - text: "Results"
         href: pages/03-results.html
+      - text: "Fairness Audit"
+        href: pages/04-fairness-audit.html
 
   page-footer:
     left: "Francesco Baiocchi & Leonardo Petrilli"

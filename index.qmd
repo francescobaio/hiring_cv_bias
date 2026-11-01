@@ -25,8 +25,9 @@ Below you’ll find the main sections, each linked to provide an overview and ac
 - **[03 – Results](pages/03-results.qmd)**  
     Presents visualizations and statistics that expose where and how the parser over or under represents certain skills.
 
-- **04 – Future work**  
-  Additional validation steps and bias mitigation strategies for the parsing pipeline.
+- **[04 – Fairness Audit](pages/04-fairness-audit.qmd)** *(AI Ethics, work in progress)*  
+    Follows the parser's errors down to the selection on the job offers: whether they change who is selected, and
+    whether some groups (gender, macro-region) are hit more than others.
 
 
 ## Repository Structure
