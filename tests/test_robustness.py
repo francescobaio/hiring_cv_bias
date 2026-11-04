@@ -15,9 +15,11 @@ from hiring_cv_bias.fairness.robustness import (
     margin_to_cutoff,
     perturbation_flips,
     reachable_tpr,
+    share_where_gap_significant,
     standardized_error,
+    term_spread,
 )
-from hiring_cv_bias.reverse_matching.scoring import RULE_COMPONENTS
+from hiring_cv_bias.reverse_matching.scoring import COMPONENTS, RULE_COMPONENTS
 
 
 def lists() -> pl.DataFrame:
@@ -73,9 +75,48 @@ def test_error_by_band_and_standardization():
     std = standardized_error(df)
     south = std.filter(pl.col("group") == "SOUTH").row(0, named=True)
     assert south["error"] == 0.5 and south["gap"] == 0.5
-    # same distribution of bands in both regions: standardized equals crude
+    # same distribution of bands in both regions: standardized equals crude, and the
+    # margins explain nothing of the gap
     assert abs(south["error_std"] - south["error"]) < 1e-12
-    assert std.filter(pl.col("group") == "NORTH")["gap_std"][0] == 0.0
+    assert abs(south["explained"]) < 1e-12
+    assert abs(south["explained_share"]) < 1e-12
+    north = std.filter(pl.col("group") == "NORTH").row(0, named=True)
+    assert north["gap_std"] == 0.0 and north["explained_share"] is None
+
+
+def test_share_where_gap_significant():
+    table = pl.DataFrame(
+        {
+            "group": ["NORTH", "CENTER", "SOUTH"],
+            "gap": [0.0, 0.009, 0.028],
+            "gap_lo": [0.0, -0.008, 0.013],
+            "gap_hi": [0.0, 0.028, 0.044],
+            "explained_share": [None, 0.44, 0.46],
+            "explained_share_lo": [None, -2.4, 0.24],
+            "explained_share_hi": [None, 3.8, 0.88],
+        }
+    )
+    out = share_where_gap_significant(table)
+    # only the South's gap excludes 0: the other shares are dropped, the gaps kept
+    assert out["explained_share"].to_list() == [None, None, 0.46]
+    assert out["explained_share_hi"].to_list() == [None, None, 0.88]
+    assert out["gap"].to_list() == table["gap"].to_list()
+
+
+def test_term_spread():
+    spread = term_spread(lists())
+    assert spread.columns == ["term", "NORTH", "SOUTH", "change"]
+    assert spread["term"].to_list() == [*COMPONENTS, "score"]
+    row = {t: (n, s) for t, n, s, _ in spread.rows()}
+    # in each region one list has match_skills 1, 0.5, 0, 0 (weight 1) and one has all 0
+    half = np.std([1, 0.5, 0, 0], ddof=1) / 2
+    assert all(abs(v - half) < 1e-12 for v in row["match_skills"])
+    # Interest is 1 everywhere; the score is 4, 3, 2, 1 in every list
+    assert row["Interest"] == (0.0, 0.0)
+    assert all(abs(v - np.std([4, 3, 2, 1], ddof=1)) < 1e-12 for v in row["score"])
+    # the same spread in both regions: no change, also for a constant term
+    change = dict(zip(spread["term"], spread["change"], strict=True))
+    assert change["score"] == 0.0 and change["Interest"] == 0.0
 
 
 def test_list_classes_and_gaps():

@@ -51,8 +51,9 @@ Every candidate profile comes in three versions:
 * **Mostly the lists, not the parser.** Southern candidates sit closer to the cut, because most southern jobs
   require no skill that separates the candidates. With the North's margins half of the gap goes; where the required
   skills separate the candidates, the South's gap is 0.3 points and not significant.
-* **RQ2 is open.** The usual mitigation techniques have nothing to act on here (see [What a mitigation could do](#what-a-mitigation-could-do)).
-  Section 3.6 starts RQ3: how robust the decisions are to noise in the profile.
+* **RQ2 and RQ3 are open.** The usual mitigation techniques have nothing to act on here (see [What a mitigation could do](#what-a-mitigation-could-do)).
+  Section 3.6 explains the South's gap within RQ1; it does not answer RQ3, which still asks which fields drive the
+  effect and how robust the conclusions are to our choices.
 :::
 
 ## Phase 1 – Data and audit
