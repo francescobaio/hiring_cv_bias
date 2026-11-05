@@ -5,8 +5,6 @@ import polars as pl
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
-from hiring_cv_bias.fairness.robustness import reachable_tpr
-
 
 def plot_score_distribution(
     scores: Sequence[float], threshold: float, title: str = ""
@@ -85,12 +83,16 @@ def _group_rows(table: pl.DataFrame) -> dict[str, float]:
 
 
 def _dots(ax: Axes, table: pl.DataFrame, col: str, ys: list[float], **style) -> None:
-    """One dot per row at ``col`` with its 95% interval, in percent."""
+    """One dot per row at ``col``, in percent, with its 95% interval when the table has
+    the columns ``<col>_lo`` and ``<col>_hi``."""
     x = 100 * table[col]
+    has_interval = f"{col}_lo" in table.columns
     ax.errorbar(
         x,
         ys,
-        xerr=[x - 100 * table[f"{col}_lo"], 100 * table[f"{col}_hi"] - x],
+        xerr=[x - 100 * table[f"{col}_lo"], 100 * table[f"{col}_hi"] - x]
+        if has_interval
+        else None,
         fmt="o",
         markersize=5,
         elinewidth=1.5,
@@ -176,26 +178,25 @@ def _reachable_hull(fpr: float, tpr: float) -> list[tuple[float, float]]:
 
 
 def plot_reachable_region(
-    effect: pl.DataFrame,
-    reference: str = "NORTH",
-    group: str = "SOUTH",
-    attribute: str = "Location",
+    flips: pl.DataFrame, reference: str = "NORTH", group: str = "SOUTH"
 ) -> Figure:
     """The leveling-down argument of a post-processing that flips decisions at random
-    per group (Hardt et al. 2016), in ROC space (FPR, TPR). Each group's region holds the
-    rates it can reach; equalized odds needs a point inside both. Left: the whole space;
-    right: a zoom around the two points, with the TPR the reference could reach at the
-    group's FPR (dotted). When the group's point lies inside the reference's region, the
-    best common point is the group's own."""
-    r = reachable_tpr(effect, attribute, reference, group).row(0, named=True)
-    fpr_r, tpr_r = r["fpr_reference"], r["tpr_reference"]
-    fpr_g, tpr_g = r["fpr_group"], r["tpr_group"]
-    reachable = r["reachable_tpr_at_group_fpr"]
+    per group (Hardt et al. 2016), in ROC space (FPR, TPR), from the table of
+    ``equalized_odds_flips``. Each group's region holds the rates it can reach;
+    equalized odds needs a point inside both, and the linear program picks the one with
+    the fewest errors. Left: the whole space; right: a zoom around the two points, with
+    the common point after the flips (black) and the move of the reference to it
+    (dotted). When the group's point lies inside the reference's region, the common
+    point is the group's own."""
+    rows = {r["group"]: r for r in flips.iter_rows(named=True)}
+    fpr_r, tpr_r = rows[reference]["fpr"], rows[reference]["tpr"]
+    fpr_g, tpr_g = rows[group]["fpr"], rows[group]["tpr"]
+    fpr_after, tpr_after = rows[group]["fpr_after"], rows[group]["tpr_after"]
     points = {reference: (fpr_r, tpr_r), group: (fpr_g, tpr_g)}
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 4.8))
-    lo_x, hi_x = 0.0, max(fpr_r, fpr_g) + 0.08
-    lo_y, hi_y = min(tpr_r, tpr_g) - 0.08, 1.0
+    lo_x, hi_x = 0.0, max(fpr_r, fpr_g, fpr_after) + 0.08
+    lo_y, hi_y = min(tpr_r, tpr_g, tpr_after) - 0.08, 1.0
     for ax, zoom in zip(axes, (False, True), strict=True):
         ax.plot([0, 1], [0, 1], color="tab:gray", ls="--", lw=1, zorder=1)
         for g, (fpr, tpr) in points.items():
@@ -235,13 +236,18 @@ def plot_reachable_region(
             )
         if zoom:
             ax.plot(
-                [fpr_g, fpr_g], [tpr_g, reachable], color=INK, ls=":", lw=1.5, zorder=3
+                [fpr_r, fpr_after],
+                [tpr_r, tpr_after],
+                color=INK,
+                ls=":",
+                lw=1.5,
+                zorder=3,
             )
-            ax.plot(fpr_g, reachable, "o", markersize=5, color=INK, zorder=4)
+            ax.plot(fpr_after, tpr_after, "o", markersize=5, color=INK, zorder=4)
             ax.annotate(
-                f"{reference.title()} reachable at the same FPR: {reachable:.3f}",
-                (fpr_g, reachable),
-                xytext=(8, 0),
+                f"after the flips: ({fpr_after:.3f}, {tpr_after:.3f})",
+                (fpr_after, tpr_after),
+                xytext=(8, -14),
                 textcoords="offset points",
                 va="center",
                 color=INK,
@@ -317,5 +323,42 @@ def plot_error_by_class(
     ax.set_xlabel("error rate, % (outcome differs between O and C)")
     ax.grid(axis="x", alpha=0.3)
     ax.legend(frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=2)
+    fig.tight_layout()
+    return fig
+
+
+MITIGATION_PANELS = {
+    "rate": "selection rate, %",
+    "fnr": "false negative rate, %",
+    "fpr": "false positive rate, %",
+}
+
+
+def plot_mitigation(
+    table: pl.DataFrame,
+    regions: Sequence[str] = ("NORTH", "SOUTH"),
+    panels: Mapping[str, str] = MITIGATION_PANELS,
+) -> Figure:
+    """The selection rate and the two error rates of every region, one row per method of
+    a ``mitigation_table``; the gap between the two dots of a row is what each
+    mitigation closes."""
+    fig, axes = plt.subplots(
+        1, len(panels), figsize=(3.4 * len(panels), 3), sharey=True
+    )
+    ys = {m: float(i) for i, m in enumerate(table["method"])}
+    for ax, (rate, title) in zip(axes, panels.items(), strict=True):
+        for region in regions:
+            _dots(
+                ax,
+                table,
+                f"{rate}_{region}",
+                list(ys.values()),
+                color=REGION_COLORS.get(region, INK),
+                label=region.title(),
+            )
+        ax.set_xlabel(title)
+        ax.grid(axis="x", alpha=0.3)
+    _group_axis(axes[0], ys)
+    axes[0].legend(frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=2)
     fig.tight_layout()
     return fig

@@ -11,9 +11,7 @@ list, per group; ``list_class`` sorts the lists by whether the job's required sk
 separate their candidates (``match_skills`` is the term that loses most of its spread in
 the South), with ``list_classes_table`` and ``error_by_class``.
 ``perturbation_flips`` measures the stability of the decisions directly, as the share
-that change under random noise on ``Experience``. ``reachable_tpr`` says whether a
-post-processing that flips decisions per group could do more than bring the better group
-down to the worse one."""
+that change under random noise on ``Experience``."""
 
 from collections.abc import Sequence
 
@@ -387,40 +385,3 @@ def perturbation_flips(
             .sort(list(by))
         )
     return pl.concat(rows)
-
-
-def reachable_tpr(
-    effect: pl.DataFrame,
-    attribute: str = "Location",
-    reference: str = "NORTH",
-    group: str = "SOUTH",
-) -> pl.DataFrame:
-    """Whether a post-processing that flips decisions at random, with probabilities per
-    group (Hardt et al. 2016), can equalize the rates without leveling down. From a
-    ``parser_effect`` table: the true positive rate (1 − FNR) and false positive rate of
-    ``reference`` and ``group``; the highest TPR the reference can reach at the group's
-    FPR by random flips (the upper edge of its reachable region, the segment from its
-    own point to (1, 1) or to (0, 0)); and whether the group's point lies inside that
-    region, in which case the only common rates are the group's own and the reference
-    can only be brought down to them."""
-    rows = effect.filter(pl.col("attribute") == attribute)
-    ref = rows.filter(pl.col("group") == reference).row(0, named=True)
-    grp = rows.filter(pl.col("group") == group).row(0, named=True)
-    tpr_r, fpr_r = 1 - ref["fnr"], ref["fpr"]
-    tpr_g, fpr_g = 1 - grp["fnr"], grp["fpr"]
-    if fpr_g >= fpr_r:
-        reachable = tpr_r + (1 - tpr_r) * (fpr_g - fpr_r) / (1 - fpr_r)
-    else:
-        reachable = tpr_r * fpr_g / fpr_r
-    return pl.DataFrame(
-        {
-            "reference": [reference],
-            "group": [group],
-            "tpr_reference": [tpr_r],
-            "fpr_reference": [fpr_r],
-            "tpr_group": [tpr_g],
-            "fpr_group": [fpr_g],
-            "reachable_tpr_at_group_fpr": [reachable],
-            "group_inside": [tpr_g <= reachable],
-        }
-    )

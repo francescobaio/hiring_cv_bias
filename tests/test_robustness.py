@@ -1,7 +1,6 @@
 import numpy as np
 import polars as pl
 
-from hiring_cv_bias.fairness.metrics import parser_effect
 from hiring_cv_bias.fairness.protocol import add_group, add_outcomes
 from hiring_cv_bias.fairness.robustness import (
     LIST_CLASSES,
@@ -14,7 +13,6 @@ from hiring_cv_bias.fairness.robustness import (
     margin_table,
     margin_to_cutoff,
     perturbation_flips,
-    reachable_tpr,
     share_where_gap_significant,
     standardized_error,
     term_spread,
@@ -147,17 +145,3 @@ def test_perturbation_flips_nothing_without_noise_and_something_with_it():
     loud = perturbation_flips(df, sigmas=(5.0,), n_draws=20, seed=1)
     assert loud["flipped"].min() > 0
     assert loud.columns == ["sigma", "Location", "pairs", "flipped"]
-
-
-def test_reachable_tpr_inside_and_outside():
-    effect = parser_effect(lists(), ["Location"])
-    inside = reachable_tpr(effect)
-    # North: TPR 1, FPR 0; South: TPR 0.5, FPR 0.5. From (0, 1) to (1, 1) the North
-    # reaches TPR 1 at the South's FPR, so the South's point is inside
-    assert inside["reachable_tpr_at_group_fpr"][0] == 1.0
-    assert bool(inside["group_inside"][0])
-    swapped = reachable_tpr(effect, reference="SOUTH", group="NORTH")
-    # the South, from (0.5, 0.5) toward (0, 0), reaches TPR 0 at FPR 0: the North is out
-    assert swapped["reachable_tpr_at_group_fpr"][0] == 0.0
-    assert not bool(swapped["group_inside"][0])
-    assert np.isclose(swapped["tpr_group"][0], 1.0)
