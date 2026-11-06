@@ -5,7 +5,10 @@ What the correction changes and for whom (``profile_corrections``, ``parser_chan
 ``outcome_change_sources``); whether every group is selected at the same rate
 (``selection_rates``, independence); whether the parser's errors have the same rates in
 every group (``parser_effect``, separation and sufficiency); confidence intervals for all
-of it (``bootstrap``) and tables readable in percent (``for_display``).
+of it (``bootstrap``) and tables readable in percent (``for_display``). The statistics
+are written here, not taken from fairlearn, because the bootstrap resamples candidates,
+not rows, and redraws the tie-break, which fairlearn's bootstrap does not; the tests check
+them against the library.
 
 Every statistic is computed on the protocol pairs with their outcomes (``add_outcomes``)
 and reported per group of each sensitive attribute, in long form, each group against the

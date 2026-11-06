@@ -1,6 +1,16 @@
 import numpy as np
+import pandas as pd
 import polars as pl
 import pytest
+from fairlearn.metrics import (
+    MetricFrame,
+    demographic_parity_difference,
+    equalized_odds_difference,
+    false_negative_rate,
+    false_positive_rate,
+    selection_rate,
+)
+from sklearn.metrics import precision_score
 
 from hiring_cv_bias.fairness.metrics import (
     bootstrap,
@@ -145,6 +155,65 @@ def _protocol_pairs(seed: int = 0) -> pl.DataFrame:
             }
         )
     ).unique(["Job_id", "CANDIDATE_ID"])
+
+
+def _fairlearn_rates(
+    df: pl.DataFrame, attribute: str, decision: str = "O", label: str = "C"
+) -> pd.DataFrame:
+    # the rates of ``selection_rates`` and ``parser_effect`` as fairlearn computes them
+    def npv(y_true, y_pred):
+        return precision_score(y_true, y_pred, pos_label=0, zero_division=0)
+
+    return MetricFrame(
+        metrics={
+            "rate": selection_rate,
+            "fnr": false_negative_rate,
+            "fpr": false_positive_rate,
+            "ppv": precision_score,
+            "npv": npv,
+        },
+        y_true=df[f"top_half_{label}"].to_numpy().astype(int),
+        y_pred=df[f"top_half_{decision}"].to_numpy().astype(int),
+        sensitive_features=df[attribute].to_numpy(),
+    ).by_group
+
+
+def test_rates_agree_with_fairlearn_on_the_hand_made_outcomes():
+    df = _outcomes()
+    library = _fairlearn_rates(df, "Gender")
+    rates, effect = selection_rates(df, ["Gender"]), parser_effect(df, ["Gender"])
+    for group in ("Female", "Male"):
+        assert library.loc[group, "rate"] == _row(rates, group)["rate_O"]
+        for rate in ("fnr", "fpr", "ppv", "npv"):
+            assert library.loc[group, rate] == pytest.approx(_row(effect, group)[rate])
+    # two groups: the library's largest gap is the gap from the reference
+    inputs = {
+        "y_true": df["top_half_C"].to_numpy().astype(int),
+        "y_pred": df["top_half_O"].to_numpy().astype(int),
+        "sensitive_features": df["Gender"].to_numpy(),
+    }
+    female = _row(rates, "Female")
+    assert demographic_parity_difference(**inputs) == pytest.approx(-female["spd_O"])
+    female = _row(effect, "Female")
+    assert equalized_odds_difference(**inputs) == pytest.approx(
+        max(abs(female["fnr_diff"]), abs(female["fpr_diff"]))
+    )
+
+
+def test_rates_agree_with_fairlearn_on_protocol_pairs():
+    df = add_outcomes(_protocol_pairs())
+    for attribute in ("Location", "group"):
+        library = _fairlearn_rates(df, attribute, decision="C", label="adecco")
+        rates = selection_rates(df, [attribute], ["C"])
+        effect = parser_effect(df, [attribute], decision="C", label="adecco")
+        for group in rates["group"]:
+            assert library.loc[group, "rate"] == pytest.approx(
+                _row(rates, group)["rate_C"]
+            )
+            for rate in ("fnr", "fpr", "ppv", "npv"):
+                assert library.loc[group, rate] == pytest.approx(
+                    _row(effect, group)[rate]
+                )
 
 
 def test_bootstrap_gives_the_point_estimate_inside_its_interval():
