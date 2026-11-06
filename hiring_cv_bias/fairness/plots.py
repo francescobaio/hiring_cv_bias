@@ -182,17 +182,19 @@ def plot_reachable_region(
 ) -> Figure:
     """The leveling-down argument of a post-processing that flips decisions at random
     per group (Hardt et al. 2016), in ROC space (FPR, TPR), from the table of
-    ``equalized_odds_flips``. Each group's region holds the rates it can reach;
-    equalized odds needs a point inside both, and the linear program picks the one with
-    the fewest errors. Left: the whole space; right: a zoom around the two points, with
-    the common point after the flips (black) and the move of the reference to it
-    (dotted). When the group's point lies inside the reference's region, the common
-    point is the group's own."""
+    ``flip_table``. Each group's region holds the rates it can reach; equalized odds
+    needs a point inside both, and the optimizer picks the one with the fewest errors.
+    Left: the whole space; right: a zoom around the two points, with the common point
+    after the flips (black) and the move of each group to it (dotted). When the group's
+    point lies inside the reference's region, the common point is the group's own and
+    only the reference moves."""
     rows = {r["group"]: r for r in flips.iter_rows(named=True)}
     fpr_r, tpr_r = rows[reference]["fpr"], rows[reference]["tpr"]
     fpr_g, tpr_g = rows[group]["fpr"], rows[group]["tpr"]
     fpr_after, tpr_after = rows[group]["fpr_after"], rows[group]["tpr_after"]
     points = {reference: (fpr_r, tpr_r), group: (fpr_g, tpr_g)}
+    group_moves = abs(fpr_after - fpr_g) + abs(tpr_after - tpr_g) > 1e-3
+    moves = [(fpr_r, tpr_r), (fpr_g, tpr_g)] if group_moves else [(fpr_r, tpr_r)]
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 4.8))
     lo_x, hi_x = 0.0, max(fpr_r, fpr_g, fpr_after) + 0.08
@@ -235,19 +237,21 @@ def plot_reachable_region(
                 zorder=5,
             )
         if zoom:
-            ax.plot(
-                [fpr_r, fpr_after],
-                [tpr_r, tpr_after],
-                color=INK,
-                ls=":",
-                lw=1.5,
-                zorder=3,
-            )
+            for fpr, tpr in moves:
+                ax.plot(
+                    [fpr, fpr_after],
+                    [tpr, tpr_after],
+                    color=INK,
+                    ls=":",
+                    lw=1.5,
+                    zorder=3,
+                )
             ax.plot(fpr_after, tpr_after, "o", markersize=5, color=INK, zorder=4)
             ax.annotate(
                 f"after the flips: ({fpr_after:.3f}, {tpr_after:.3f})",
                 (fpr_after, tpr_after),
-                xytext=(8, -14),
+                # below the group's own label when the two points are close
+                xytext=(8, -28 if group_moves else -14),
                 textcoords="offset points",
                 va="center",
                 color=INK,
