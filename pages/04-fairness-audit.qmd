@@ -9,8 +9,8 @@ format:
 
 ::: {.callout-note}
 **Work in progress.** This page sums up phases 1–3 of the AI Ethics extension. Every number comes from a cell
-output of the latest runs (1 November 2026) of the notebooks in `notebooks/ethics/` (`phase1_data_audit`,
-`phase2_protocol`, `phase3_propagation`); the section in brackets, e.g. (3.3), points to the notebook section. The
+output of the latest runs (1 November 2026) of the notebooks in `notebooks/ethics/` (`data_audit_and_protocol`,
+`propagation`); the section in brackets, e.g. (3.3), points to the notebook section. The
 notebooks published on this site are an earlier version and will be updated with the next merge.
 :::
 
