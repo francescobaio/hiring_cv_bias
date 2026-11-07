@@ -21,10 +21,10 @@ output. An error matters only if it changes a decision. Adecco's *reverse matchi
 (candidate, job) pair. Read from the job's side, the scores rank the candidates of each job, as a recruiter would see
 them. We ask:
 
-* **RQ1** – Do the parser's errors reach the selection, and do they penalize some groups (gender, macro-region,
+* **RQ1**: Do the parser's errors reach the selection, and do they penalize some groups (gender, macro-region,
   women of the South) more than others?
-* **RQ2** – Does correcting the parser work as a fairness mitigation, compared with the standard techniques?
-* **RQ3** – Which information drives the effect, and how robust are the conclusions?
+* **RQ2**: If some groups are penalized, which mitigations can reduce the gap, and at what cost?
+* **RQ3**: What drives the effect of the parser's errors, and how robust are the conclusions to our choices?
 
 ```
 CV ──parser──► profile ──matcher──► score for every (candidate, job) ──► position among the job's candidates
@@ -51,9 +51,9 @@ Every candidate profile comes in three versions:
 * **Mostly the lists, not the parser.** Southern candidates sit closer to the cut, because most southern jobs
   require no skill that separates the candidates. With the North's margins half of the gap goes; where the required
   skills separate the candidates, the South's gap is 0.3 points and not significant.
-* **RQ2 and RQ3 are open.** The usual mitigation techniques have nothing to act on here (see [What a mitigation could do](#what-a-mitigation-could-do)).
-  Section 3.6 explains the South's gap within RQ1; it does not answer RQ3, which still asks which fields drive the
-  effect and how robust the conclusions are to our choices.
+* **RQ2 is open.** The usual mitigation techniques have nothing to act on here (see [What a mitigation could do](#what-a-mitigation-could-do)).
+  Section 3.6 answers the first part of RQ3, what drives the effect; the robustness to our choices is covered only
+  for the top 3 and for noise on `Experience`.
 :::
 
 ## Phase 1 – Data and audit
@@ -255,8 +255,6 @@ decisions, mean of 20 draws):
 
 The harm is a gap in separation and sufficiency, not in independence, and it comes from noise meeting fragile lists.
 
-* **Correct the parser** (C) removes the parser's noise, but the lists stay as they are: any other noise would again
-  flip more southern decisions.
 * **Change the matcher**: there is nothing to train. The matcher is a formula with seven known weights and a cut, so
   in-processing has no loss to add a fairness term to.
 * **Post-process the decisions** for equalized odds (Hardt et al., 2016): the South's point lies inside the

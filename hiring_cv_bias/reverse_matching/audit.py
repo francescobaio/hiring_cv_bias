@@ -4,7 +4,7 @@ rules with Adecco's components, comparison of the three profile versions."""
 import polars as pl
 
 from hiring_cv_bias.reverse_matching.components import add_components
-from hiring_cv_bias.reverse_matching.profiles import PARSER_FIELDS, PROFILE_FIELDS
+from hiring_cv_bias.reverse_matching.profiles import PARSER_FIELDS
 from hiring_cv_bias.reverse_matching.scoring import RULE_COMPONENTS
 
 # how much a column of the pairs must move between two versions to count as different
@@ -44,13 +44,15 @@ def rules_agreement(
 
 
 def profile_field_stats(profiles: dict[str, pl.DataFrame]) -> pl.DataFrame:
-    """Per version: mean items per candidate and share of candidates with at least one item."""
+    """Per version and parser field: mean items per candidate and share of candidates with at
+    least one item. ``regulated`` and ``skills`` are left out: they are copied from P, so they are
+    the same in every version."""
     return pl.concat(
         prof.select(
             pl.lit(v).alias("version"),
             *[
                 e
-                for f in PROFILE_FIELDS
+                for f in PARSER_FIELDS
                 for e in (
                     pl.col(f).list.len().mean().alias(f),
                     (pl.col(f).list.len() > 0).mean().alias(f + "_nonempty"),

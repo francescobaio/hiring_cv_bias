@@ -13,7 +13,7 @@ from typing import Any, cast
 import numpy as np
 import polars as pl
 from lingua import Language, LanguageDetectorBuilder
-from scipy.stats import pearsonr, spearmanr
+from scipy.stats import spearmanr
 from sentence_transformers import SentenceTransformer
 
 MODEL_NAME = "intfloat/multilingual-e5-base"
@@ -193,19 +193,13 @@ def candidate_estimators(cache_dir: str) -> dict[str, TitleSimilarity]:
 
 
 def evaluate_estimate(pairs: pl.DataFrame, estimate: np.ndarray) -> dict[str, float]:
-    """How close ``estimate`` is to the real ``Experience`` of ``pairs``: correlations on all
-    pairs and on the pairs with titles but no verbatim match (``spearman_non_verbatim``),
+    """How close ``estimate`` is to the real ``Experience`` of ``pairs``: rank correlation,
     mean absolute error, the lowest estimate among the pairs with titles and the number of
     pairs estimated below 0.4 while the real value is above 0.8 (``n_far_below``)."""
     y = pairs["Experience"].to_numpy()
     with_titles = estimate > 0
-    non_verbatim = with_titles & (estimate < 1)
     return {
-        "pearson": cast(float, pearsonr(estimate, y)[0]),
         "spearman": cast(float, spearmanr(estimate, y)[0]),
-        "spearman_non_verbatim": cast(
-            float, spearmanr(estimate[non_verbatim], y[non_verbatim])[0]
-        ),
         "mae": float(np.mean(np.abs(estimate - y))),
         "min_with_titles": float(estimate[with_titles].min()),
         "n_far_below": int(np.sum((estimate < 0.4) & (y > 0.8))),

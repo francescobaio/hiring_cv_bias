@@ -25,7 +25,7 @@ With these preparations in place, our pipeline we built is divided into the foll
 
    The candidates’ demographic data (age, gender, and geographic location) were then analyzed to uncover any potential correlations or redundancies among the features.
 
-   🔗 [See the Cleaning notebook](../notebooks/data_cleaning.html)
+   🔗 [See the Cleaning notebook](../notebooks/ai_in_industry/data_cleaning.html)
 
 2. **Exploratory Analysis**  
    Once the data had been cleaned, we conducted an exploratory analysis of the skills extracted by the parser, focusing on:
@@ -36,7 +36,7 @@ With these preparations in place, our pipeline we built is divided into the foll
    ![](../pages/images/skill_distribution.png){.lightbox style="max-width: 90%;"}
 
 
-   🔗 [See the Exploration notebook](../notebooks/data_exploration.html)
+   🔗 [See the Exploration notebook](../notebooks/ai_in_industry/data_exploration.html)
 
 3. **Distributions Analysis**  
 
@@ -52,7 +52,7 @@ With these preparations in place, our pipeline we built is divided into the foll
    
    ![](../pages/images/gender_distribution.png){.lighbox} 
 
-   🔗 [See the Distributions Analysis notebook](../notebooks/distributions_analysis.html)
+   🔗 [See the Distributions Analysis notebook](../notebooks/ai_in_industry/distributions_analysis.html)
 
 4. **Bias Detection**  
 
@@ -73,5 +73,5 @@ With these preparations in place, our pipeline we built is divided into the foll
    After applying the pipeline to the skills mentioned above and observing numerous discrepancies between the parser and our extraction method, we conducted a bias assessment across three groups (gender, geographic location, and CV length) to determine whether parser errors disproportionately affect under or over represented populations.
 
 
-   🔗 [See the Bias Detection notebook](../notebooks/bias_detection.html)
+   🔗 [See the Bias Detection notebook](../notebooks/ai_in_industry/bias_detection.html)
 

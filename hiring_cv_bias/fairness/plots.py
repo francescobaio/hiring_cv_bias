@@ -1,6 +1,7 @@
 from collections.abc import Mapping, Sequence
 
 import matplotlib.pyplot as plt
+import numpy as np
 import polars as pl
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -35,11 +36,11 @@ def plot_score_distribution(
     return fig
 
 
-def plot_experience_estimate(pairs: pl.DataFrame) -> Figure:
-    """Estimated ``Experience`` on P against Adecco's value, one dot per pair with titles.
-    The dashed line is the identity: dots on it are estimated exactly."""
-    est, real = "Experience_hat_P", "Experience"
-    df = pairs.filter(pl.col(est) > 0)
+def plot_experience_estimate(estimate: np.ndarray, adecco: np.ndarray) -> Figure:
+    """``estimate`` of ``Experience`` against Adecco's value, one dot per pair with titles
+    (estimate above 0). The dashed line is the identity: dots on it are estimated exactly."""
+    est, real = "estimate", "adecco"
+    df = pl.DataFrame({est: estimate, real: adecco}).filter(pl.col(est) > 0)
     fig, ax = plt.subplots(figsize=(6, 4.5))
     ax.plot([0, 1], [0, 1], linestyle="--", color="tab:gray", linewidth=1, zorder=1)
     ax.scatter(
