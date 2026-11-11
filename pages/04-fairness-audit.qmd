@@ -173,7 +173,7 @@ four-fifths rule. **Independence holds, before and after the correction.**
 
 ### 3.3 Separation: the parser's errors per group
 
-![Selection rate change and FNR/FPR gaps from the reference group (3.3).](figures/separation_gaps.png)
+![FNR and FPR gaps from the reference group (3.3).](figures/separation_gaps.png)
 
 | group | FNR | FPR | FNR gap | FPR gap |
 |---|:-:|:-:|:-:|:-:|
@@ -183,9 +183,8 @@ four-fifths rule. **Independence holds, before and after the correction.**
 | Female | 7.4 | 8.4 | −0.9 [−2.4, 0.5] | −0.5 [−1.7, 0.5] |
 | Female_SOUTH | 10.2 | 12.4 | 2.5 [−0.5, 6.4] | **3.8 [0.3, 6.4]** |
 
-* No group gains or loses places: every `rate_change` interval contains 0.
-* **The South is the only area whose errors differ from the North, in both directions.** False negatives and false
-  positives cancel in the count of places, but more southern decisions are wrong.
+* **The South is the only area whose errors differ from the North, in both directions.** O leaves out more of the
+  southern pairs that C selects, and selects more of the southern pairs that C does not select.
 * Among the intersectional groups only the FPR of `Female_SOUTH` excludes 0 (12.4% against 8.6% for `Male_NORTH`).
 * Women and men: no gap.
 
@@ -200,9 +199,8 @@ rejections in 88.9% against 91.8% (gap −2.9 [−5.7, −0.4]). `Female_SOUTH` 
 
 ### 3.5 Top 3
 
-With the stricter selection every `rate_change` interval still contains 0. Of the South's gaps, the higher FNR
-(4.4 [0.3, 8.3]) and the lower PPV (−4.5 [−7.8, −1.6]) remain; the FPR and NPV gaps do not. The gaps of
-`Female_SOUTH` do not remain (FNR 5.1 [−0.6, 11.3]).
+With the stricter selection, the higher FNR (4.4 [0.3, 8.3]) and the lower PPV (−4.5 [−7.8, −1.6]) of the South
+remain; its FPR and NPV gaps do not. The gaps of `Female_SOUTH` do not remain (FNR 5.1 [−0.6, 11.3]).
 
 Some gaps exclude 0 only with the top 3: women have a lower FPR (−0.8 [−1.6, −0.1]) and a higher PPV
 (+2.3 [0.4, 4.0]), both in their favor; the Center has a higher FPR (2.0 [0.5, 3.9]), and `Male_CENTER` a higher FPR

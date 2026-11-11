@@ -70,22 +70,37 @@ VERSION_LABELS = {
     "C": "C (corrected)",
 }
 INK = "#3d3d3a"
+MUTED = "#8a8984"
+BAND = "#f1f0ec"
+
+# the title of each block of groups, written above it
+ATTRIBUTE_TITLES = {
+    "Gender": "Gender",
+    "Location": "Location",
+    "group": "Gender × location",
+}
+
+
+def _group_label(group: str) -> str:
+    """``Female_NORTH`` as ``Female, North`` and ``NORTH`` as ``North``."""
+    return ", ".join(part.title() for part in group.split("_"))
 
 
 def _group_rows(table: pl.DataFrame) -> dict[str, float]:
-    """y position of every group, one block per attribute with a gap between."""
+    """y position of every group, one block per attribute with a gap between for its
+    title."""
     ys, y = {}, 0.0
     for attribute in table["attribute"].unique(maintain_order=True):
         for group in table.filter(pl.col("attribute") == attribute)["group"]:
             ys[group] = y
             y += 1
-        y += 0.6
+        y += 0.9
     return ys
 
 
 def _dots(ax: Axes, table: pl.DataFrame, col: str, ys: list[float], **style) -> None:
     """One dot per row at ``col``, in percent, with its 95% interval when the table has
-    the columns ``<col>_lo`` and ``<col>_hi``."""
+    the columns ``<col>_lo`` and ``<col>_hi``. A white ring keeps close dots apart."""
     x = 100 * table[col]
     has_interval = f"{col}_lo" in table.columns
     ax.errorbar(
@@ -95,17 +110,58 @@ def _dots(ax: Axes, table: pl.DataFrame, col: str, ys: list[float], **style) -> 
         if has_interval
         else None,
         fmt="o",
-        markersize=5,
-        elinewidth=1.5,
-        zorder=2,
+        markersize=6,
+        markeredgecolor="white",
+        markeredgewidth=1,
+        elinewidth=1.4,
+        zorder=3,
         **style,
     )
 
 
-def _group_axis(ax: Axes, ys: dict[str, float]) -> None:
-    """Group names on the y axis, first group on top."""
-    ax.set_yticks(list(ys.values()), list(ys))
-    ax.invert_yaxis()
+def _clean_axis(ax: Axes) -> None:
+    """Only the bottom spine, a light vertical grid, text in ink."""
+    for side in ("top", "right", "left"):
+        ax.spines[side].set_visible(False)
+    ax.spines["bottom"].set_color(MUTED)
+    ax.tick_params(axis="y", length=0, colors=INK)
+    ax.tick_params(axis="x", colors=INK)
+    ax.xaxis.label.set_color(INK)
+    ax.grid(axis="x", color=BAND, lw=1)
+    ax.set_axisbelow(True)
+
+
+def _bands(ax: Axes, ys: dict[str, float]) -> None:
+    """A light band behind every other row, so the dots of one row read together."""
+    for i, y in enumerate(ys.values()):
+        if i % 2 == 0:
+            ax.axhspan(y - 0.45, y + 0.45, color=BAND, lw=0, zorder=0)
+
+
+def _group_axis(
+    ax: Axes, ys: dict[str, float], table: pl.DataFrame | None = None
+) -> None:
+    """Row names on the y axis, first row on top. With a ``table`` of groups (one
+    ``attribute`` column), the names are written as ``Female, North`` and each block of
+    the same attribute gets its title above it."""
+    grouped = table is not None and "attribute" in table.columns
+    ax.set_yticks(list(ys.values()), [_group_label(g) if grouped else g for g in ys])
+    if table is not None and grouped:
+        for attribute in table["attribute"].unique(maintain_order=True):
+            first = table.filter(pl.col("attribute") == attribute)["group"][0]
+            ax.annotate(
+                ATTRIBUTE_TITLES.get(attribute, attribute),
+                (0, ys[first] - 0.9),
+                xycoords=("axes fraction", "data"),
+                xytext=(-8, 0),
+                textcoords="offset points",
+                ha="right",
+                va="center",
+                fontweight="bold",
+                color=INK,
+            )
+    top = min(ys.values()) - (1.2 if grouped else 0.6)
+    ax.set_ylim(max(ys.values()) + 0.6, top)
 
 
 def plot_selection_rates(rates: pl.DataFrame, overall: float) -> Figure:
@@ -113,10 +169,11 @@ def plot_selection_rates(rates: pl.DataFrame, overall: float) -> Figure:
     dashed line is the rate of all pairs."""
     ys = _group_rows(rates)
     versions = [v for v in VERSION_COLORS if f"rate_{v}" in rates.columns]
-    fig, ax = plt.subplots(figsize=(7, 5.5))
-    ax.axvline(100 * overall, color="tab:gray", ls="--", lw=1, zorder=1)
+    fig, ax = plt.subplots(figsize=(7, 6.5))
+    _clean_axis(ax)
+    ax.axvline(100 * overall, color=MUTED, ls="--", lw=1, zorder=1)
     for i, v in enumerate(versions):
-        offset = (i - (len(versions) - 1) / 2) * 0.22
+        offset = (i - (len(versions) - 1) / 2) * 0.24
         _dots(
             ax,
             rates,
@@ -125,17 +182,34 @@ def plot_selection_rates(rates: pl.DataFrame, overall: float) -> Figure:
             color=VERSION_COLORS[v],
             label=VERSION_LABELS[v],
         )
-    _group_axis(ax, ys)
+    _bands(ax, ys)
+    _group_axis(ax, ys, rates)
+    ax.annotate(
+        f"all pairs {100 * overall:.1f}%",
+        (100 * overall, 1),
+        xycoords=("data", "axes fraction"),
+        xytext=(4, -4),
+        textcoords="offset points",
+        va="top",
+        color=MUTED,
+        fontsize=9,
+    )
     ax.set_xlabel("selection rate, % (top half of the job's candidates)")
-    ax.grid(axis="x", alpha=0.3)
-    ax.legend(frameon=False, loc="lower right")
+    ax.legend(
+        frameon=False,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 1.0),
+        ncol=len(versions),
+        labelcolor=INK,
+        handletextpad=0.3,
+        columnspacing=1.5,
+    )
     fig.tight_layout()
     return fig
 
 
 # the panels of ``plot_parser_effect``: column -> title, one figure per criterion
 SEPARATION_PANELS = {
-    "rate_change": "selection rate change (C − O)",
     "fnr_diff": "FNR gap from the reference",
     "fpr_diff": "FPR gap from the reference",
 }
@@ -149,21 +223,21 @@ def plot_parser_effect(
     effect: pl.DataFrame, panels: Mapping[str, str] = SEPARATION_PANELS
 ) -> Figure:
     """One panel per column of ``panels``, one dot per group with its 95% interval, in
-    percentage points: by default the change of the selection rate when the parser is
-    corrected and the gaps from the reference group in the false negative and false
-    positive rates of O (separation); with ``SUFFICIENCY_PANELS`` the gaps in its
-    predictive values (sufficiency)."""
+    percentage points: by default the gaps from the reference group in the false negative
+    and false positive rates of O (separation); with ``SUFFICIENCY_PANELS`` the gaps in
+    its predictive values (sufficiency)."""
     ys = _group_rows(effect)
     fig, axes = plt.subplots(
         1, len(panels), figsize=(3.7 * len(panels), 5), sharey=True, squeeze=False
     )
     for ax, (col, title) in zip(axes[0], panels.items(), strict=True):
-        ax.axvline(0, color="tab:gray", ls="--", lw=1, zorder=1)
+        _clean_axis(ax)
+        _bands(ax, ys)
+        ax.axvline(0, color=MUTED, ls="--", lw=1, zorder=1)
         _dots(ax, effect, col, [ys[g] for g in effect["group"]], color=INK)
-        ax.set_title(title, fontsize=10)
+        ax.set_title(title, fontsize=10, color=INK)
         ax.set_xlabel("percentage points")
-        ax.grid(axis="x", alpha=0.3)
-    _group_axis(axes[0][0], ys)
+    _group_axis(axes[0][0], ys, effect)
     fig.tight_layout()
     return fig
 

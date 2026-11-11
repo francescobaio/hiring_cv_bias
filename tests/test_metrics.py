@@ -80,13 +80,12 @@ def test_parser_effect_false_negative_and_false_positive_rates():
     effect = parser_effect(_outcomes(), ["Gender"])
     male, female = _row(effect, "Male"), _row(effect, "Female")
     # men: C selects 0 and 2, O selects 0 and 1 → one false negative of two positives,
-    # one false positive of two negatives, no rate change
-    assert (male["fnr"], male["fpr"], male["rate_change"]) == (0.5, 0.5, 0)
+    # one false positive of two negatives
+    assert (male["fnr"], male["fpr"]) == (0.5, 0.5)
     # women: C selects 4, 5, 6, O only 4 → two false negatives of three, no false
-    # positive, rate change +0.5
+    # positive
     assert female["fnr"] == pytest.approx(2 / 3)
     assert female["fpr"] == 0
-    assert female["rate_change"] == 0.5
     assert female["fnr_diff"] == pytest.approx(2 / 3 - 0.5)
     assert female["fpr_diff"] == -0.5
     # sufficiency: men have one true positive of two selected and one true negative of
@@ -100,12 +99,11 @@ def test_parser_effect_false_negative_and_false_positive_rates():
 
 def test_parser_effect_with_another_decision_and_label():
     effect = parser_effect(_outcomes(), ["Gender"], decision="C", label="adecco")
-    assert effect.columns[3:5] == ["rate_C", "rate_change"]
+    assert effect.columns[3] == "rate_C"
     female = _row(effect, "Female")
     # Adecco selects 4 and 5, C selects 4, 5 and 6: no false negative, one false
     # positive of two negatives
     assert (female["fnr"], female["fpr"]) == (0, 0.5)
-    assert female["rate_change"] == pytest.approx(0.5 - 0.75)
 
 
 def test_parser_changes_share_of_pairs_whose_components_change():
@@ -228,9 +226,7 @@ def test_bootstrap_gives_the_point_estimate_inside_its_interval():
         (rates["rate_C_lo"] <= rates["rate_C"])
         & (rates["rate_C"] <= rates["rate_C_hi"])
     ).all()
-    assert {"rate_change_lo", "fnr_diff_lo", "fnr_diff_hi"} <= set(
-        out["effect"].columns
-    )
+    assert {"fnr_diff_lo", "fnr_diff_hi"} <= set(out["effect"].columns)
     # the same seed gives the same intervals
     again = bootstrap(df, stats, n_boot=40, seed=1)
     assert again["rates"]["rate_C_lo"].to_list() == rates["rate_C_lo"].to_list()
@@ -318,10 +314,10 @@ def test_outcome_change_sources_only_look_at_pairs_that_change():
     )
     row = outcome_change_sources(df, ["Gender"]).to_dicts()[0]
     # four pairs change outcome: one gets a license, one a title, one nothing, and one
-    # only an Experience move below the 0.01 tolerance
+    # only an Experience move below the 0.01 tolerance, which counts as no title change
     assert row["changed_pairs"] == 4
     assert row["Card_match"] == pytest.approx(1 / 4)
     assert row["Experience"] == pytest.approx(1 / 4)
     assert row["Languages_match"] == 0
-    assert row["other"] == pytest.approx(1 / 4)
     assert row["score_unchanged"] == pytest.approx(1 / 4)
+    assert "other" not in row

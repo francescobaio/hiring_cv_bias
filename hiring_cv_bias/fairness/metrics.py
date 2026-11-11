@@ -150,20 +150,15 @@ def outcome_change_sources(
 ) -> pl.DataFrame:
     """Why pairs change outcome. Among the pairs whose outcome differs between O and C, per
     group: the share whose own license match, language match or ``Experience`` changed (a
-    pair can count in more than one); ``other``, the share whose score moved only through
-    an ``Experience`` shift within the tolerance; and ``score_unchanged``, the share whose
-    own score did not move at all, so that they changed outcome only because a competitor
-    of the same job was corrected."""
+    pair can count in more than one); and ``score_unchanged``, the share whose own score did
+    not move at all, so that they changed outcome only because a competitor of the same job
+    was corrected."""
     changed = df.filter(pl.col(f"{outcome}_O") != pl.col(f"{outcome}_C"))
-    any_component = pl.any_horizontal(*COMPONENT_CHANGED.values())
     return per_group(
         changed,
         attributes,
         [share(e).alias(k) for k, e in COMPONENT_CHANGED.items()]
-        + [
-            share(SCORE_CHANGED & ~any_component).alias("other"),
-            share(~SCORE_CHANGED).alias("score_unchanged"),
-        ],
+        + [share(~SCORE_CHANGED).alias("score_unchanged")],
     ).rename({"pairs": "changed_pairs"})
 
 
@@ -204,9 +199,9 @@ def parser_effect(
     """Separation and sufficiency. The errors of one version against another per group,
     by default those of the parser: the outcome with the corrected profile (``label``) is
     the label and the outcome with the parser's profile (``decision``) is the decision.
-    The table gives the selection rate of the decision (``rate_<decision>``) and how much
-    the label's differs (``rate_change``); the false negative rate of the decision (``fnr``,
-    pairs the label selects that the decision leaves out) and its false positive rate
+    The table gives the selection rate of the decision (``rate_<decision>``); the false
+    negative rate of the decision (``fnr``, pairs the label selects that the decision
+    leaves out) and its false positive rate
     (``fpr``, pairs the label does not select that the decision selects), whose equality
     across groups is separation; the positive and negative predictive values (``ppv``,
     selected pairs the label confirms; ``npv``, rejected pairs the label confirms), whose
@@ -218,7 +213,6 @@ def parser_effect(
         attributes,
         [
             share(d).alias(f"rate_{decision}"),
-            (share(y) - share(d)).alias("rate_change"),
             share(~d, among=y).alias("fnr"),
             share(d, among=~y).alias("fpr"),
             share(y, among=d).alias("ppv"),
