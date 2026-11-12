@@ -4,6 +4,7 @@ from hiring_cv_bias.fairness.protocol import (
     add_group,
     add_outcomes,
     filter_protocol,
+    list_composition,
     outcome_summary,
     protocol_sizes,
 )
@@ -74,3 +75,29 @@ def test_protocol_sizes_and_outcome_summary():
     assert summary["agree_adecco"].to_list() == [1.0, 1.0]
     # only the three candidates of job c tied across the cutoff are decided by the draw
     assert summary["decided_by_draw"][0] == 3 / 11
+
+
+def test_list_composition_counts_the_lists_with_one_value():
+    # job a: 5 candidates, two genders and three regions; job c: 6 candidates, all from
+    # the South after the edit below, two genders
+    df = filter_protocol(_pairs()).with_columns(
+        pl.when(pl.col("Job_id") == "c")
+        .then(pl.lit("SOUTH"))
+        .otherwise(pl.col("Location"))
+        .alias("Location")
+    )
+    out = list_composition(df).rows(named=True)
+    assert out[0] == {
+        "attribute": "Gender",
+        "lists": 2,
+        "one_value": 0,
+        "share_of_lists": 0.0,
+        "share_of_pairs": 0.0,
+    }
+    assert out[1] == {
+        "attribute": "Location",
+        "lists": 2,
+        "one_value": 1,
+        "share_of_lists": 0.5,
+        "share_of_pairs": 6 / 11,
+    }

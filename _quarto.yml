@@ -1,6 +1,11 @@
 project:
   type: website
   output-dir: _site
+  # the final report (report/report.md) is not a page of the website
+  render:
+    - "*.qmd"
+    - "*.ipynb"
+    - "!report/"
 
 website:
   title: "Hiring CV Bias"

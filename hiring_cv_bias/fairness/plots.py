@@ -10,28 +10,90 @@ from matplotlib.figure import Figure
 def plot_score_distribution(
     scores: Sequence[float], threshold: float, title: str = ""
 ) -> Figure:
-    """Box plot and histogram of the match score, with the outlier threshold."""
+    """Box plot and histogram of the match score, with the outlier threshold (the upper
+    whisker) and the outlier region shaded. The outliers of the box plot are drawn as
+    small transparent dots with a random vertical offset, so that they do not hide each
+    other."""
+    values = np.asarray(scores, dtype=float)
+    n_out = int((values > threshold).sum())
+    lo, hi = np.floor(values.min()), np.ceil(values.max())
+
     fig, (ax_box, ax_hist) = plt.subplots(
-        2, 1, figsize=(8, 4.5), sharex=True, height_ratios=[1, 3]
+        2, 1, figsize=(8, 4.4), sharex=True, height_ratios=[1.4, 5]
     )
-    ax_box.boxplot(scores, vert=False, widths=0.6, flierprops={"markersize": 3})
-    ax_box.set_yticks([])
-    ax_hist.hist(scores, bins=140, color="tab:blue")
+    ax_box.boxplot(
+        values,
+        orientation="horizontal",
+        widths=0.55,
+        showfliers=False,
+        patch_artist=True,
+        boxprops={"facecolor": BAND, "edgecolor": INK, "linewidth": 1},
+        whiskerprops={"color": INK, "linewidth": 1},
+        capprops={"color": INK, "linewidth": 1},
+        medianprops={"color": VERSION_COLORS["adecco"], "linewidth": 2},
+    )
+    outliers = values[values > threshold]
+    jitter = np.random.default_rng(0).uniform(-0.22, 0.22, outliers.size)
+    ax_box.scatter(
+        outliers,
+        1 + jitter,
+        s=6,
+        color=VERSION_COLORS["adecco"],
+        alpha=0.35,
+        linewidths=0,
+        zorder=3,
+    )
+    ax_box.set_ylim(0.6, 1.4)
+    ax_box.axis("off")
+
+    ax_hist.hist(
+        values,
+        bins=np.arange(lo, hi + 0.25, 0.25),
+        color=VERSION_COLORS["adecco"],
+        edgecolor="white",
+        linewidth=0.4,
+        zorder=2,
+    )
     ax_hist.set_yscale("log")
-    ax_hist.set_ylabel("pairs (log scale)")
-    ax_hist.set_xlabel("match_score")
+    ax_hist.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:,.0f}"))
+    ax_hist.set_ylabel("pairs (log scale)", color=INK)
+    ax_hist.set_xlabel("match_score", color=INK)
+    ax_hist.set_xlim(lo - 0.5, hi)
+    ax_hist.set_ylim(bottom=0.7)
+    for side in ("top", "right", "left"):
+        ax_hist.spines[side].set_visible(False)
+    ax_hist.spines["bottom"].set_color(MUTED)
+    ax_hist.tick_params(axis="y", which="both", length=0, colors=INK)
+    ax_hist.tick_params(axis="x", colors=INK)
+    ax_hist.grid(axis="y", color=BAND, lw=1)
+    ax_hist.set_axisbelow(True)
+
     for ax in (ax_box, ax_hist):
-        ax.axvline(threshold, color="tab:red", ls="--", lw=1)
+        ax.axvspan(threshold, hi, color=BAND, lw=0, zorder=0)
+        ax.axvline(threshold, color=MUTED, ls="--", lw=1, zorder=1)
     ax_hist.annotate(
         f"upper whisker = {threshold:.2f}",
-        (threshold, 0.95),
+        (threshold, 1),
         xycoords=("data", "axes fraction"),
-        xytext=(4, 0),
+        xytext=(5, -2),
         textcoords="offset points",
-        color="tab:red",
+        color=INK,
+        fontsize=9,
         va="top",
     )
-    ax_box.set_title(title)
+    ax_hist.annotate(
+        f"outliers: {n_out:,} pairs ({n_out / len(values):.1%})",
+        ((threshold + hi) / 2, 1),
+        xycoords=("data", "axes fraction"),
+        xytext=(0, -2),
+        textcoords="offset points",
+        color=INK,
+        fontsize=9,
+        ha="center",
+        va="top",
+    )
+    if title:
+        ax_box.set_title(title, color=INK, fontsize=11, loc="left")
     fig.tight_layout()
     return fig
 

@@ -1,6 +1,6 @@
 """Rule-based components of the score, recomputed from a profile and the job requirements:
 ``Card_match``, ``Languages_match`` and ``Regulated_Trainings_match`` are 1 when the candidate
-has every required item (or nothing is required), ``match_skills`` is the share of required
+has at least one of the required items (or nothing is required), ``match_skills`` is the share of required
 skills owned, ``Distance_match`` is 1 within 10 km, 0.6 within 20 km, 0.2 within 25 km."""
 
 import polars as pl
@@ -28,10 +28,10 @@ def job_requirements(jobs: pl.DataFrame) -> pl.DataFrame:
     )
 
 
-def _subset(required: str, owned: str) -> pl.Expr:
-    return (pl.col(required).list.set_difference(pl.col(owned)).list.len() == 0).cast(
-        pl.Float64
-    )
+def _any_of(required: str, owned: str) -> pl.Expr:
+    n_req = pl.col(required).list.len()
+    n_hit = pl.col(required).list.set_intersection(pl.col(owned)).list.len()
+    return ((n_req == 0) | (n_hit > 0)).cast(pl.Float64)
 
 
 def _fraction(required: str, owned: str) -> pl.Expr:
@@ -61,9 +61,9 @@ def add_components(
         jobs_req, on="Job_id", how="left"
     )
     return df.with_columns(
-        _subset("req_licenses", "licenses").alias("Card_match" + suffix),
-        _subset("req_languages", "languages").alias("Languages_match" + suffix),
-        _subset("req_regulated", "regulated").alias(
+        _any_of("req_licenses", "licenses").alias("Card_match" + suffix),
+        _any_of("req_languages", "languages").alias("Languages_match" + suffix),
+        _any_of("req_regulated", "regulated").alias(
             "Regulated_Trainings_match" + suffix
         ),
         _fraction("req_skills", "skills").alias("match_skills" + suffix),

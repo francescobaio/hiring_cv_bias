@@ -279,6 +279,39 @@ def test_add_components_on_three_versions():
     assert o["match_skills_O"].to_list() == p["match_skills_P"].to_list()  # unchanged
 
 
+def test_any_of_rule_with_partial_requirements():
+    # the job asks for B or C and for English or German: one of each is enough
+    pairs = pl.DataFrame({"CANDIDATE_ID": [1, 2, 3], "Job_id": ["J", "J", "J"]})
+    profile = pl.DataFrame(
+        {
+            "CANDIDATE_ID": [1, 2, 3],
+            "licenses": [["b"], [], ["b", "c"]],
+            "languages": [["inglese"], ["francese"], []],
+            "regulated": [[], [], []],
+            "skills": [[], [], []],
+        }
+    )
+    jobs_req = pl.DataFrame(
+        {
+            "Job_id": ["J"],
+            "req_licenses": [["b", "c"]],
+            "req_languages": [["inglese", "tedesco"]],
+            "req_regulated": [[]],
+            "req_skills": [[]],
+        },
+        schema_overrides={
+            "req_regulated": pl.List(pl.String),
+            "req_skills": pl.List(pl.String),
+        },
+    )
+    out = add_components(
+        pairs.with_columns(distance_km=pl.lit(1.0)), profile, jobs_req, suffix=""
+    )
+    assert out["Card_match"].to_list() == [1.0, 0.0, 1.0]
+    assert out["Languages_match"].to_list() == [1.0, 0.0, 0.0]
+    assert out["Regulated_Trainings_match"].to_list() == [1.0, 1.0, 1.0]
+
+
 class _StubEstimator(ExperienceEstimator):
     """Deterministic 2-d unit vectors: texts that share their first word point the same way."""
 

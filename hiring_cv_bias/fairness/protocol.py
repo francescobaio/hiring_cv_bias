@@ -118,6 +118,32 @@ def protocol_sizes(df: pl.DataFrame, by: str = "group") -> pl.DataFrame:
     return pl.concat([per_group, total])
 
 
+def list_composition(
+    df: pl.DataFrame, attributes: Sequence[str] = ("Gender", "Location")
+) -> pl.DataFrame:
+    """How mixed the lists are. Per attribute: the lists whose candidates all have the same
+    value (``one_value``), their share of the lists and the share of the pairs that are in
+    them. A list with one value gives that value all its ⌈n/2⌉ selections whatever the
+    score, so its selection rate there does not depend on the score."""
+    lists = df.group_by("Job_id").agg(
+        pl.len().alias("n"), *[(pl.col(a).n_unique() == 1).alias(a) for a in attributes]
+    )
+    return pl.concat(
+        [
+            lists.select(
+                pl.lit(a).alias("attribute"),
+                pl.len().alias("lists"),
+                pl.col(a).sum().alias("one_value"),
+                pl.col(a).mean().alias("share_of_lists"),
+                (pl.col("n").filter(pl.col(a)).sum() / pl.col("n").sum()).alias(
+                    "share_of_pairs"
+                ),
+            )
+            for a in attributes
+        ]
+    )
+
+
 def outcome_summary(
     df: pl.DataFrame, versions: Sequence[str] = VERSIONS, outcome: str = "top_half"
 ) -> pl.DataFrame:
