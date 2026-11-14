@@ -1,30 +1,95 @@
-table {
-    margin: 2em auto !important;
+/* Shared style of the website: an academic, readable page. */
+
+/* ---------- headings ---------- */
+
+h1.title {
+  font-weight: 600;
+  letter-spacing: -0.005em;
 }
 
-
-table td {
-    border-bottom: none !important;
+.quarto-title .subtitle {
+  color: #555555;
+  font-style: italic;
+  font-weight: 400;
 }
 
-table th {
-    border-top: 1px solid !important;
-    border-bottom: 1px solid !important;
-}
-
-tbody>tr:last-child {
-    border-bottom: 1px solid !important;
-}
-
-table {
-    margin-top: 1.5em !important;
-    margin-bottom: 1em !important;
-}
-
-table tr {
-    text-align: left !important;
+h2 {
+  margin-top: 2.6rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #dddddd;
 }
 
 h3 {
-    margin-top: 3rem !important;
+  margin-top: 2rem;
+}
+
+/* ---------- tables: booktabs style ---------- */
+
+table.table {
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums lining-nums;
+  margin: 1.2rem auto 1.6rem;
+  border-top: 1.5px solid #222222 !important;
+  border-bottom: 1.5px solid #222222 !important;
+}
+
+table.table thead th {
+  border-bottom: 1px solid #222222 !important;
+  font-weight: 600;
+}
+
+table.table td,
+table.table th {
+  border-top: none !important;
+  padding: 0.3rem 0.65rem;
+}
+
+table.table tbody tr + tr td {
+  border-top: none !important;
+}
+
+table caption,
+.table-caption,
+.quarto-float-caption-top,
+figcaption,
+.figure-caption {
+  color: #555555;
+  font-size: 0.88rem;
+  text-align: left;
+}
+
+/* ---------- figures ---------- */
+
+.quarto-figure {
+  margin: 1.4rem 0 1.8rem;
+}
+
+/* ---------- abstract and summary boxes ---------- */
+
+.abstract {
+  margin: 1.2rem 0 2rem;
+  padding: 0.9rem 1.2rem;
+  border-left: 3px solid #1f4e79;
+  background: #f6f7f9;
+}
+
+.abstract p:last-child {
+  margin-bottom: 0;
+}
+
+.authors {
+  color: #555555;
+  margin-top: -0.6rem;
+  margin-bottom: 1.4rem;
+}
+
+.callout {
+  margin: 1.4rem 0 1.8rem;
+}
+
+/* ---------- code ---------- */
+
+pre {
+  font-size: 0.8rem;
+  line-height: 1.45;
 }

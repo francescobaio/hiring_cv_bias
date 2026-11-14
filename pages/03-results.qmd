@@ -1,143 +1,135 @@
 ---
 title: "Results"
-format:
-  html:
-    toc: true
+subtitle: "AI in Industry: how often the parser misses, and for whom"
 ---
 
-In this section we walk through our key findings:
+## 1. Error detection
 
-## 1. Error detection  
-As previously explained on the Pipeline page, our study first tried to highlight the errors the parser makes in categories such as Driving License, Language and Job Title.
+As explained in the pipeline, we first measured the errors of the parser on driving licenses, languages and job
+titles. For the driving license the task is a binary label per candidate (`has_any_driving_license`); for the other
+two we compare our method and the parser on every single item.
 
-While for the Driving License we treat the task as a binary `has_any_driving_license` label for each candidate, for the other two categories we use a finer granularity, examining the agreement between our method and the parser on every individual skill.
+| skill | TP | FP | TN | FN | precision | recall |
+|:---|---:|---:|---:|---:|---:|---:|
+| Driving license | 1,689 | 643 | 2,927 | 2,445 | 0.83 | 0.41 |
+| Language skills | 10,389 | 2,392 | 132 | 5,438 | 0.81 | 0.66 |
+| Job titles | 7,838 | 14,976 | 326 | 6,394 | 0.34 | 0.55 |
 
-### Results
-
-
-| Skill                   |    TP    |    FP      |    TN   |   FN.     |   Precision  |    Recall
-|-------------------------|:--------:|:--------:  |:-------:|:---------:|:------------:|:----------:|
-| Driving License         |    1689  |    643     |   2927  |   2445    |    0.83      |   0.41     | 
-| Language skills         |    10389 |    2392    |   132   |   5438    |    0.81      |   0.66     |
-| Job titles              |    7838  |    14976   |   326   |   6394    |    0.34      |   0.551    |
+: The parser against our extractors.
 
 ### Demo
 
-> Here the demo of our bias-detection dashboard, where you can filter by driving license, language skills or job titles and immediately see extraction disagreement:
-
+Our bias detection dashboard: filter by driving license, language skills or job titles and see where our extraction
+and the parser disagree.
 
 <video src="media/hiring_app.mov" width="100%" autoplay loop muted></video>
 
-## 2. Key Bias Metrics 
+## 2. Bias metrics
 
-Due to the presence of numerous errors from the parser, we focused our analysis on the previously discussed demographic groups. To do so, we employed several metrics that specifically account for false negatives, since these result from exact matches and therefore offer high reliability. 
+Since the parser makes many errors, we checked whether they hit some demographic groups more than others. The metrics
+focus on the false negatives, which come from exact matches and are therefore reliable.
 
-To assess the model’s fairness, we employed the following **bias detection metrics**:
+| metric | formula | interpretation |
+|:---|:---:|:---|
+| **Equality of opportunity** (TPR parity) | $\text{TPR}_g = \frac{TP_g}{TP_g + FN_g}$ | every individual who truly qualifies has the same chance of being correctly identified, whatever the group. |
+| **Calibration** (NPV) | $\text{NPV}_g = \frac{TN_g}{TN_g + FN_g}$ | when the model predicts a negative outcome, it is right with the same probability in every group. |
+| **Selection rate** | $\text{SR}_g = \frac{TP_g + FP_g}{TP_g + FP_g + TN_g + FN_g}$ | share of the individuals of group $g$ predicted positive. |
+| **Disparate impact** (DI) | $DI = \frac{\text{SR}_{\text{target}}}{\text{SR}_{\text{reference}}}$ | ratio of selection rates; below **0.80** (four-fifths rule) it signals an adverse impact on the target group. |
 
-| Metric | Formula | Interpretation |
-|:--------|:---------:|:----------------|
-| **Equality of Opportunity&nbsp;(TPR parity)**| $$\text{TPR}_g = \frac{TP_g}{TP_g + FN_g} $$ | $\text{TPR}_g$ equal for every $g$ ensures that **every individual who truly qualifies** for a positive outcome has the **same chance** of being correctly identified, regardless of group membership. |
-| <br> **Calibration&nbsp;\(NPV\)** | $$\text{NPV}_g = \frac{TN_g}{TN_g + FN_g}\qquad $$ | $\text{NPV}_g$ parity for every $g$ ensures that **when the model predicts a negative outcome**, the probability of being correct is the **same** for every group. |
-| <br> **Selection Rate** | $$\text{SR}_g = \frac{TP_g + FP_g}{TP_g + FP_g + TN_g + FN_g} $$ | <br> Share of individuals in group $g$ predicted positive (selected). |
-| <br> **Disparate Impact (DI)** | $$\displaystyle DI = \frac{\text{SR}_{\text{target}}}{\text{SR}_{\text{reference}}}$$ | Ratio of selection rates; values **\< 0.80** (four-fifths rule) indicate potential adverse impact against the target group. |
+All the metrics were computed for every group.
 
+### Driving license
 
+::: {.panel-tabset}
+## Gender
 
-<u>All these metrics were computed for all the groups to detect and quantify possible bias in the selection process.</u>
+| gender | TPR | NPV | DI |
+|:---|---:|---:|---:|
+| Male | 0.42 | 0.53 | 1.00 |
+| Female | 0.39 | 0.56 | **0.88** |
 
+## Region
 
+| region | TPR | NPV | DI |
+|:---|---:|---:|---:|
+| North | 0.40 | 0.54 | 1.00 |
+| Center | 0.43 | 0.55 | 1.08 |
+| South | 0.40 | 0.56 | 0.97 |
 
-### Driving License:
+## CV length
 
+| length | TPR | NPV | DI |
+|:---|---:|---:|---:|
+| Long | 0.38 | 0.46 | 1.00 |
+| Medium | 0.44 | 0.60 | 0.99 |
+| Short | 0.47 | 0.79 | **0.75** |
+:::
 
-| Gender             |    TPR      |    NPV      |     DI      |  
-|:-------------------|:-----------:|:-----------:|:-----------:|
-| Male               |    0.42     |    0.53     |    1.00     | 
-| Female             |    0.39     |    0.56     |    **0.88** |  
-: {tbl-colwidths="[40,20,20,20]"}
+### Language skills
 
+::: {.panel-tabset}
+## Gender
 
-| Region             |    TPR      |    NPV      |     DI      |  
-|:-------------------|:-----------:|:-----------:|:-----------:|
-| North              |    0.40     |    0.54     |    1.00     | 
-| Center             |    0.43     |    0.55     |    1.08     | 
-| South              |    0.40     |    0.56     |    0.97     | 
-: {tbl-colwidths="[40,20,20,20]"}
+| gender | TPR | NPV | DI |
+|:---|---:|---:|---:|
+| Male | 0.67 | 0.03 | 1.00 |
+| Female | 0.64 | 0.02 | 0.95 |
 
+## Region
 
+| region | TPR | NPV | DI |
+|:---|---:|---:|---:|
+| North | 0.66 | 0.03 | 1.00 |
+| Center | 0.66 | 0.01 | 1.01 |
+| South | 0.65 | 0.02 | 0.99 |
 
-| Lenght             |    TPR      |    NPV      |    DI       |  
-|:-------------------|:-----------:|:-----------:|:-----------:|
-| Long               |    0.38     |    0.46     |   1.00      | 
-| Medium             |    0.44     |    0.60     |   0.99      | 
-| Short              |    0.47     |    0.79     |   **0.75**  | 
-: {tbl-colwidths="[40,20,20,20]"}
+## CV length
 
+| length | TPR | NPV | DI |
+|:---|---:|---:|---:|
+| Long | 0.63 | 0.01 | 1.00 |
+| Medium | 0.69 | 0.03 | 1.11 |
+| Short | 0.69 | 0.11 | **1.19** |
+:::
 
-### Language skills:
+### Job titles
 
-| Gender             |    TPR      |    NPV      |      DI     |  
-|:-------------------|:-----------:|:-----------:|:-----------:|
-| Male               |    0.67     |    0.03     |    1.00     | 
-| Female             |    0.64     |    0.02     |    0.95     |  
-: {tbl-colwidths="[40,20,20,20]"}
+::: {.panel-tabset}
+## Gender
 
+| gender | TPR | NPV | DI |
+|:---|---:|---:|---:|
+| Male | 0.53 | 0.06 | 1.00 |
+| Female | 0.56 | 0.03 | 0.97 |
 
-| Region             |    TPR      |    NPV      |      DI     |  
-|:-------------------|:-----------:|:-----------:|:-----------:|
-| North              |    0.66     |    0.03     |    1.00     | 
-| Center             |    0.66     |    0.01     |    1.01     | 
-| South              |    0.65     |    0.02     |    0.99     | 
-: {tbl-colwidths="[40,20,20,20]"}
+## Region
 
+| region | TPR | NPV | DI |
+|:---|---:|---:|---:|
+| North | 0.55 | 0.05 | 1.00 |
+| Center | 0.56 | 0.04 | 0.99 |
+| South | 0.53 | 0.06 | 0.97 |
 
+## CV length
 
-| Lenght             |    TPR      |    NPV      |    DI       |  
-|:-------------------|:-----------:|:-----------:|:-----------:|
-| Long               |    0.63     |    0.01     |   1.00      | 
-| Medium             |    0.69     |    0.03     |   1.11      | 
-| Short              |    0.69     |    0.11     |  **1.19**   | 
-: {tbl-colwidths="[40,20,20,20]"}
+| length | TPR | NPV | DI |
+|:---|---:|---:|---:|
+| Long | 0.56 | 0.01 | 1.00 |
+| Medium | 0.53 | 0.07 | 0.99 |
+| Short | 0.51 | **0.28** | 0.97 |
+:::
 
-### Job titles:
+## 3. Summary of findings
 
-| Gender             |    TPR     |    NPV       |      DI     |  
-|:-------------------|:----------:|:------------:|:-----------:|
-| Male               |    0.53    |    0.06      |    1.00     | 
-| Female             |    0.56    |    0.03      |    0.97     |  
-: {tbl-colwidths="[40,20,20,20]"}
+::: {.callout-note appearance="simple"}
+The parser has **low recall** in every category and many **false negatives**: much of what is written in the CVs is
+missed. Across demographic groups **no strong bias** emerges, with two observations:
 
+- **A small gender gap on driving licenses**: the DI of women is **0.88**, below the men's but above the 0.80 of the
+  four-fifths rule.
+- **Imbalances by CV length**: short CVs are disadvantaged on driving licenses (DI 0.75) and advantaged on languages
+  (DI 1.19). The parser's performance changes with the length of the document, which deserves a deeper analysis.
+:::
 
-| Location           |    TPR     |    NPV       |    DI       |  
-|:-------------------|:----------:|:------------:|:-----------:|
-| North              |    0.55    |    0.05      |   1.00      | 
-| Center             |    0.56    |    0.04      |   0.99      | 
-| South              |    0.53    |    0.06      |   0.97      | 
-: {tbl-colwidths="[40,20,20,20]"}
-
-
-
-| Lenght             |    TPR     |    NPV       |    DI       |  
-|:-------------------|:----------:|:------------:|:-----------:|
-| Long               |    0.56    |    0.01      |   1.00      | 
-| Medium             |    0.53    |    0.07      |   0.99      | 
-| Short              |    0.51    |    **0.28**  |   0.97      |  
-: {tbl-colwidths="[40,20,20,20]"}
-
-
-
-
-## 3. Summary of Findings  
-
-Overall, the parser exhibits very high error rates, with **low recall** across all categories and a large number of **false negatives**, indicating that many true skills are missed by the system. 
-
-When we examine the metrics across demographic groups, **no strong bias** emerges; nonetheless, a few observations merit discussion: 
-
-- **Minimal gender disparity in Driving License:** the DI for females is **0.88**, slightly below that of males but still above the critical 0.80 threshold defined by the four-fifths rule.
-
-- **Length-based imbalances:** we observe that “Short” CVs are disadvantaged in driving license extraction (DI = 0.75) and simultaneously advantaged for language skill extraction (DI = 1.19). These opposite effects suggest the parser’s performance varies significantly with document length and **deserve a deeper analysis** to uncover the root causes of these imbalances and guide mitigation strategies.
-
-
-
-
-
+These errors are the starting point of the [fairness audit](04-fairness-audit.qmd): do they change who is selected
+for a job?

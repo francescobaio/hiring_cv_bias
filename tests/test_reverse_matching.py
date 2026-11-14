@@ -2,6 +2,7 @@ import numpy as np
 import polars as pl
 import pytest
 
+from hiring_cv_bias.reverse_matching.audit import rules_agreement
 from hiring_cv_bias.reverse_matching.components import add_components, job_requirements
 from hiring_cv_bias.reverse_matching.experience import (
     ExperienceEstimator,
@@ -20,6 +21,7 @@ from hiring_cv_bias.reverse_matching.profiles import (
     split_items,
 )
 from hiring_cv_bias.reverse_matching.scoring import (
+    RULE_COMPONENTS,
     WEIGHTS,
     fit_weights,
     score_expr,
@@ -150,6 +152,11 @@ def _candidates():
             "regulatedtrainings": [None, "Ragioneria", None],
             "drivinglicenses": ["B", None, "B;A"],
             "experience": ["cassiere;commesso", None, "muratore"],
+            "professional_categories_int": [
+                "Cassiere (m/f);Commesso",
+                None,
+                "Muratore",
+            ],
         }
     )
 
@@ -201,6 +208,7 @@ def test_profile_real_lists():
     assert row["languages"] == ["inglese", "italiano"]
     assert row["skills"] == ["excel", "word"]
     assert row["regulated"] == []
+    assert row["interests"] == ["cassiere", "commesso"]
     assert p.filter(pl.col("CANDIDATE_ID") == 2).to_dicts()[0]["licenses"] == []
 
 
@@ -277,6 +285,31 @@ def test_add_components_on_three_versions():
     o = add_components(pairs, _profile_original(), jr, suffix="_O")
     assert o["Card_match_O"].to_list() == [1.0, 0.0, 0.0, 0.0]  # cand 3 licenses missed
     assert o["match_skills_O"].to_list() == p["match_skills_P"].to_list()  # unchanged
+
+
+def test_rules_agreement_checks_interest():
+    # Adecco's values of the four pairs of the test above; Interest of the third disagrees
+    pairs = pl.DataFrame(
+        {
+            "CANDIDATE_ID": [1, 2, 3, 3],
+            "Job_id": ["ORD_1", "ORD_1", "ORD_1", "ORD_2"],
+            "distance_km": [5.0, 15.0, 22.0, 40.0],
+            "Interest": [1.0, 0.0, 1.0, 1.0],
+            "Card_match": [1.0, 0.0, 1.0, 1.0],
+            "Languages_match": [1.0, 0.0, 0.0, 1.0],
+            "Regulated_Trainings_match": [1.0] * 4,
+            "match_skills": [2 / 3, 0.0, 1 / 3, 0.0],
+            "Distance_match": [1.0, 0.6, 0.2, 0.0],
+        }
+    )
+    agreement = dict(
+        rules_agreement(
+            pairs, build_profile_real(_candidates()), job_requirements(_jobs())
+        ).rows()
+    )
+    assert list(agreement) == ["Interest", *RULE_COMPONENTS]
+    assert agreement["Interest"] == 0.75
+    assert all(agreement[c] == 1.0 for c in RULE_COMPONENTS)
 
 
 def test_any_of_rule_with_partial_requirements():

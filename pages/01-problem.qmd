@@ -1,32 +1,35 @@
 ---
-title: "Problem Statement"
-format:
-  html:
-    toc: true
+title: "Problem statement"
+subtitle: "AI in Industry: the questions we ask of the CV parser"
 ---
 
-The goal of this study is to evaluate the potential biases in a proprietary CV parser, which automatically extracts skills from anonymized, raw resumes. 
+The goal of this study is to evaluate the potential biases of a proprietary CV parser, which automatically extracts
+skills from anonymized, raw resumes.
 
-> Note: 
-We did **not** have access to the proprietary parser; accordingly our analysis was carried out only on the parsing process’s input (the raw CV text) and its output (the skills extracted by the proprietary parser).
+::: {.callout-note appearance="simple"}
+We did **not** have access to the proprietary parser. Our analysis uses only the input of the parsing process (the raw
+CV text) and its output (the skills extracted by the parser).
+:::
 
+## Research questions
 
-Specifically, we aim to answer:
+1. **Candidate representation.**
+   How are the candidates' profiles represented in the parsing output? Are there systematic differences in the number
+   or types of skills extracted across CVs?
 
-1. **Candidate Representation:** 
-- How are candidates’ profiles represented in the parsing outputs?
-- Are there systematic differences in the number or types of skills extracted across CVs? 
+2. **Gendered skill association.**
+   Do certain skills appear significantly more often in the profiles of men than of women? Could these patterns
+   reflect the assumptions of the parser or imbalances in its training data?
 
-2. **Gendered Skill Association:** 
-- Do certain skills appear significantly more often in profiles inferred to be male versus female? 
-- Could these patterns reflect underlying parser assumptions or training data imbalances? 
+3. **Cultural and geographical bias.**
+   Are the skill categories (`skill_type`) that align with specific cultural or regional backgrounds overrepresented?
 
-3. **Cultural and Geographical Bias:** 
-- Are skill categories ( `skill_type`) that align with specific cultural or regional backgrounds overrepresented?
+4. **Hard and soft skills.**
+   What is the relative frequency of hard and soft skills in the parsed output? Does the parser under-detect one
+   category, skewing the candidate profiles?
 
-4. **Hard vs. Soft Skills Distribution:**
-- What is the relative frequency of hard skills versus soft skills in the parsed output?
-- Does the parser under‐detect one category, potentially skewing candidate profiles?
+5. **Demographic underrepresentation.**
+   Are certain demographic groups (for example by language, region or other proxies) underrepresented in the overall
+   skill set?
 
-5. **Demographic Underrepresentation:** 
-- Are certain demographic groups (e.g., inferred by language, region, or other proxies) underrepresented in the overall skill set? 
+The [pipeline](02-pipeline.qmd) describes how we answer them, and the [results](03-results.qmd) what we found.

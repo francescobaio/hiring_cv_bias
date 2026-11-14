@@ -1,77 +1,83 @@
 ---
 title: "Pipeline"
-format:
-  html:
-    toc: true
+subtitle: "AI in Industry: from the raw CVs to the errors of the parser"
 ---
 
-Here we outline the work steps we followed to answer the questions in our problem statement. In the first subsection, we cover two initial setup tasks that prepare the data for the rest of the pipeline:
+This page outlines the steps we followed to answer the questions of the [problem statement](01-problem.qmd).
 
-1. Translating CVs **from Italian into English** so we can apply semantic-matching techniques consistently. 
-2. Labeling with an LLM each parser extracted skill as either **hard** or **soft**. <br>  🔗 [See the Hard Soft skills labelling notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)   
+```{mermaid}
+flowchart LR
+  A["Raw CVs"] --> B["Translation<br/>and labeling"]
+  B --> C["Cleaning"]
+  C --> D["Exploration"]
+  D --> E["Distributions"]
+  E --> F["Bias detection"]
+```
 
-With these preparations in place, our pipeline we built is divided into the following steps:
+## Setup
 
-1. **Data Cleaning**  
-   We standardized and filtered the raw, anonymized CV texts with structural issues as:
-   - Empty / Whitespace-Only/ Very Short Text
-   - High Repetition 
-   - Low token & vocabulary Richness
-   - Corrupted CVs with a fraction of invalid characters
-   - CVs with Placeholder Tails (e.g. “XXXXXXXXXX…”)
-   - CVs with Poor Translations
+Two tasks prepare the data for the rest of the pipeline:
 
-   Parsed skills of the candidates with corrupted CVs has been also excluded.
+1. **Translating the CVs from Italian into English**, so that semantic matching can be applied consistently.
+2. **Labeling every skill extracted by the parser as hard or soft**, with an LLM
+   ([notebook](../hiring_cv_bias/hard_soft_skills_labelling/hard_soft_skill_labelling.html)).
 
-   The candidates’ demographic data (age, gender, and geographic location) were then analyzed to uncover any potential correlations or redundancies among the features.
+## 1. Data cleaning
 
-   🔗 [See the Cleaning notebook](../notebooks/ai_in_industry/data_cleaning.html)
+We standardized the raw, anonymized CV texts and filtered out the ones with structural issues:
 
-2. **Exploratory Analysis**  
-   Once the data had been cleaned, we conducted an exploratory analysis of the skills extracted by the parser, focusing on:
-   - **Distribution of parsed skills and job information** : explore how different skills are distributed across roles and sectors.
-   - **Skills per candidate distribution**: analyze the number of skills each candidate has, flagging any outliers.
-   - **Hard vs. soft skills**: examine and compare the distributions of hard skills versus soft skills.
+- empty, whitespace-only or very short text;
+- high repetition;
+- low token and vocabulary richness;
+- corrupted CVs with a fraction of invalid characters;
+- CVs with placeholder tails (e.g. "XXXXXXXXXX…");
+- CVs with poor translations.
 
-   ![](../pages/images/skill_distribution.png){.lightbox style="max-width: 90%;"}
+The parsed skills of the candidates with corrupted CVs were excluded too. The demographic data of the candidates (age,
+gender and location) were then analyzed to find correlations or redundancies among the features.
+[Cleaning notebook](../notebooks/ai_in_industry/data_cleaning.html).
 
+## 2. Exploratory analysis
 
-   🔗 [See the Exploration notebook](../notebooks/ai_in_industry/data_exploration.html)
+On the cleaned data we explored the skills extracted by the parser:
 
-3. **Distributions Analysis**  
+- **distribution of parsed skills and job information**: how skills are distributed across roles and sectors;
+- **skills per candidate**: how many skills each candidate has, flagging the outliers;
+- **hard and soft skills**: how the two distributions compare.
 
-   This analysis aims to uncover distributional imbalances in the parsed skills by considering the following demographic data:
-   - **Gender**
-   - **Location**
-   - **Hard vs. soft skills**
+![Distribution of the parsed skills.](images/skill_distribution.png){width=85%}
 
-   To quantify these imbalances, we have defined disparity metrics such as the Gini index and a custom bias strength measure.
+[Exploration notebook](../notebooks/ai_in_industry/data_exploration.html).
 
-   >**Why This Matters**: <br>
-   > Detecting these imbalances is **critical** to designing a robust, fair pipeline that flags biases introduced by the CV parser relying only on raw CV inputs and their parsed outputs.  
-   
-   ![](../pages/images/gender_distribution.png){.lighbox} 
+## 3. Distributions analysis
 
-   🔗 [See the Distributions Analysis notebook](../notebooks/ai_in_industry/distributions_analysis.html)
+This step looks for imbalances in the parsed skills across **gender**, **location** and **hard and soft skills**. To
+quantify them we defined disparity metrics, such as the Gini index and a custom bias strength measure. Detecting these
+imbalances flags the biases introduced by the parser using only the raw CVs and their parsed output.
 
-4. **Bias Detection**  
+![Distribution of the parsed skills by gender.](images/gender_distribution.png){width=85%}
 
-   After analyzing the various imbalances in the distributions of skills extracted by the parser, we tackled bias detection through a hybrid pipeline:
+[Distributions analysis notebook](../notebooks/ai_in_industry/distributions_analysis.html).
 
-   * **On the skills side** (specifically **DRIVERSLIC** and **LANGUAGE\_SKILL**), we implemented a **regex-based extractor** that systematically scans each CV for patterns associated with driving licenses and language proficiencies, ensuring we capture every variant and format used by candidates.
-   * **On the job-title side**, we deployed a **two-step process**:
-      1. **Rule-based:** **exact matching** against the official **ESCO** european job list <a href="https://esco.ec.europa.eu/en/about-esco" target="_blank">(link)</a>, pulling in any titles that appear in the raw CV text.
-      2. **Semantic matching**: catches synonyms or paraphrases of the same job experience, making our extraction robust to differences in how the parser names each job. <br>
-      **eg.**  ESCO: Postman, Parsed skill: Postal operator, Similarity: 0.64
-    
-   Using our pipeline results as the ground truth, we measured the overall performance of the proprietary parser by comparing its outputs against our method and analyzing their agreement.
+## 4. Bias detection
 
-   We focused on **false negatives**, candidates for whom our extractor found a match but the parser returned nothing, by choosing a regex that ensures a high precision. 
-   
-   To make these insights more accessible, we built a **Streamlit app** that lets you dive into individual candidates. For each false negative, the interface on the left displays the raw CV text with regex matched segments highlighted in red and on the right shows the skills the parser actually assigned to that candidate.
+We detect the parser's errors with a hybrid pipeline:
 
-   After applying the pipeline to the skills mentioned above and observing numerous discrepancies between the parser and our extraction method, we conducted a bias assessment across three groups (gender, geographic location, and CV length) to determine whether parser errors disproportionately affect under or over represented populations.
+- **Skills** (driving licenses, `DRIVERSLIC`, and languages, `LANGUAGE_SKILL`): a **regex-based extractor** scans
+  every CV for the patterns of driving licenses and language proficiencies, in every variant and format used by the
+  candidates.
+- **Job titles**, in two steps:
+  1. **rule-based exact matching** against the official [ESCO](https://esco.ec.europa.eu/en/about-esco) list of
+     European occupations, keeping the titles that appear in the raw CV text;
+  2. **semantic matching**, which catches synonyms and paraphrases of the same job, so that the extraction is robust
+     to how the parser names each job (e.g. ESCO *Postman* against the parsed *Postal operator*, similarity 0.64).
 
+Taking our pipeline as the reference, we measured the performance of the parser by comparing its output with ours. We
+focused on the **false negatives**: candidates for whom our extractor finds a match but the parser returns nothing,
+with regular expressions chosen for high precision.
 
-   🔗 [See the Bias Detection notebook](../notebooks/ai_in_industry/bias_detection.html)
+A **Streamlit app** lets one inspect single candidates: for each false negative it shows the raw CV, with the matched
+segments highlighted in red, next to the skills the parser assigned to that candidate.
 
+Finally, we assessed whether the parser's errors hit some groups more than others, across gender, location and CV
+length. [Bias detection notebook](../notebooks/ai_in_industry/bias_detection.html).

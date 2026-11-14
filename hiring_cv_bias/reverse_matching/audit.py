@@ -3,7 +3,7 @@ rules with Adecco's components, comparison of the three profile versions."""
 
 import polars as pl
 
-from hiring_cv_bias.reverse_matching.components import add_components
+from hiring_cv_bias.reverse_matching.components import add_components, interest_match
 from hiring_cv_bias.reverse_matching.profiles import PARSER_FIELDS
 from hiring_cv_bias.reverse_matching.scoring import RULE_COMPONENTS
 
@@ -33,12 +33,20 @@ def list_lengths(pairs: pl.DataFrame) -> pl.DataFrame:
 def rules_agreement(
     pairs: pl.DataFrame, profile: pl.DataFrame, jobs_req: pl.DataFrame
 ) -> pl.DataFrame:
-    """Share of pairs where each recomputed component equals Adecco's."""
-    df = add_components(pairs, profile, jobs_req, suffix="_rule")
+    """Share of pairs where each recomputed component equals Adecco's: ``Interest`` and the
+    rule-based components of the score."""
+    df = (
+        add_components(pairs, profile, jobs_req, suffix="_rule")
+        .join(
+            profile.select("CANDIDATE_ID", "interests"), on="CANDIDATE_ID", how="left"
+        )
+        .join(jobs_req.select("Job_id", "job_category"), on="Job_id", how="left")
+        .with_columns(interest_match().alias("Interest_rule"))
+    )
     return df.select(
         [
             ((pl.col(c) - pl.col(c + "_rule")).abs() < 1e-6).mean().alias(c)
-            for c in RULE_COMPONENTS
+            for c in ["Interest", *RULE_COMPONENTS]
         ]
     ).unpivot(variable_name="component", value_name="agreement")
 

@@ -14,6 +14,7 @@ PARSER_FIELDS = ["licenses", "languages", "experience"]
 
 # Candidates sheet column -> profile field
 _P_COLUMNS = {
+    "professional_categories_int": "interests",
     "drivinglicenses": "licenses",
     "languages": "languages",
     "regulatedtrainings": "regulated",

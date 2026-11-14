@@ -1,7 +1,21 @@
 <div align="center">
-<h1>Hiring CV bias</h1>
 
-[Francesco Baiocchi](https://github.com/francescobaio), [Leonardo Petrilli](https://github.com/leonardopetrilli)
+# Hiring CV Bias
+
+**Errors of a CV parser and their effect on the selection of candidates**
+
+[Francesco Baiocchi](https://github.com/francescobaio) · [Leonardo Petrilli](https://github.com/leonardopetrilli)
+
+University of Bologna · *AI in Industry* and *Ethics in Artificial Intelligence*
+
+[![Tests](https://github.com/francescobaio/hiring_cv_bias/actions/workflows/tests.yml/badge.svg)](https://github.com/francescobaio/hiring_cv_bias/actions/workflows/tests.yml)
+[![Website](https://github.com/francescobaio/hiring_cv_bias/actions/workflows/pages.yml/badge.svg)](https://francescobaio.github.io/hiring_cv_bias/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+[**Website**](https://francescobaio.github.io/hiring_cv_bias/) ·
+[**Report (PDF)**](report.pdf) ·
+[**Slides**](https://francescobaio.github.io/hiring_cv_bias/pages/05-presentation.html)
+
 </div>
 
 ## Overview
@@ -9,6 +23,13 @@
 Recruiting agencies use software to read CVs and to rank candidates. A *parser* extracts a structured profile from
 each CV (driving licenses, languages, job titles, skills), and a *matcher* scores the profile against the job offers.
 An error or a bias in these steps can exclude qualified candidates.
+
+```mermaid
+flowchart LR
+  CV["CV"] -- parser --> P["Structured profile"]
+  P -- matcher --> S["Score of every<br/>(candidate, job) pair"]
+  S --> L["Position in<br/>the job's list"]
+```
 
 This repository studies the pipeline of Adecco on anonymized data, in two parts:
 
@@ -18,27 +39,27 @@ This repository studies the pipeline of Adecco on anonymized data, in two parts:
    parser's errors down to the selection: do they change who is selected for a job, and do they penalize some groups
    more than others?
 
-<div>
-  <img src="https://github.com/user-attachments/assets/fb1caf28-1cf9-4079-bb58-715a57f6f9b7"
-       alt="Hiring CV bias app"
-       style="display: block;
-              width: 100%;
-              margin: 50px auto 30px;" />
-</div>
+<p align="center">
+  <img src="assets/hiring_app.gif" alt="The Streamlit app that shows the parser's false negatives in the CV text" width="100%" />
+</p>
 
 > [!NOTE]
 > The CV data are anonymized but proprietary, so they are not in the repository and the experiments on them cannot be
 > reproduced without them. The unit tests and the toy mitigation example need no data.
 
-The website presents both parts: <https://francescobaio.github.io/hiring_cv_bias/>
-
 ## Main results
 
-**Bias of the CV parser.** The parser misses much of what is in the CVs: its recall against our extractors is 0.41 for
-driving licenses, 0.66 for languages and 0.55 for job titles. The miss rates are similar across gender and
-macro-region.
+### Bias of the CV parser
 
-**Fairness audit.**
+The parser misses much of what is in the CVs. The miss rates are similar across gender and macro-region.
+
+| field | recall of the parser against our extractors |
+|:---|---:|
+| driving licenses | 0.41 |
+| languages | 0.66 |
+| job titles | 0.55 |
+
+### Fairness audit
 
 * Adecco's match score is a weighted sum of seven components. Our reconstruction reproduces 99.9% of the scores
   exactly.
@@ -48,6 +69,8 @@ macro-region.
   fail). The cause is mostly in the job lists, not in the parser: southern jobs more often require no skill that
   separates the candidates, so the scores are close to the cut and any noise flips more decisions.
 * The usual mitigation techniques have little to act on in the real system, so they are shown on a toy case.
+
+The full study is in the [report](report.pdf) and on the [website](https://francescobaio.github.io/hiring_cv_bias/).
 
 ## Repository structure
 
@@ -82,42 +105,6 @@ notebooks/
 └── ethics/                      # data_audit_and_protocol, propagation, mitigation
 
 tests/                           # unit tests of reverse_matching and fairness
-pages/, index.qmd, _quarto.yml   # the website (Quarto)
+pages/, index.qmd, _quarto.yml   # the website and the slides (Quarto)
+report.pdf                       # the final report of the AI Ethics project
 ```
-
-## Getting started
-
-The project uses [uv](https://docs.astral.sh/uv/) and Python 3.11 or later. The dependencies of the two parts are
-separate extras:
-
-```bash
-uv sync --extra ethics        # notebooks/ethics
-uv sync --extra ai-industry   # notebooks/ai_in_industry
-```
-
-Run the tests, which need no data:
-
-```bash
-uv run pytest
-```
-
-With the Adecco data in `data/`, the notebooks run in this order:
-
-1. `notebooks/ai_in_industry/`: `data_cleaning`, `data_exploration`, `distributions_analysis`, `bias_detection`. They
-   write the cleaned candidates and the parser's false negatives to `data/Adecco_Dataset_cleaned/`.
-2. `notebooks/ethics/`: `data_audit_and_protocol`, `propagation`, `mitigation`. The first one builds
-   `data/ethics/pairs.parquet`; the same step can be run alone with
-
-   ```bash
-   uv run python -m hiring_cv_bias.reverse_matching.build
-   ```
-
-   The `mitigation` notebook uses only generated data and runs without the Adecco files.
-
-The website is built with `quarto render` from the outputs stored in the notebooks.
-
-## Development
-
-* `uv run pre-commit install` enables the hooks: ruff (lint and format), mypy and nbstripout.
-* GitLab CI and GitHub Actions run `pytest` and `mypy` on every merge request and on `main`. GitHub Actions also
-  publishes the website.

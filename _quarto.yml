@@ -9,43 +9,65 @@ project:
 
 website:
   title: "Hiring CV Bias"
+  description: "Two projects on the CV parsing and matching pipeline of Adecco: the bias of the parser, and a fairness audit of the selection."
+  site-url: https://francescobaio.github.io/hiring_cv_bias/
+  repo-url: https://github.com/francescobaio/hiring_cv_bias
+  page-navigation: true
+  back-to-top-navigation: true
+  search:
+    location: navbar
+    type: overlay
   navbar:
     left:
       - text: "Home"
-        href: index.html
-      - text: "Problem Statement"
-        href: pages/01-problem.html
-      - text: "Pipeline"
-        href: pages/02-pipeline.html
-      - text: "Results"
-        href: pages/03-results.html
-      - text: "Fairness Audit"
-        href: pages/04-fairness-audit.html
-
-  page-footer:
-    left: "Francesco Baiocchi & Leonardo Petrilli"
+        href: index.qmd
+      - text: "AI in Industry"
+        menu:
+          - text: "Problem statement"
+            href: pages/01-problem.qmd
+          - text: "Pipeline"
+            href: pages/02-pipeline.qmd
+          - text: "Results"
+            href: pages/03-results.qmd
+      - text: "AI Ethics"
+        menu:
+          - text: "Fairness audit"
+            href: pages/04-fairness-audit.qmd
+          - text: "Slides"
+            href: pages/05-presentation.qmd
     right:
       - icon: github
         href: https://github.com/francescobaio/hiring_cv_bias
-      - icon: linkedin       
+        aria-label: GitHub repository
+
+  page-footer:
+    left: "Francesco Baiocchi & Leonardo Petrilli · University of Bologna"
+    right:
+      - icon: github
+        href: https://github.com/francescobaio/hiring_cv_bias
+      - icon: linkedin
         href: https://www.linkedin.com/in/francesco-baiocchi-1aa2a2276/
 
 format:
   html:
-    theme: journal
+    theme: [cosmo, pages/theme.scss]
+    css: pages/styles.css
     toc: true
     toc-depth: 2
-    css: pages/styles.css
+    toc-title: "Contents"
     lightbox: true
+    mermaid:
+      theme: neutral
+    smooth-scroll: true
+    code-copy: true
+    link-external-newwindow: true
 
-resources: 
+resources:
   - pages/media/**
+  - pages/fonts/**
 
 
 exclude:
   - data/
   - "*.ipynb"
   - "__pycache__/"
-
-
-

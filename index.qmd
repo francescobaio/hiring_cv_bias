@@ -1,74 +1,86 @@
 ---
-title: "Bias Analysis in CV Parsing Pipeline"
-format:
-  html:
-    toc: false
+title: "Hiring CV Bias"
+subtitle: "Errors of a CV parser and their effect on the selection of candidates"
+toc: false
 ---
 
-### Introduction 
+::: {.authors}
+Francesco Baiocchi and Leonardo Petrilli · University of Bologna
+:::
 
-LLMs can be subject to cultural biases. One such domain is recruiting, where LLMs are used to extract information from candidates’ CVs and then to select the most suitable profiles. These biases may favour or penalize applicants based on language or cultural cues, risking the exclusion of qualified talent.
+::: {.abstract}
+Recruiting agencies use a *parser* to turn a CV into a structured profile, and a *matcher* to rank the profiles
+against the job offers. On anonymized data from Adecco we study both steps in two projects. The first, for *AI in
+Industry*, measures what the parser misses in the CVs and whether its errors differ across groups. The second, for
+*Ethics in Artificial Intelligence*, follows those errors down to the selection: do they change who is selected for a
+job, and do they penalize some groups more than others?
+:::
 
+## The pipeline
 
-###  Our project
-
-Our project therefore inspects the CV parsing pipeline to uncover and mitigate such disparities.
-Below you’ll find the main sections, each linked to provide an overview and access to code/results.
-
-
-- **[01 – Problem Statement](pages/01-problem.qmd)**  
-    This section defines the scope, data sources and fairness questions guiding our bias analysis of the CV parser.
-
-- **[02 – Pipeline](pages/02-pipeline.qmd)**  
-    This section provides a comprehensive overview of the entire analysis pipeline, walking through all stages, from initial data cleaning to the final bias detection.
-
-- **[03 – Results](pages/03-results.qmd)**  
-    Presents visualizations and statistics that expose where and how the parser over or under represents certain skills.
-
-- **[04 – Fairness Audit](pages/04-fairness-audit.qmd)** *(AI Ethics)*  
-    Follows the parser's errors down to the selection on the job offers: whether they change who is selected, and
-    whether some groups (gender, macro-region) are hit more than others.
-
-
-## Repository Structure
-```python
-
-── hiring_cv_bias
-│   ├── bias_detection
-│   │   ├── fuzzy
-│   │   │   ├── matcher.py  # perfoms matching between our extracted and parser skills 
-│   │   │   ├── parser.py  # performs exact matching on CVs with a list of jobs titles 
-│   │   │   └── utils.py # job filtering  
-│   │   └── rule_based
-│   │       ├── app
-│   │       │   └── fn_app.py # visualization app for extraction pipeline 
-│   │       ├── evaluation
-│   │       │   ├── compare_parser.py # computes bias detection metrics for each group 
-│   │       │   └── metrics.py  
-│   │       ├── extractors.py # extract and apply regex patterns 
-│   │       ├── patterns.py # define patterns for exact matching 
-│   │       └── utils.py
-│   ├── cleaning
-│   │   ├── common.py 
-│   │   └── raw_cv.py # cleaning of corrupted CVs 
-│   ├── config.py
-│   ├── exploration
-│   │   ├── gender_analysis.py # computes bias_strenght metric for each skill type   
-│   │   ├── disparity.py # computes Gini-Index metric for each skill type 
-│   │   ├── visualize.py # plotting functions for visualizing distribution
-│   │   └── utils.py 
-│   ├── hard_soft_skills_labelling
-│   │   ├── CoT.log # full CoT of the model used 
-│   │   ├── hard_soft_skill_labelling.ipynb 
-│   │   └── utils.py # automates the labeling of extracted Professional_Skill entries 
-│   ├── translation
-│   │   └── translate.py # script for translating CVs in English 
-│   └── utils.py
-│
-├── notebooks
-│   ├── data_cleaning.ipynb  
-│   ├── data_exploration.ipynb
-│   ├── distributions_analysis.ipynb
-│   └── bias_detection.ipynb
-
+```{mermaid}
+flowchart LR
+  CV["CV text"] -- parser --> P["Structured profile<br/>licenses, languages, job titles, skills"]
+  P -- matcher --> S["Score of every<br/>(candidate, job) pair"]
+  S --> L["Position in<br/>the job's list"]
 ```
+
+An error of the parser is information that is written in the CV but missing from the profile. The first project
+measures these errors; the second follows them down to the position of the candidate in each job's list.
+
+## The two projects
+
+### Bias of the CV parser (*AI in Industry*)
+
+We compare what the proprietary parser extracts with what is written in the CV text, using our own extractors:
+regular expressions for driving licenses and languages, exact and semantic matching against the ESCO occupations for
+job titles. We then test whether the parser's errors differ across gender, macro-region and CV length.
+
+- [Problem statement](pages/01-problem.qmd): the questions we ask of the parser.
+- [Pipeline](pages/02-pipeline.qmd): cleaning, exploration, distributions and bias detection.
+- [Results](pages/03-results.qmd): the errors of the parser and the bias metrics per group.
+
+### Fairness audit of the selection (*Ethics in Artificial Intelligence*, Module 2)
+
+We reconstruct Adecco's matcher from its outputs, score every (candidate, job) pair with the parser's profile and with
+the corrected one, and compare the two selections with the three criteria of group fairness: independence,
+separation and sufficiency.
+
+- [Fairness audit](pages/04-fairness-audit.qmd): the four phases and their results.
+- [Slides](pages/05-presentation.qmd): the presentation of the audit.
+- Notebooks: [data audit and protocol](notebooks/ethics/data_audit_and_protocol.ipynb),
+  [propagation](notebooks/ethics/propagation.ipynb), [mitigation](notebooks/ethics/mitigation.ipynb).
+
+## Main results
+
+- The parser misses much of what is written in the CVs: its recall against our extractors is 0.41 for driving
+  licenses, 0.66 for languages and 0.55 for job titles. Across groups no strong bias emerges.
+- Adecco's score is a weighted sum of seven components: our formula reproduces 99.88% of the scores without outliers
+  exactly.
+- Correcting the parser's errors changes 8.3% of the selections. Every group is selected at the same rate
+  (independence holds), but the decisions on southern candidates are wrong more often (separation and sufficiency
+  fail), mostly because southern job lists cannot separate their candidates.
+- The mitigation techniques of the course have little to act on in the real system; a toy case shows them where they
+  can be applied.
+
+## Repository
+
+```text
+hiring_cv_bias/
+├── bias_detection/              # AI in Industry: errors of the parser
+├── cleaning/                    # cleaning of the raw CVs
+├── exploration/                 # distributions and disparity metrics
+├── hard_soft_skills_labelling/  # hard and soft skills
+├── translation/                 # CVs into English
+├── reverse_matching/            # AI Ethics, phase 1: the pairs dataset
+└── fairness/                    # AI Ethics, phases 2 to 4
+
+notebooks/
+├── ai_in_industry/              # cleaning, exploration, distributions, bias
+└── ethics/                      # audit and protocol, propagation, mitigation
+
+tests/                           # unit tests
+```
+
+The CV data are anonymized but proprietary, so they are not in the repository. The unit tests and the toy mitigation
+example run without them. The code is on [GitHub](https://github.com/francescobaio/hiring_cv_bias).

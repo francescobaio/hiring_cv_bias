@@ -40,6 +40,12 @@ def _fraction(required: str, owned: str) -> pl.Expr:
     return pl.when(n_req == 0).then(0.0).otherwise(n_hit / n_req).cast(pl.Float64)
 
 
+def interest_match() -> pl.Expr:
+    """``Interest``: 1 when the job category is among the candidate's categories of interest
+    (``interests``, filled in by hand in the real profile)."""
+    return pl.col("interests").list.contains(pl.col("job_category")).cast(pl.Float64)
+
+
 def _distance(km: pl.Expr) -> pl.Expr:
     return (
         pl.when(km <= 10)
